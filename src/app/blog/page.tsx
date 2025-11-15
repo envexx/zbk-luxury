@@ -24,8 +24,8 @@ const featuredArticle: BlogPost = {
     slug: 'premium-vehicles'
   },
   tags: ['toyota alphard', 'toyota hiace', 'luxury mpv', 'premium rental', 'business', 'family', 'luxury travel'],
-  publishedAt: '2024-11-15T10:00:00Z',
-  updatedAt: '2024-11-15T10:00:00Z',
+  publishedAt: '2025-11-15T10:00:00Z',
+  updatedAt: '2025-11-15T10:00:00Z',
   readingTime: 12,
   seo: {
     metaTitle: 'Toyota Alphard Premium Rental - Ultimate Luxury Experience | ZBK Luxury',

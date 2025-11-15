@@ -134,8 +134,8 @@ const mockPost: BlogPost = {
     slug: 'premium-vehicles'
   },
   tags: ['toyota alphard', 'toyota hiace', 'luxury mpv', 'premium rental', 'business', 'family', 'zbk luxury'],
-  publishedAt: '2024-11-15T10:00:00Z',
-  updatedAt: '2024-11-15T10:00:00Z',
+  publishedAt: '2025-11-15T10:00:00Z',
+  updatedAt: '2025-11-15T10:00:00Z',
   readingTime: 12,
   seo: {
     metaTitle: 'Toyota Alphard Premium Rental - Ultimate Luxury Experience | ZBK Luxury',
@@ -164,8 +164,8 @@ const mockRelatedPosts: BlogPost[] = [
       slug: 'premium-vehicles'
     },
     tags: ['toyota hiace', 'group travel', 'business transport'],
-    publishedAt: '2024-01-12T14:30:00Z',
-    updatedAt: '2024-01-12T14:30:00Z',
+    publishedAt: '2025-01-12T14:30:00Z',
+    updatedAt: '2025-01-12T14:30:00Z',
     readingTime: 8,
     seo: {
       metaTitle: 'Toyota Hiace Group Transportation | ZBK Luxury',

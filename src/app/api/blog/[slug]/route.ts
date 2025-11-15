@@ -4,7 +4,7 @@ import { BlogPost } from '@/types/blog';
 // Mock data - replace with actual database queries
 const mockPost: BlogPost = {
   id: '1',
-  title: 'Toyota Alphard & Hiace: Premium Vehicle Rental Guide 2024',
+  title: 'Toyota Alphard & Hiace: Premium Vehicle Rental Guide 2025',
   slug: 'toyota-alphard-hiace-premium-rental-guide',
   excerpt: 'Discover everything you need to know about renting Toyota Alphard and Hiace vehicles, from luxury features to group transportation solutions.',
   content: `
@@ -23,11 +23,11 @@ const mockPost: BlogPost = {
     slug: 'premium-vehicles'
   },
   tags: ['toyota alphard', 'toyota hiace', 'luxury rental', 'group transportation'],
-  publishedAt: '2024-01-15T10:00:00Z',
-  updatedAt: '2024-01-15T10:00:00Z',
+  publishedAt: '2025-01-15T10:00:00Z',
+  updatedAt: '2025-01-15T10:00:00Z',
   readingTime: 10,
   seo: {
-    metaTitle: 'Toyota Alphard & Hiace Rental Guide 2024 | ZBK Luxury',
+    metaTitle: 'Toyota Alphard & Hiace Rental Guide 2025 | ZBK Luxury',
     metaDescription: 'Complete guide to Toyota Alphard and Hiace rental with expert tips and premium service from ZBK Luxury.',
     keywords: ['toyota alphard rental', 'toyota hiace rental', 'premium vehicle rental', 'luxury transportation']
   },
