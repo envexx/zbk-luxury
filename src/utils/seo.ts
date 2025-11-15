@@ -82,8 +82,9 @@ export function generateBlogPostSEO(post: BlogPost): Metadata {
     description: post.seo.metaDescription || post.excerpt,
     keywords: post.seo.keywords.length > 0 ? post.seo.keywords : [
       ...post.tags,
-      'luxury car rental',
-      'premium vehicles',
+      'toyota alphard rental',
+      'toyota hiace rental',
+      'luxury mpv rental',
       'ZBK luxury',
       post.category.name.toLowerCase()
     ],
@@ -102,8 +103,8 @@ export function generateBlogListSEO(
   category?: string,
   tag?: string
 ): Metadata {
-  let title = 'Blog | ZBK Luxury Car Rental - Latest News & Insights';
-  let description = 'Stay updated with the latest luxury car trends, travel tips, and industry insights from ZBK Luxury Car Rental experts.';
+  let title = 'Blog | ZBK Luxury - Toyota Alphard & Hiace Insights';
+  let description = 'Stay updated with the latest Toyota Alphard and Hiace insights, travel tips, and premium vehicle rental guides from ZBK Luxury experts.';
   let canonicalUrl = '/blog';
 
   if (category) {
@@ -127,12 +128,12 @@ export function generateBlogListSEO(
     title,
     description,
     keywords: [
-      'luxury car blog',
-      'premium vehicle news',
-      'car rental tips',
-      'luxury travel',
+      'toyota alphard blog',
+      'toyota hiace news',
+      'luxury mpv rental tips',
+      'premium vehicle insights',
       'ZBK luxury',
-      'automotive insights'
+      'toyota rental guides'
     ],
     canonicalUrl,
   });

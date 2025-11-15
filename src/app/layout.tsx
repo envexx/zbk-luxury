@@ -11,9 +11,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "ZBK Luxury Car Rental - Premium Vehicle Rentals",
-  description: "Experience luxury travel with ZBK's premium car rental service. Choose from our fleet of luxury vehicles including Mercedes-Benz, BMW, Audi, and more.",
-  keywords: "luxury car rental, premium vehicles, car hire, Mercedes-Benz rental, BMW rental, Audi rental, luxury travel",
+  title: "ZBK Luxury - Toyota Alphard & Hiace Premium Rental",
+  description: "Experience luxury travel with ZBK's premium Toyota rental service. Choose from our fleet featuring Toyota Alphard luxury MPV and Toyota Hiace group transportation.",
+  keywords: "toyota alphard rental, toyota hiace rental, luxury mpv rental, premium vehicle rental, group transportation, business travel, zbk luxury",
 };
 
 export default function RootLayout({
