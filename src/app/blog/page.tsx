@@ -17,30 +17,30 @@ const featuredArticle: BlogPost = {
   author: {
     name: 'ZBK Luxury Team',
     avatar: '/Logo.png',
-    bio: 'Expert luxury vehicle rental team with over 10 years of experience serving premium clients worldwide'
+    bio: 'Expert luxury vehicle rental team with over 10 years of experience serving premium clients worldwide. Specializing in Toyota Alphard and Toyota Hiace vehicles.'
   },
   category: {
     name: 'Premium Vehicles',
     slug: 'premium-vehicles'
   },
-  tags: ['toyota alphard', 'luxury mpv', 'premium rental', 'business', 'family', 'luxury travel'],
+  tags: ['toyota alphard', 'toyota hiace', 'luxury mpv', 'premium rental', 'business', 'family', 'luxury travel'],
   publishedAt: '2024-11-15T10:00:00Z',
   updatedAt: '2024-11-15T10:00:00Z',
   readingTime: 12,
   seo: {
     metaTitle: 'Toyota Alphard Premium Rental - Ultimate Luxury Experience | ZBK Luxury',
     metaDescription: 'Rent Toyota Alphard premium for business and family travel. Enjoy unparalleled comfort, advanced features, and the best service from ZBK Luxury.',
-    keywords: ['toyota alphard rental', 'luxury mpv rental', 'premium vehicle rental', 'business travel', 'luxury car rental', 'zbk luxury']
+    keywords: ['toyota alphard rental', 'toyota hiace rental', 'luxury mpv rental', 'premium vehicle rental', 'business travel', 'zbk luxury']
   },
   status: 'published',
   featured: true
 };
 
 const mockCategories: BlogCategory[] = [
-  { id: '1', name: 'Travel Tips', slug: 'travel-tips', description: 'Expert advice for luxury travel', postCount: 15 },
-  { id: '2', name: 'Business Travel', slug: 'business-travel', description: 'Professional travel solutions', postCount: 8 },
-  { id: '3', name: 'Sustainability', slug: 'sustainability', description: 'Eco-friendly luxury options', postCount: 5 },
-  { id: '4', name: 'Car Reviews', slug: 'car-reviews', description: 'In-depth vehicle reviews', postCount: 12 },
+  { id: '1', name: 'Toyota Alphard', slug: 'toyota-alphard', description: 'Everything about Toyota Alphard luxury MPV', postCount: 8 },
+  { id: '2', name: 'Toyota Hiace', slug: 'toyota-hiace', description: 'Complete guide to Toyota Hiace transportation', postCount: 6 },
+  { id: '3', name: 'Business Travel', slug: 'business-travel', description: 'Professional travel solutions with our vehicles', postCount: 5 },
+  { id: '4', name: 'Premium Vehicles', slug: 'premium-vehicles', description: 'Our luxury vehicle fleet insights', postCount: 10 },
 ];
 
 export default function BlogPage() {

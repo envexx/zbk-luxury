@@ -15,20 +15,20 @@ async function getBlogPost(slug: string): Promise<BlogPost | null> {
     author: {
       name: 'ZBK Luxury Team',
       avatar: '/Logo.png',
-      bio: 'Expert luxury vehicle rental team with over 10 years of experience serving premium clients worldwide'
+      bio: 'Expert luxury vehicle rental team with over 10 years of experience serving premium clients worldwide. Specializing in Toyota Alphard and Toyota Hiace vehicles.'
     },
     category: {
       name: 'Premium Vehicles',
       slug: 'premium-vehicles'
     },
-    tags: ['toyota alphard', 'luxury mpv', 'premium rental', 'business', 'family', 'zbk luxury'],
+    tags: ['toyota alphard', 'toyota hiace', 'luxury mpv', 'premium rental', 'business', 'family', 'zbk luxury'],
     publishedAt: '2024-11-15T10:00:00Z',
     updatedAt: '2024-11-15T10:00:00Z',
     readingTime: 12,
     seo: {
       metaTitle: 'Toyota Alphard Premium Rental - Ultimate Luxury Experience | ZBK Luxury',
       metaDescription: 'Rent Toyota Alphard premium for business and family travel. Enjoy unparalleled comfort, advanced features, and the best service from ZBK Luxury.',
-      keywords: ['toyota alphard rental', 'luxury mpv rental', 'premium vehicle rental', 'business travel', 'luxury car rental', 'zbk luxury']
+      keywords: ['toyota alphard rental', 'toyota hiace rental', 'luxury mpv rental', 'premium vehicle rental', 'business travel', 'zbk luxury']
     },
     status: 'published',
     featured: true

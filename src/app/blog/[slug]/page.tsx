@@ -127,20 +127,20 @@ const mockPost: BlogPost = {
   author: {
     name: 'ZBK Luxury Team',
     avatar: '/Logo.png',
-    bio: 'Expert luxury vehicle rental team with over 10 years of experience serving premium clients worldwide. Specializing in Toyota Alphard and other luxury vehicles.'
+    bio: 'Expert luxury vehicle rental team with over 10 years of experience serving premium clients worldwide. Specializing in Toyota Alphard and Toyota Hiace vehicles.'
   },
   category: {
     name: 'Premium Vehicles',
     slug: 'premium-vehicles'
   },
-  tags: ['toyota alphard', 'luxury mpv', 'premium rental', 'business', 'family', 'zbk luxury'],
+  tags: ['toyota alphard', 'toyota hiace', 'luxury mpv', 'premium rental', 'business', 'family', 'zbk luxury'],
   publishedAt: '2024-11-15T10:00:00Z',
   updatedAt: '2024-11-15T10:00:00Z',
   readingTime: 12,
   seo: {
     metaTitle: 'Toyota Alphard Premium Rental - Ultimate Luxury Experience | ZBK Luxury',
     metaDescription: 'Rent Toyota Alphard premium for business and family travel. Enjoy unparalleled comfort, advanced features, and the best service from ZBK Luxury.',
-    keywords: ['toyota alphard rental', 'luxury mpv rental', 'premium vehicle rental', 'business travel', 'luxury car rental', 'zbk luxury']
+    keywords: ['toyota alphard rental', 'toyota hiace rental', 'luxury mpv rental', 'premium vehicle rental', 'business travel', 'zbk luxury']
   },
   status: 'published',
   featured: true
@@ -149,28 +149,28 @@ const mockPost: BlogPost = {
 const mockRelatedPosts: BlogPost[] = [
   {
     id: '2',
-    title: 'Top 10 Luxury Cars for Business Travel',
-    slug: 'top-10-luxury-cars-business-travel',
-    excerpt: 'Explore the best luxury vehicles that combine comfort, style, and professionalism for your business trips.',
+    title: 'Toyota Hiace: The Perfect Group Transportation Solution',
+    slug: 'toyota-hiace-group-transportation',
+    excerpt: 'Discover why Toyota Hiace is the ideal choice for group travel, business trips, and family outings with its spacious interior and reliable performance.',
     content: '',
-    featuredImage: '/api/placeholder/400/300',
+    featuredImage: '/4.-alphard-colors-black.png',
     author: {
-      name: 'Michael Chen',
-      avatar: '/api/placeholder/100/100',
-      bio: 'Automotive specialist'
+      name: 'ZBK Luxury Team',
+      avatar: '/Logo.png',
+      bio: 'Expert in Toyota Alphard and Hiace rental services'
     },
     category: {
-      name: 'Business Travel',
-      slug: 'business-travel'
+      name: 'Premium Vehicles',
+      slug: 'premium-vehicles'
     },
-    tags: ['business', 'luxury cars'],
+    tags: ['toyota hiace', 'group travel', 'business transport'],
     publishedAt: '2024-01-12T14:30:00Z',
     updatedAt: '2024-01-12T14:30:00Z',
-    readingTime: 6,
+    readingTime: 8,
     seo: {
-      metaTitle: 'Top 10 Luxury Cars for Business Travel',
-      metaDescription: 'Best luxury vehicles for business travel',
-      keywords: ['business travel', 'luxury cars']
+      metaTitle: 'Toyota Hiace Group Transportation | ZBK Luxury',
+      metaDescription: 'Best Toyota Hiace rental for group transportation and business travel',
+      keywords: ['toyota hiace rental', 'group transportation', 'business travel']
     },
     status: 'published',
     featured: false
