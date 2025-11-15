@@ -1,0 +1,174 @@
+import { Metadata } from 'next';
+import { BlogPost } from '@/types/blog';
+
+interface SEOConfig {
+  title: string;
+  description: string;
+  keywords?: string[];
+  ogImage?: string;
+  canonicalUrl?: string;
+  publishedTime?: string;
+  modifiedTime?: string;
+  author?: string;
+  section?: string;
+  tags?: string[];
+}
+
+export function generateSEOMetadata(config: SEOConfig): Metadata {
+  const {
+    title,
+    description,
+    keywords = [],
+    ogImage,
+    canonicalUrl,
+    publishedTime,
+    modifiedTime,
+    author,
+    section,
+    tags = []
+  } = config;
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://zbkluxury.com';
+  const fullCanonicalUrl = canonicalUrl ? `${baseUrl}${canonicalUrl}` : undefined;
+
+  return {
+    title,
+    description,
+    keywords: keywords.join(', '),
+    authors: author ? [{ name: author }] : undefined,
+    openGraph: {
+      title,
+      description,
+      type: publishedTime ? 'article' : 'website',
+      locale: 'en_US',
+      url: fullCanonicalUrl,
+      siteName: 'ZBK Luxury Car Rental',
+      images: ogImage ? [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: title,
+        }
+      ] : undefined,
+      publishedTime,
+      modifiedTime,
+      section,
+      tags,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ogImage ? [ogImage] : undefined,
+      creator: author ? `@${author.replace(/\s+/g, '').toLowerCase()}` : undefined,
+    },
+    alternates: {
+      canonical: fullCanonicalUrl,
+    },
+    other: {
+      ...(author && { 'article:author': author }),
+      ...(section && { 'article:section': section }),
+      ...(publishedTime && { 'article:published_time': publishedTime }),
+      ...(modifiedTime && { 'article:modified_time': modifiedTime }),
+      ...(tags.length > 0 && { 'article:tag': tags.join(', ') }),
+    },
+  };
+}
+
+export function generateBlogPostSEO(post: BlogPost): Metadata {
+  return generateSEOMetadata({
+    title: post.seo.metaTitle || `${post.title} | ZBK Luxury Car Rental Blog`,
+    description: post.seo.metaDescription || post.excerpt,
+    keywords: post.seo.keywords.length > 0 ? post.seo.keywords : [
+      ...post.tags,
+      'luxury car rental',
+      'premium vehicles',
+      'ZBK luxury',
+      post.category.name.toLowerCase()
+    ],
+    ogImage: post.seo.ogImage || post.featuredImage,
+    canonicalUrl: post.seo.canonicalUrl || `/blog/${post.slug}`,
+    publishedTime: post.publishedAt,
+    modifiedTime: post.updatedAt,
+    author: post.author.name,
+    section: post.category.name,
+    tags: post.tags,
+  });
+}
+
+export function generateBlogListSEO(
+  page: number = 1,
+  category?: string,
+  tag?: string
+): Metadata {
+  let title = 'Blog | ZBK Luxury Car Rental - Latest News & Insights';
+  let description = 'Stay updated with the latest luxury car trends, travel tips, and industry insights from ZBK Luxury Car Rental experts.';
+  let canonicalUrl = '/blog';
+
+  if (category) {
+    title = `${category} Articles | ZBK Luxury Car Rental Blog`;
+    description = `Explore our ${category.toLowerCase()} articles and insights about luxury car rental and premium travel experiences.`;
+    canonicalUrl = `/blog/category/${category.toLowerCase()}`;
+  }
+
+  if (tag) {
+    title = `${tag} Posts | ZBK Luxury Car Rental Blog`;
+    description = `Read all posts tagged with ${tag} on ZBK Luxury Car Rental blog.`;
+    canonicalUrl = `/blog/tag/${tag.toLowerCase()}`;
+  }
+
+  if (page > 1) {
+    title = `${title} - Page ${page}`;
+    canonicalUrl = `${canonicalUrl}?page=${page}`;
+  }
+
+  return generateSEOMetadata({
+    title,
+    description,
+    keywords: [
+      'luxury car blog',
+      'premium vehicle news',
+      'car rental tips',
+      'luxury travel',
+      'ZBK luxury',
+      'automotive insights'
+    ],
+    canonicalUrl,
+  });
+}
+
+export function generateStructuredData(post: BlogPost) {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://zbkluxury.com';
+  
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.excerpt,
+    image: post.featuredImage,
+    author: {
+      '@type': 'Person',
+      name: post.author.name,
+      url: `${baseUrl}/blog/author/${post.author.name.toLowerCase().replace(/\s+/g, '-')}`,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'ZBK Luxury Car Rental',
+      logo: {
+        '@type': 'ImageObject',
+        url: `${baseUrl}/logo.png`,
+      },
+    },
+    datePublished: post.publishedAt,
+    dateModified: post.updatedAt,
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `${baseUrl}/blog/${post.slug}`,
+    },
+    articleSection: post.category.name,
+    keywords: post.tags.join(', '),
+    wordCount: post.content.split(' ').length,
+    timeRequired: `PT${post.readingTime}M`,
+  };
+}
