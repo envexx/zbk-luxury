@@ -25,7 +25,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-off-white">
+    <div className="min-h-screen bg-deep-navy">
       {/* Hero Section */}
       <section className="relative bg-deep-navy py-20 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -43,12 +43,12 @@ export default function ContactPage() {
       </section>
 
       {/* Contact Information & Form */}
-      <section className="py-16 lg:py-20">
+      <section className="py-16 lg:py-20 bg-deep-navy">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Contact Information */}
             <div>
-              <h2 className="text-3xl font-bold text-deep-navy mb-8">
+              <h2 className="text-3xl font-bold text-white mb-8">
                 Get in Touch
               </h2>
               
@@ -99,10 +99,10 @@ export default function ContactPage() {
                       </div>
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-deep-navy mb-1">
+                      <h3 className="text-lg font-semibold text-white mb-1">
                         {item.title}
                       </h3>
-                      <p className="text-gray-600">
+                      <p className="text-gray-300">
                         {item.content}
                       </p>
                     </div>
@@ -125,15 +125,15 @@ export default function ContactPage() {
             </div>
 
             {/* Contact Form */}
-            <div className="bg-white rounded-lg shadow-lg p-8">
-              <h2 className="text-2xl font-bold text-deep-navy mb-6">
+            <div className="bg-gray-800 rounded-lg shadow-lg p-8 border border-gray-700">
+              <h2 className="text-2xl font-bold text-white mb-6">
                 Send us a Message
               </h2>
               
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
                       Full Name *
                     </label>
                     <input
@@ -143,13 +143,13 @@ export default function ContactPage() {
                       required
                       value={formData.name}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-compact focus:ring-2 focus:ring-luxury-gold focus:border-luxury-gold transition-colors text-gray-900 placeholder-gray-500 bg-white"
+                      className="w-full px-4 py-3 border border-gray-600 rounded-compact focus:ring-2 focus:ring-luxury-gold focus:border-luxury-gold transition-colors text-white placeholder-gray-400 bg-gray-700"
                       placeholder="Your full name"
                     />
                   </div>
                   
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
                       Email Address *
                     </label>
                     <input
@@ -159,7 +159,7 @@ export default function ContactPage() {
                       required
                       value={formData.email}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-compact focus:ring-2 focus:ring-luxury-gold focus:border-luxury-gold transition-colors text-gray-900 placeholder-gray-500 bg-white"
+                      className="w-full px-4 py-3 border border-gray-600 rounded-compact focus:ring-2 focus:ring-luxury-gold focus:border-luxury-gold transition-colors text-white placeholder-gray-400 bg-gray-700"
                       placeholder="your.email@example.com"
                     />
                   </div>
@@ -167,7 +167,7 @@ export default function ContactPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="phone" className="block text-sm font-medium text-gray-300 mb-2">
                       Phone Number
                     </label>
                     <input
@@ -176,13 +176,13 @@ export default function ContactPage() {
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-compact focus:ring-2 focus:ring-luxury-gold focus:border-luxury-gold transition-colors text-gray-900 placeholder-gray-500 bg-white"
+                      className="w-full px-4 py-3 border border-gray-600 rounded-compact focus:ring-2 focus:ring-luxury-gold focus:border-luxury-gold transition-colors text-white placeholder-gray-400 bg-gray-700"
                       placeholder="+1 (555) 123-4567"
                     />
                   </div>
                   
                   <div>
-                    <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="subject" className="block text-sm font-medium text-gray-300 mb-2">
                       Subject *
                     </label>
                     <select
@@ -191,20 +191,20 @@ export default function ContactPage() {
                       required
                       value={formData.subject}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-compact focus:ring-2 focus:ring-luxury-gold focus:border-luxury-gold transition-colors text-gray-900 bg-white"
+                      className="w-full px-4 py-3 border border-gray-600 rounded-compact focus:ring-2 focus:ring-luxury-gold focus:border-luxury-gold transition-colors text-white bg-gray-700"
                     >
-                      <option value="" className="text-gray-500">Select a subject</option>
-                      <option value="booking" className="text-gray-900">New Booking</option>
-                      <option value="inquiry" className="text-gray-900">General Inquiry</option>
-                      <option value="support" className="text-gray-900">Customer Support</option>
-                      <option value="feedback" className="text-gray-900">Feedback</option>
-                      <option value="partnership" className="text-gray-900">Partnership</option>
+                      <option value="" className="text-gray-400 bg-gray-700">Select a subject</option>
+                      <option value="booking" className="text-white bg-gray-700">New Booking</option>
+                      <option value="inquiry" className="text-white bg-gray-700">General Inquiry</option>
+                      <option value="support" className="text-white bg-gray-700">Customer Support</option>
+                      <option value="feedback" className="text-white bg-gray-700">Feedback</option>
+                      <option value="partnership" className="text-white bg-gray-700">Partnership</option>
                     </select>
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="message" className="block text-sm font-medium text-gray-300 mb-2">
                     Message *
                   </label>
                   <textarea
@@ -214,14 +214,14 @@ export default function ContactPage() {
                     rows={6}
                     value={formData.message}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-compact focus:ring-2 focus:ring-luxury-gold focus:border-luxury-gold transition-colors resize-vertical text-gray-900 placeholder-gray-500 bg-white"
+                    className="w-full px-4 py-3 border border-gray-600 rounded-compact focus:ring-2 focus:ring-luxury-gold focus:border-luxury-gold transition-colors resize-vertical text-white placeholder-gray-400 bg-gray-700"
                     placeholder="Please provide details about your inquiry or booking requirements..."
                   ></textarea>
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full bg-deep-navy text-white py-4 px-6 rounded-compact hover:bg-charcoal transition-colors duration-300 font-semibold text-lg"
+                  className="w-full bg-luxury-gold text-deep-navy py-4 px-6 rounded-compact hover:bg-luxury-gold-hover transition-colors duration-300 font-semibold text-lg"
                 >
                   Send Message
                 </button>
@@ -232,26 +232,28 @@ export default function ContactPage() {
       </section>
 
       {/* Map Section */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-deep-navy mb-4">
+            <h2 className="text-3xl font-bold text-white mb-4">
               Find Us
             </h2>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-gray-300">
               Visit our showroom to see our luxury fleet in person
             </p>
           </div>
           
-          <div className="bg-gray-300 rounded-lg h-96 flex items-center justify-center">
-            <div className="text-center">
-              <svg className="w-16 h-16 text-gray-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              <p className="text-gray-600">Interactive Map Coming Soon</p>
-              <p className="text-sm text-gray-500 mt-2">123 Luxury Avenue, Premium District</p>
-            </div>
+          <div className="bg-gray-700 rounded-lg overflow-hidden border border-gray-600">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3966.521260322283!2d106.8195613507864!3d-6.194637395493371!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f5390917b759%3A0x6b45e67356080477!2sBunderan%20HI!5e0!3m2!1sen!2sid!4v1700000000000!5m2!1sen!2sid"
+              width="100%"
+              height="400"
+              style={{ border: 0 }}
+              allowFullScreen={true}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              className="w-full h-96"
+            ></iframe>
           </div>
         </div>
       </section>

@@ -170,65 +170,6 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Team Section */}
-      <section className="py-16 lg:py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-deep-navy mb-4">
-              Meet Our Team
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              The passionate professionals behind your luxury experience
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                name: "Sarah Johnson",
-                role: "Founder & CEO",
-                image: "/api/placeholder/300/300",
-                description: "Visionary leader with 15+ years in luxury hospitality"
-              },
-              {
-                name: "Michael Chen",
-                role: "Fleet Manager",
-                image: "/api/placeholder/300/300",
-                description: "Expert in luxury vehicle maintenance and operations"
-              },
-              {
-                name: "Emma Rodriguez",
-                role: "Customer Experience Director",
-                image: "/api/placeholder/300/300",
-                description: "Dedicated to creating exceptional client experiences"
-              }
-            ].map((member, index) => (
-              <div key={index} className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <div className="aspect-w-1 aspect-h-1">
-                  <Image
-                    src={member.image}
-                    alt={member.name}
-                    width={300}
-                    height={300}
-                    className="object-cover w-full h-64"
-                  />
-                </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-semibold text-deep-navy mb-1">
-                    {member.name}
-                  </h3>
-                  <p className="text-luxury-gold font-medium mb-3">
-                    {member.role}
-                  </p>
-                  <p className="text-gray-600 text-sm">
-                    {member.description}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

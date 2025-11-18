@@ -12,8 +12,8 @@ const services = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
       </svg>
     ),
-    title: 'Daily Rental',
-    description: 'Flexible daily rentals for business trips, city exploration, or personal use. Choose from our premium fleet with competitive rates and excellent service.',
+    title: 'Daily Rent',
+    description: 'Flexible daily rent service perfect for city tours, hourly renting, and special events. Choose from our premium fleet with competitive rates and excellent service.',
   },
   {
     id: 'corporate-events',
@@ -64,7 +64,7 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({ className }) => {
         </div>
 
         {/* Services Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 lg:items-start">
           {services.map((service, index) => (
             <div 
               key={service.id}
