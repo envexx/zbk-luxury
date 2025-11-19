@@ -11,8 +11,11 @@ import { useAuth } from '@/contexts/AuthContext';
 
 export interface BookingData {
   // Step 1: Ride Details
+  tripType: 'one-way' | 'round-trip';
   pickupDate: string;
   pickupTime: string;
+  returnDate?: string;
+  returnTime?: string;
   pickupLocation: string;
   dropOffLocation: string;
   hours: string;
@@ -45,8 +48,11 @@ const BookingForm: React.FC<BookingFormProps> = ({
   const [currentStep, setCurrentStep] = useState(1);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [bookingData, setBookingData] = useState<BookingData>({
+    tripType: 'one-way',
     pickupDate: '',
     pickupTime: '',
+    returnDate: '',
+    returnTime: '',
     pickupLocation: '',
     dropOffLocation: '',
     hours: '',
@@ -154,7 +160,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                     'w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all',
                     currentStep >= step.number
                       ? 'bg-luxury-gold text-deep-navy'
-                      : 'bg-light-gray text-charcoal'
+                      : 'bg-gray-600 text-white border border-gray-500'
                   )}
                 >
                   {currentStep > step.number ? (

@@ -19,14 +19,23 @@ const RideDetailsForm: React.FC<RideDetailsFormProps> = ({
   onComplete,
 }) => {
   const [formData, setFormData] = useState({
+    tripType: initialData.tripType || 'one-way',
     pickupDate: initialData.pickupDate || '',
     pickupTime: initialData.pickupTime || '',
+    returnDate: initialData.returnDate || '',
+    returnTime: initialData.returnTime || '',
     pickupLocation: initialData.pickupLocation || '',
     dropOffLocation: initialData.dropOffLocation || '',
     hours: initialData.hours || '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Trip type options
+  const tripTypeOptions = [
+    { value: 'one-way', label: 'One Way' },
+    { value: 'round-trip', label: 'Round Trip' },
+  ];
 
   // Generate hour options from 1 to 12
   const hourOptions = Array.from({ length: 12 }, (_, i) => ({
@@ -73,6 +82,26 @@ const RideDetailsForm: React.FC<RideDetailsFormProps> = ({
       newErrors.hours = 'Duration is required';
     }
 
+    // Validate return date/time for round trip
+    if (formData.tripType === 'round-trip') {
+      if (!formData.returnDate) {
+        newErrors.returnDate = 'Return date is required for round trip';
+      }
+      if (!formData.returnTime) {
+        newErrors.returnTime = 'Return time is required for round trip';
+      }
+      
+      // Validate return date is after pickup date
+      if (formData.pickupDate && formData.returnDate) {
+        const pickupDate = new Date(formData.pickupDate);
+        const returnDate = new Date(formData.returnDate);
+        
+        if (returnDate < pickupDate) {
+          newErrors.returnDate = 'Return date must be after pickup date';
+        }
+      }
+    }
+
     // Validate pickup date is not in the past
     if (formData.pickupDate) {
       const selectedDate = new Date(formData.pickupDate);
@@ -107,7 +136,19 @@ const RideDetailsForm: React.FC<RideDetailsFormProps> = ({
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Date and Time Row */}
+        {/* Trip Type Selection */}
+        <div>
+          <Select
+            label="Trip Type"
+            value={formData.tripType}
+            onChange={(value) => handleInputChange('tripType', value)}
+            options={tripTypeOptions}
+            placeholder="Select trip type"
+            isRequired
+          />
+        </div>
+
+        {/* Pickup Date and Time Row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input
             type="date"
@@ -129,6 +170,31 @@ const RideDetailsForm: React.FC<RideDetailsFormProps> = ({
             isRequired
           />
         </div>
+
+        {/* Return Date and Time Row - Only show for round trip */}
+        {formData.tripType === 'round-trip' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input
+              type="date"
+              label="Return Date"
+              value={formData.returnDate}
+              onChange={(e) => handleInputChange('returnDate', e.target.value)}
+              error={errors.returnDate}
+              isRequired
+              min={formData.pickupDate || today}
+            />
+            
+            <Select
+              label="Return Time"
+              value={formData.returnTime}
+              onChange={(value) => handleInputChange('returnTime', value)}
+              options={timeOptions}
+              placeholder="Select time"
+              error={errors.returnTime}
+              isRequired
+            />
+          </div>
+        )}
 
         {/* Location Fields */}
         <div className="space-y-4">
@@ -190,6 +256,10 @@ const RideDetailsForm: React.FC<RideDetailsFormProps> = ({
           </div>
           <div>
             <h4 className="text-sm font-semibold text-luxury-gold mb-1">Booking Information</h4>
+            <p className="text-xs text-charcoal mb-2">
+              <strong>One Way:</strong> Single journey from pickup to destination.<br/>
+              <strong>Round Trip:</strong> Return journey back to pickup location.
+            </p>
             <p className="text-xs text-charcoal">
               Our premium vehicles are available 24/7. Minimum booking duration is 1 hour. 
               For bookings longer than 12 hours, please contact our support team.

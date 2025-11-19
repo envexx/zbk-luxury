@@ -75,7 +75,7 @@ const Hero: React.FC<HeroProps> = ({ onBookingClick }) => {
           </h1>
           
           <p className="text-xl md:text-2xl text-gray-200 mb-12 max-w-3xl mx-auto leading-relaxed">
-            Discover our premium fleet of luxury vehicles and experience unparalleled comfort, style, and service for every journey.
+            Premium Toyota Alphard & Hiace rental for City Tours, Hourly Renting, and Special Events. Experience luxury transportation tailored to your needs.
           </p>
         </div>
 
