@@ -5,11 +5,12 @@ import { sendEmail, emailTemplates } from '@/lib/email'
 // GET /api/admin/bookings/[id] - Get single booking
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const booking = await prisma.booking.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         vehicle: true
       }
@@ -35,15 +36,16 @@ export async function GET(
 // PATCH /api/admin/bookings/[id] - Update booking status
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const body = await request.json()
     const { status, notes } = body
 
     // Get current booking
     const currentBooking = await prisma.booking.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { vehicle: true }
     })
 
@@ -56,7 +58,7 @@ export async function PATCH(
 
     // Update booking
     const updatedBooking = await prisma.booking.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         status,
         notes: notes || currentBooking.notes,
@@ -113,11 +115,12 @@ export async function PATCH(
 // DELETE /api/admin/bookings/[id] - Delete booking
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const booking = await prisma.booking.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!booking) {
@@ -128,7 +131,7 @@ export async function DELETE(
     }
 
     await prisma.booking.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
     // Make vehicle available again

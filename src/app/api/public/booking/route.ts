@@ -69,8 +69,7 @@ export async function POST(request: NextRequest) {
         dropoffLocation: body.dropoffLocation || body.pickupLocation,
         totalAmount: body.totalAmount || 0,
         status: 'PENDING', // Always start as PENDING for admin review
-        notes: body.notes || '',
-        specialRequests: body.specialRequests || ''
+        notes: body.notes || ''
       },
       include: {
         vehicle: {

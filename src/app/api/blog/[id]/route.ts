@@ -4,11 +4,12 @@ import { prisma } from '@/lib/prisma'
 // GET /api/blog/[id] - Get single blog post
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const post = await prisma.blogPost.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!post) {
@@ -34,9 +35,10 @@ export async function GET(
 // PUT /api/blog/[id] - Update blog post
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const body = await request.json()
 
     // Generate slug if not provided
@@ -46,7 +48,7 @@ export async function PUT(
       .replace(/(^-|-$)/g, '')
 
     const post = await prisma.blogPost.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         title: body.title,
         slug,
@@ -77,11 +79,12 @@ export async function PUT(
 // DELETE /api/blog/[id] - Delete blog post
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     await prisma.blogPost.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
     return NextResponse.json({

@@ -5,15 +5,16 @@ import { sendEmail, emailTemplates } from '@/lib/email'
 // POST /api/bookings/[id]/email - Send email notification for booking
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const body = await request.json()
     const { type, customMessage } = body // type: 'confirmation' | 'status_update' | 'custom'
     
     // Get booking with vehicle details
     const booking = await prisma.booking.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         vehicle: {
           select: {
