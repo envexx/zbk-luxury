@@ -6,37 +6,34 @@ import { cn } from '@/utils/cn';
 
 const services = [
   {
-    id: 'city-tour',
+    id: 'airport-transport',
     icon: (
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-7 h-7">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
       </svg>
     ),
-    title: 'City Tour',
-    description: 'Explore the city in luxury and comfort with our premium vehicles. Perfect for sightseeing, business tours, or discovering hidden gems with professional drivers who know the best routes.',
+    title: 'Airport Transport',
+    description: 'Reliable and punctual airport transfers with luxury vehicles. Professional chauffeurs ensure comfortable journeys to and from the airport, with flight monitoring and meet-and-greet services.',
   },
   {
-    id: 'hourly-renting',
+    id: 'city-tour-hourly',
     icon: (
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-7 h-7">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     ),
-    title: 'Hourly Renting',
-    description: 'Flexible hourly rental service for your convenience. Whether you need transportation for meetings, shopping, or short trips, rent by the hour with our competitive rates and premium service.',
+    title: 'City Tour / Hourly Rental',
+    description: 'Flexible city exploration and hourly rental services. Perfect for sightseeing, business meetings, or personal errands with competitive hourly rates and knowledgeable local drivers.',
   },
   {
-    id: 'event',
+    id: 'corporate-event',
     icon: (
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-7 h-7">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16.5V7a1 1 0 00-1-1H4.5a1 1 0 00-1 1v9.5M2 7h2.5M13 7h2.5" />
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V5a1 1 0 011-1h2a1 1 0 011 1v2" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
       </svg>
     ),
-    title: 'Event',
-    description: 'Make your special events memorable with our luxury transportation. Perfect for weddings, corporate events, parties, and celebrations. Professional service to make your event extraordinary.',
+    title: 'Corporate Event',
+    description: 'Professional transportation solutions for corporate events and business functions. Reliable service for conferences, meetings, and company gatherings with executive-level comfort and punctuality.',
   },
 ];
 

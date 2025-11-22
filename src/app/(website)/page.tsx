@@ -40,40 +40,37 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16">
             {[
               {
-                id: 'city-tour',
-                title: 'City Tour',
-                description: 'Explore the city with our luxury vehicles and professional drivers',
+                id: 'airport-transport',
+                title: 'Airport Transport',
+                description: 'Reliable and punctual airport transfers with luxury vehicles',
                 icon: (
                   <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                   </svg>
                 ),
-                features: ['Professional Drivers', 'Best Routes', 'Comfortable Ride']
+                features: ['Flight Monitoring', 'Meet & Greet', 'Professional Chauffeurs']
               },
               {
-                id: 'hourly-renting',
-                title: 'Hourly Renting',
-                description: 'Flexible hourly rental for your convenience and schedule',
+                id: 'city-tour-hourly',
+                title: 'City Tour / Hourly Rental',
+                description: 'Flexible city exploration and hourly rental services',
                 icon: (
                   <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 ),
-                features: ['Flexible Hours', 'Competitive Rates', 'Premium Service']
+                features: ['Flexible Hours', 'Local Expertise', 'Competitive Rates']
               },
               {
-                id: 'event',
-                title: 'Event Transportation',
-                description: 'Make your special events memorable with luxury transport',
+                id: 'corporate-event',
+                title: 'Corporate Event',
+                description: 'Professional transportation for corporate events and business functions',
                 icon: (
                   <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16.5V7a1 1 0 00-1-1H4.5a1 1 0 00-1 1v9.5M2 7h2.5M13 7h2.5" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V5a1 1 0 011-1h2a1 1 0 011 1v2" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                   </svg>
                 ),
-                features: ['Wedding Ready', 'Corporate Events', 'Special Occasions']
+                features: ['Executive Comfort', 'Business Functions', 'Reliable Service']
               },
             ].map((service, index) => (
               <div 

@@ -1,0 +1,195 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String
+  role      Role     @default(ADMIN)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Vehicle {
+  id               String            @id @default(cuid())
+  name             String
+  model            String
+  year             Int
+  category         VehicleCategory
+  status           VehicleStatus     @default(AVAILABLE)
+  location         String
+  plateNumber      String            @unique
+  capacity         Int
+  color            String
+  lastMaintenance  DateTime?
+  nextMaintenance  DateTime?
+  purchaseDate     DateTime
+  purchasePrice    Float
+  mileage          String?
+  features         String[] // JSON array as string
+  images           String[] // JSON array as string
+  description      String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  
+  // Relations
+  bookings         Booking[]
+  maintenanceRecords MaintenanceRecord[]
+
+  @@map("vehicles")
+}
+
+model Booking {
+  id            String        @id @default(cuid())
+  customerName  String
+  customerEmail String
+  customerPhone String
+  vehicleId     String
+  service       String
+  startDate     DateTime
+  endDate       DateTime
+  startTime     String
+  duration      String
+  pickupLocation String
+  dropoffLocation String?
+  totalAmount   Float
+  status        BookingStatus @default(PENDING)
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  
+  // Relations
+  vehicle       Vehicle       @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@map("bookings")
+}
+
+model MaintenanceRecord {
+  id              String            @id @default(cuid())
+  vehicleId       String
+  date            DateTime
+  type            MaintenanceType
+  description     String
+  workshop        String
+  cost            Float
+  status          MaintenanceStatus @default(SCHEDULED)
+  nextServiceDate DateTime?
+  mileage         String?
+  technician      String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  
+  // Relations
+  vehicle         Vehicle           @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@map("maintenance_records")
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  price       Float
+  duration    String
+  features    String[] // JSON array as string
+  image       String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("services")
+}
+
+model BlogPost {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  excerpt     String
+  content     String
+  image       String?
+  author      String
+  publishedAt DateTime?
+  isPublished Boolean  @default(false)
+  tags        String[] // JSON array as string
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("blog_posts")
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("contact_messages")
+}
+
+model Settings {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+  
+  @@map("settings")
+}
+
+// Enums
+enum Role {
+  ADMIN
+  MANAGER
+}
+
+enum VehicleCategory {
+  WEDDING_AFFAIRS
+  ALPHARD_PREMIUM
+  COMBI_TRANSPORT
+}
+
+enum VehicleStatus {
+  AVAILABLE
+  IN_USE
+  MAINTENANCE
+  RESERVED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum MaintenanceType {
+  REGULAR_SERVICE
+  REPAIR
+  TIRE_REPLACEMENT
+  OIL_CHANGE
+  INSPECTION
+  EMERGENCY
+}
+
+enum MaintenanceStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
