@@ -1,46 +1,74 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { Calendar, Plus, Eye, Edit, CheckCircle, XCircle, AlertCircle, BarChart3 } from '@/components/admin/Icons'
 
+interface Booking {
+  id: string
+  customerName: string
+  customerEmail: string
+  customerPhone: string
+  vehicleId: string
+  service: string
+  startDate: string
+  endDate: string
+  startTime: string
+  duration: string
+  pickupLocation: string
+  dropoffLocation: string
+  totalAmount: number
+  status: string
+  notes?: string
+  createdAt: string
+  updatedAt: string
+  vehicle?: {
+    name: string
+    model: string
+    plateNumber: string
+  }
+}
+
 export default function BookingsPage() {
-  const bookings = [
-    { 
-      id: 1, 
-      customer: 'John Doe', 
-      vehicle: 'Mercedes S-Class', 
-      date: '2024-11-21', 
-      time: '14:00',
-      status: 'Confirmed',
-      service: 'Airport Transfer'
-    },
-    { 
-      id: 2, 
-      customer: 'Jane Smith', 
-      vehicle: 'BMW X7', 
-      date: '2024-11-22', 
-      time: '09:00',
-      status: 'Pending',
-      service: 'City Tour'
-    },
-    { 
-      id: 3, 
-      customer: 'Mike Johnson', 
-      vehicle: 'Audi A8', 
-      date: '2024-11-23', 
-      time: '16:30',
-      status: 'Completed',
-      service: 'Corporate Event'
-    },
-  ]
+  const [bookings, setBookings] = useState<Booking[]>([])
+  const [loading, setLoading] = useState(true)
+
+  // Fetch bookings from API
+  useEffect(() => {
+    fetchBookings()
+  }, [])
+
+  const fetchBookings = async () => {
+    try {
+      const response = await fetch('/api/admin/bookings')
+      const data = await response.json()
+      setBookings(Array.isArray(data) ? data : [])
+    } catch (error) {
+      console.error('Error fetching bookings:', error)
+      setBookings([])
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Confirmed': return 'bg-green-100 text-green-800'
-      case 'Pending': return 'bg-yellow-100 text-yellow-800'
-      case 'Completed': return 'bg-blue-100 text-blue-800'
-      case 'Cancelled': return 'bg-red-100 text-red-800'
+      case 'CONFIRMED': return 'bg-green-100 text-green-800'
+      case 'PENDING': return 'bg-yellow-100 text-yellow-800'
+      case 'COMPLETED': return 'bg-blue-100 text-blue-800'
+      case 'CANCELLED': return 'bg-red-100 text-red-800'
+      case 'IN_PROGRESS': return 'bg-purple-100 text-purple-800'
       default: return 'bg-gray-100 text-gray-800'
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-gray-500 dark:text-gray-400">Loading bookings...</div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -143,16 +171,22 @@ export default function BookingsPage() {
               </tr>
             </thead>
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              {bookings.map((booking) => (
+              {Array.isArray(bookings) && bookings.map((booking) => (
                 <tr key={booking.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900 dark:text-white">
-                      {booking.customer}
+                      {booking.customerName}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      {booking.customerEmail}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-500 dark:text-gray-300">
-                      {booking.vehicle}
+                      {booking.vehicle?.name || 'N/A'}
+                    </div>
+                    <div className="text-xs text-gray-400">
+                      {booking.vehicle?.plateNumber}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -162,7 +196,10 @@ export default function BookingsPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-500 dark:text-gray-300">
-                      {booking.date} at {booking.time}
+                      {new Date(booking.startDate).toLocaleDateString()} at {booking.startTime}
+                    </div>
+                    <div className="text-xs text-gray-400">
+                      {booking.pickupLocation}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
