@@ -38,11 +38,9 @@ export default function VehiclesPage() {
 
   const fetchVehicles = async () => {
     try {
-      const response = await fetch('/api/vehicles')
+      const response = await fetch('/api/admin/vehicles')
       const data = await response.json()
-      if (data.success) {
-        setVehicles(data.data)
-      }
+      setVehicles(data)
     } catch (error) {
       console.error('Error fetching vehicles:', error)
     } finally {
@@ -88,7 +86,7 @@ export default function VehiclesPage() {
 
   const handleSaveVehicle = async (vehicleData: any) => {
     try {
-      const url = modalMode === 'add' ? '/api/vehicles' : `/api/vehicles/${selectedVehicle?.id}`
+      const url = modalMode === 'add' ? '/api/admin/vehicles' : `/api/vehicles/${selectedVehicle?.id}`
       const method = modalMode === 'add' ? 'POST' : 'PUT'
       
       const response = await fetch(url, {
@@ -100,11 +98,11 @@ export default function VehiclesPage() {
       })
       
       const data = await response.json()
-      if (data.success) {
+      if (response.ok) {
         if (modalMode === 'add') {
-          setVehicles([...vehicles, data.data])
+          setVehicles([...vehicles, data])
         } else {
-          setVehicles(vehicles.map(v => v.id === selectedVehicle?.id ? data.data : v))
+          setVehicles(vehicles.map(v => v.id === selectedVehicle?.id ? data : v))
         }
         setIsModalOpen(false)
         setSelectedVehicle(null)
@@ -154,7 +152,7 @@ export default function VehiclesPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Vehicles</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">12</p>
+              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{vehicles.length}</p>
             </div>
             <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
               <Car className="h-6 w-6 text-white" />
@@ -166,7 +164,7 @@ export default function VehiclesPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Available</p>
-              <p className="text-3xl font-bold text-green-600 mt-2">8</p>
+              <p className="text-3xl font-bold text-green-600 mt-2">{vehicles.filter(v => v.status === 'AVAILABLE').length}</p>
             </div>
             <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
               <CheckCircle className="h-6 w-6 text-white" />
@@ -178,7 +176,7 @@ export default function VehiclesPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Booked</p>
-              <p className="text-3xl font-bold text-blue-600 mt-2">3</p>
+              <p className="text-3xl font-bold text-blue-600 mt-2">{vehicles.filter(v => v.status === 'BOOKED' || v.status === 'RESERVED' || v.status === 'IN_USE').length}</p>
             </div>
             <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
               <XCircle className="h-6 w-6 text-white" />
@@ -190,7 +188,7 @@ export default function VehiclesPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Maintenance</p>
-              <p className="text-3xl font-bold text-red-600 mt-2">1</p>
+              <p className="text-3xl font-bold text-red-600 mt-2">{vehicles.filter(v => v.status === 'MAINTENANCE').length}</p>
             </div>
             <div className="w-12 h-12 bg-red-500 rounded-lg flex items-center justify-center">
               <Settings className="h-6 w-6 text-white" />
