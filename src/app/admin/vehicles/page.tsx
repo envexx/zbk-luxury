@@ -40,9 +40,11 @@ export default function VehiclesPage() {
     try {
       const response = await fetch('/api/admin/vehicles')
       const data = await response.json()
-      setVehicles(data)
+      // Ensure data is an array
+      setVehicles(Array.isArray(data) ? data : [])
     } catch (error) {
       console.error('Error fetching vehicles:', error)
+      setVehicles([]) // Set empty array on error
     } finally {
       setLoading(false)
     }
@@ -125,6 +127,16 @@ export default function VehiclesPage() {
     }
   }
 
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-gray-500 dark:text-gray-400">Loading vehicles...</div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -164,7 +176,7 @@ export default function VehiclesPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Available</p>
-              <p className="text-3xl font-bold text-green-600 mt-2">{vehicles.filter(v => v.status === 'AVAILABLE').length}</p>
+              <p className="text-3xl font-bold text-green-600 mt-2">{Array.isArray(vehicles) ? vehicles.filter(v => v.status === 'AVAILABLE').length : 0}</p>
             </div>
             <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
               <CheckCircle className="h-6 w-6 text-white" />
@@ -176,7 +188,7 @@ export default function VehiclesPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Booked</p>
-              <p className="text-3xl font-bold text-blue-600 mt-2">{vehicles.filter(v => v.status === 'BOOKED' || v.status === 'RESERVED' || v.status === 'IN_USE').length}</p>
+              <p className="text-3xl font-bold text-blue-600 mt-2">{Array.isArray(vehicles) ? vehicles.filter(v => v.status === 'BOOKED' || v.status === 'RESERVED' || v.status === 'IN_USE').length : 0}</p>
             </div>
             <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
               <XCircle className="h-6 w-6 text-white" />
@@ -188,7 +200,7 @@ export default function VehiclesPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Maintenance</p>
-              <p className="text-3xl font-bold text-red-600 mt-2">{vehicles.filter(v => v.status === 'MAINTENANCE').length}</p>
+              <p className="text-3xl font-bold text-red-600 mt-2">{Array.isArray(vehicles) ? vehicles.filter(v => v.status === 'MAINTENANCE').length : 0}</p>
             </div>
             <div className="w-12 h-12 bg-red-500 rounded-lg flex items-center justify-center">
               <Settings className="h-6 w-6 text-white" />
@@ -226,7 +238,7 @@ export default function VehiclesPage() {
               </tr>
             </thead>
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              {vehicles.map((vehicle) => (
+              {Array.isArray(vehicles) && vehicles.map((vehicle) => (
                 <tr key={vehicle.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900 dark:text-white">
