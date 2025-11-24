@@ -55,6 +55,12 @@ export default function AdminLoginPage() {
         
         // Set redirecting state to show redirect component
         setRedirecting(true)
+        
+        // Also try immediate redirect as backup
+        setTimeout(() => {
+          console.log('Backup redirect executing...')
+          window.location.href = '/admin'
+        }, 1000)
       } else {
         console.error('Login failed:', data.message) // Debug log
         setError(data.message || 'Login failed')
@@ -230,6 +236,16 @@ export default function AdminLoginPage() {
                 <p className="text-xs text-slate-400">
                   <span className="font-medium text-slate-300">Alternative:</span> test@zbkluxury.com / TestAdmin123!
                 </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    console.log('Testing direct redirect...')
+                    window.location.href = '/admin'
+                  }}
+                  className="mt-2 text-xs text-blue-400 hover:text-blue-300 font-medium transition-colors duration-200"
+                >
+                  Test Direct Redirect
+                </button>
               </div>
             </div>
           </div>

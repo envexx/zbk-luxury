@@ -15,29 +15,13 @@ export default function AuthRedirect({ to, delay = 100 }: AuthRedirectProps) {
     const redirect = () => {
       console.log(`AuthRedirect: Redirecting to ${to}`)
       
-      // Try multiple redirect methods
-      try {
-        // Method 1: Next.js router
-        router.push(to)
-        router.refresh()
-        
-        // Method 2: Fallback with window.location
-        setTimeout(() => {
-          if (window.location.pathname !== to) {
-            console.log('Router redirect failed, using window.location')
-            window.location.href = to
-          }
-        }, 500)
-        
-      } catch (error) {
-        console.error('Router failed, using window.location immediately:', error)
-        window.location.href = to
-      }
+      // Use window.location.href immediately for most reliable redirect
+      window.location.href = to
     }
 
-    const timer = setTimeout(redirect, delay)
-    return () => clearTimeout(timer)
-  }, [to, delay, router])
+    // Immediate redirect without delay
+    redirect()
+  }, [to, router])
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 to-blue-900">
