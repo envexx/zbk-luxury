@@ -12,7 +12,21 @@ export default function TestAuthPage() {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch('/api/auth/me')
+      // Get token from localStorage as fallback
+      const token = localStorage.getItem('auth-token')
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json'
+      }
+      
+      // Add Authorization header if token exists
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
+
+      const response = await fetch('/api/auth/me', {
+        credentials: 'include', // Ensure cookies are sent
+        headers
+      })
       const data = await response.json()
       setAuthStatus(data)
     } catch (error) {

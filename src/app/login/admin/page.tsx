@@ -37,6 +37,7 @@ export default function AdminLoginPage() {
         headers: {
           'Content-Type': 'application/json'
         },
+        credentials: 'include', // Ensure cookies are handled properly
         body: JSON.stringify(formData)
       })
 
@@ -45,8 +46,10 @@ export default function AdminLoginPage() {
       console.log('Response data:', data) // Debug log
 
       if (data.success) {
+        // Store user info and token in localStorage
         localStorage.setItem('admin-user', JSON.stringify(data.data.user))
-        console.log('Login successful, redirecting to /admin') // Debug log
+        localStorage.setItem('auth-token', data.data.token)
+        console.log('Login successful, token stored, redirecting to /admin') // Debug log
         
         // Try multiple redirect methods for better reliability
         setTimeout(() => {

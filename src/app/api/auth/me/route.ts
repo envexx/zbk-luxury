@@ -6,9 +6,23 @@ const JWT_SECRET = process.env.JWT_SECRET || 'zbk-luxury-secret-key-2024'
 
 export async function GET(request: NextRequest) {
   try {
-    const token = request.cookies.get('auth-token')?.value
+    // Try to get token from cookies first
+    let token = request.cookies.get('auth-token')?.value
+    console.log('Auth check - Cookie token found:', !!token) // Debug log
+    
+    // If no cookie token, try Authorization header
+    if (!token) {
+      const authHeader = request.headers.get('authorization')
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7)
+        console.log('Auth check - Header token found:', !!token) // Debug log
+      }
+    }
+    
+    console.log('All cookies:', request.cookies.getAll()) // Debug log
 
     if (!token) {
+      console.log('No auth token found in cookies or headers') // Debug log
       return NextResponse.json({
         success: false,
         message: 'No authentication token found'

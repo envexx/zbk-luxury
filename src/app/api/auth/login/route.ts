@@ -67,10 +67,11 @@ export async function POST(request: NextRequest) {
     // Set HTTP-only cookie
     response.cookies.set('auth-token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: false, // Disable secure for localhost development
       sameSite: 'lax',
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      path: '/' // Ensure cookie is available for all paths
+      path: '/', // Ensure cookie is available for all paths
+      domain: undefined // Let browser handle domain for localhost
     })
 
     console.log('Login successful, cookie set for user:', user.email) // Debug log
