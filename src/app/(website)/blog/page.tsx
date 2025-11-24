@@ -4,54 +4,61 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import BlogCard from '@/components/molecules/BlogCard';
-import { BlogPost, BlogCategory } from '@/types/blog';
 
-// Featured article with real images and enhanced content
-const featuredArticle: BlogPost = {
-  id: '1',
-  title: 'Luxury Experience with Toyota Alphard: Premium Vehicle for Business and Family Travel',
-  slug: 'luxury-experience-toyota-alphard-premium',
-  excerpt: 'Discover why Toyota Alphard has become the top choice for luxury travel worldwide. From advanced features to unparalleled comfort, learn everything you need to know about this premium MPV.',
-  content: 'Full content here...',
-  featuredImage: '/Hero.jpg',
-  author: {
-    name: 'ZBK Luxury Team',
-    avatar: '/Logo.png',
-    bio: 'Expert luxury vehicle rental team with over 10 years of experience serving premium clients worldwide. Specializing in Toyota Alphard and Toyota Hiace vehicles.'
-  },
-  category: {
-    name: 'Premium Vehicles',
-    slug: 'premium-vehicles'
-  },
-  tags: ['toyota alphard', 'toyota hiace', 'luxury mpv', 'premium rental', 'business', 'family', 'luxury travel'],
-  publishedAt: '2025-11-15T10:00:00Z',
-  updatedAt: '2025-11-15T10:00:00Z',
-  readingTime: 12,
-  seo: {
-    metaTitle: 'Toyota Alphard Premium Rental - Ultimate Luxury Experience | ZBK Luxury',
-    metaDescription: 'Rent Toyota Alphard premium for business and family travel. Enjoy unparalleled comfort, advanced features, and the best service from ZBK Luxury.',
-    keywords: ['toyota alphard rental', 'toyota hiace rental', 'luxury mpv rental', 'premium vehicle rental', 'business travel', 'zbk luxury']
-  },
-  status: 'published',
-  featured: true
-};
-
-const mockCategories: BlogCategory[] = [
-  { id: '1', name: 'Toyota Alphard', slug: 'toyota-alphard', description: 'Everything about Toyota Alphard luxury MPV', postCount: 8 },
-  { id: '2', name: 'Toyota Hiace', slug: 'toyota-hiace', description: 'Complete guide to Toyota Hiace transportation', postCount: 6 },
-  { id: '3', name: 'Business Travel', slug: 'business-travel', description: 'Professional travel solutions with our vehicles', postCount: 5 },
-  { id: '4', name: 'Premium Vehicles', slug: 'premium-vehicles', description: 'Our luxury vehicle fleet insights', postCount: 10 },
-];
+interface BlogPost {
+  id: string
+  title: string
+  slug: string
+  excerpt: string
+  content: string
+  image?: string
+  author: string
+  isPublished: boolean
+  tags: string[]
+  publishedAt?: string
+  createdAt: string
+  updatedAt: string
+}
 
 export default function BlogPage() {
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate loading
-    setTimeout(() => {
-      setLoading(false);
-    }, 500);
+    fetchBlogPosts();
   }, []);
+
+  const fetchBlogPosts = async () => {
+    try {
+      const response = await fetch('/api/blog');
+      const data = await response.json();
+      
+      if (data.success && Array.isArray(data.data)) {
+        // Filter only published posts
+        const publishedPosts = data.data.filter((post: BlogPost) => post.isPublished);
+        setBlogPosts(publishedPosts);
+      }
+    } catch (error) {
+      console.error('Error fetching blog posts:', error);
+      setBlogPosts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  const calculateReadingTime = (content: string) => {
+    const wordsPerMinute = 200;
+    const wordCount = content.split(' ').length;
+    return Math.ceil(wordCount / wordsPerMinute);
+  };
 
   if (loading) {
     return (
@@ -95,58 +102,70 @@ export default function BlogPage() {
           {/* Article List */}
           <div className="max-w-4xl mx-auto">
             <div className="space-y-6">
-              {/* Single Article Item */}
-              <article className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow duration-300">
-                <Link href={`/blog/${featuredArticle.slug}`} className="block group">
-                  <div className="flex flex-col md:flex-row gap-6">
-                    {/* Article Image */}
-                    <div className="md:w-1/3">
-                      <div className="aspect-w-16 aspect-h-10 relative rounded-lg overflow-hidden">
-                        <Image
-                          src={featuredArticle.featuredImage}
-                          alt={featuredArticle.title}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
+              {blogPosts.length > 0 ? (
+                blogPosts.map((post) => (
+                  <article key={post.id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow duration-300">
+                    <Link href={`/blog/${post.slug}`} className="block group">
+                      <div className="flex flex-col md:flex-row gap-6">
+                        {/* Article Image */}
+                        <div className="md:w-1/3">
+                          <div className="aspect-w-16 aspect-h-10 relative rounded-lg overflow-hidden">
+                            <Image
+                              src={post.image || '/Hero.jpg'}
+                              alt={post.title}
+                              fill
+                              className="object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                          </div>
+                        </div>
+                        
+                        {/* Article Content */}
+                        <div className="md:w-2/3">
+                          <div className="flex items-center space-x-2 mb-3">
+                            <span className="inline-block px-3 py-1 bg-luxury-gold text-deep-navy text-xs font-semibold rounded-full">
+                              Blog Post
+                            </span>
+                            <span className="text-gray-500 text-sm">
+                              {calculateReadingTime(post.content)} min read
+                            </span>
+                            <span className="text-gray-500 text-sm">
+                              {formatDate(post.publishedAt || post.createdAt)}
+                            </span>
+                          </div>
+                          
+                          <h3 className="text-xl font-bold text-deep-navy mb-3 group-hover:text-luxury-gold transition-colors">
+                            {post.title}
+                          </h3>
+                          
+                          <p className="text-gray-600 mb-4 line-clamp-2">
+                            {post.excerpt}
+                          </p>
+                          
+                          <div className="flex flex-wrap gap-2 mb-3">
+                            {post.tags.slice(0, 3).map((tag: string) => (
+                              <span
+                                key={tag}
+                                className="inline-block px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded"
+                              >
+                                #{tag}
+                              </span>
+                            ))}
+                          </div>
+                          
+                          <div className="text-sm text-gray-500">
+                            By {post.author}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                    
-                    {/* Article Content */}
-                    <div className="md:w-2/3">
-                      <div className="flex items-center space-x-2 mb-3">
-                        <span className="inline-block px-3 py-1 bg-luxury-gold text-deep-navy text-xs font-semibold rounded-full">
-                          {featuredArticle.category.name}
-                        </span>
-                        <span className="text-gray-500 text-sm">
-                          {featuredArticle.readingTime} min read
-                        </span>
-                        <span className="text-gray-500 text-sm">
-                          November 15, 2024
-                        </span>
-                      </div>
-                      
-                      <h3 className="text-xl font-bold text-deep-navy mb-3 group-hover:text-luxury-gold transition-colors">
-                        {featuredArticle.title}
-                      </h3>
-                      
-                      <p className="text-gray-600 mb-4 line-clamp-2">
-                        {featuredArticle.excerpt}
-                      </p>
-                      
-                      <div className="flex flex-wrap gap-2">
-                        {featuredArticle.tags.slice(0, 3).map((tag) => (
-                          <span
-                            key={tag}
-                            className="inline-block px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded"
-                          >
-                            #{tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              </article>
+                    </Link>
+                  </article>
+                ))
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-gray-600 text-lg">No blog posts available yet.</p>
+                  <p className="text-gray-500 text-sm mt-2">Check back soon for new content!</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
