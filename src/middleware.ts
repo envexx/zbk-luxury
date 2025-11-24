@@ -10,11 +10,22 @@ export function middleware(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith('/admin')) {
     console.log('Admin route detected, checking auth...') // Debug log
     
-    const token = request.cookies.get('auth-token')?.value
-    console.log('Token found:', !!token) // Debug log
+    // Try to get token from cookies first
+    let token = request.cookies.get('auth-token')?.value
+    
+    // If no cookie token, try Authorization header
+    if (!token) {
+      const authHeader = request.headers.get('authorization')
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7)
+        console.log('Token found in Authorization header') // Debug log
+      }
+    } else {
+      console.log('Token found in cookies') // Debug log
+    }
 
     if (!token) {
-      console.log('No token, redirecting to login') // Debug log
+      console.log('No token found, redirecting to login') // Debug log
       // Redirect to new login page if no token
       return NextResponse.redirect(new URL('/login/admin', request.url))
     }

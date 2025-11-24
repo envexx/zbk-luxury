@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import Sidebar from '@/components/admin/Sidebar'
 import Header from '@/components/admin/Header'
 import { SidebarProvider } from '@/contexts/SidebarContext'
+import AuthGuard from '@/components/auth/AuthGuard'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -17,22 +18,24 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   return (
-    <SidebarProvider>
-      <div className={`${inter.className} min-h-screen bg-gray-50 dark:bg-gray-900`}>
-        {/* Sidebar */}
-        <Sidebar />
-        
-        {/* Main Content */}
-        <div className="lg:ml-64">
-          {/* Header */}
-          <Header />
+    <AuthGuard>
+      <SidebarProvider>
+        <div className={`${inter.className} min-h-screen bg-gray-50 dark:bg-gray-900`}>
+          {/* Sidebar */}
+          <Sidebar />
           
-          {/* Page Content */}
-          <main className="p-4 lg:p-6">
-            {children}
-          </main>
+          {/* Main Content */}
+          <div className="lg:ml-64">
+            {/* Header */}
+            <Header />
+            
+            {/* Page Content */}
+            <main className="p-4 lg:p-6">
+              {children}
+            </main>
+          </div>
         </div>
-      </div>
-    </SidebarProvider>
+      </SidebarProvider>
+    </AuthGuard>
   )
 }

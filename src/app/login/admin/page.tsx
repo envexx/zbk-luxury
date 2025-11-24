@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Eye, EyeOff, Lock, Mail, ArrowLeft, Shield } from 'lucide-react'
+import AuthRedirect from '@/components/auth/AuthRedirect'
 
 export default function AdminLoginPage() {
   const [formData, setFormData] = useState({
@@ -13,6 +14,7 @@ export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [redirecting, setRedirecting] = useState(false)
   const router = useRouter()
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,18 +51,10 @@ export default function AdminLoginPage() {
         // Store user info and token in localStorage
         localStorage.setItem('admin-user', JSON.stringify(data.data.user))
         localStorage.setItem('auth-token', data.data.token)
-        console.log('Login successful, token stored, redirecting to /admin') // Debug log
+        console.log('Login successful, token stored, starting redirect...') // Debug log
         
-        // Try multiple redirect methods for better reliability
-        setTimeout(() => {
-          try {
-            router.push('/admin')
-            router.refresh()
-          } catch (routerError) {
-            console.log('Router failed, using window.location') // Debug log
-            window.location.href = '/admin'
-          }
-        }, 200)
+        // Set redirecting state to show redirect component
+        setRedirecting(true)
       } else {
         console.error('Login failed:', data.message) // Debug log
         setError(data.message || 'Login failed')
@@ -71,6 +65,11 @@ export default function AdminLoginPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  // Show redirect component if redirecting
+  if (redirecting) {
+    return <AuthRedirect to="/admin" />
   }
 
   return (
