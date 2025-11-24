@@ -48,11 +48,16 @@ export default function AdminLoginPage() {
         localStorage.setItem('admin-user', JSON.stringify(data.data.user))
         console.log('Login successful, redirecting to /admin') // Debug log
         
-        // Add a small delay to ensure localStorage is set
+        // Try multiple redirect methods for better reliability
         setTimeout(() => {
-          router.push('/admin')
-          router.refresh()
-        }, 100)
+          try {
+            router.push('/admin')
+            router.refresh()
+          } catch (routerError) {
+            console.log('Router failed, using window.location') // Debug log
+            window.location.href = '/admin'
+          }
+        }, 200)
       } else {
         console.error('Login failed:', data.message) // Debug log
         setError(data.message || 'Login failed')
