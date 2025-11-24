@@ -29,6 +29,8 @@ export default function AdminLoginPage() {
     setLoading(true)
     setError('')
 
+    console.log('Login attempt with:', formData) // Debug log
+
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
@@ -38,13 +40,21 @@ export default function AdminLoginPage() {
         body: JSON.stringify(formData)
       })
 
+      console.log('Response status:', response.status) // Debug log
       const data = await response.json()
+      console.log('Response data:', data) // Debug log
 
       if (data.success) {
         localStorage.setItem('admin-user', JSON.stringify(data.data.user))
-        router.push('/admin')
-        router.refresh()
+        console.log('Login successful, redirecting to /admin') // Debug log
+        
+        // Add a small delay to ensure localStorage is set
+        setTimeout(() => {
+          router.push('/admin')
+          router.refresh()
+        }, 100)
       } else {
+        console.error('Login failed:', data.message) // Debug log
         setError(data.message || 'Login failed')
       }
     } catch (error) {
@@ -183,9 +193,23 @@ export default function AdminLoginPage() {
 
             {/* Demo Credentials */}
             <div className="mt-8 p-4 bg-slate-800/50 rounded-xl border border-slate-700/50 backdrop-blur-sm">
-              <div className="flex items-center mb-3">
-                <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
-                <p className="text-xs font-semibold text-slate-300">Demo Credentials</p>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+                  <p className="text-xs font-semibold text-slate-300">Demo Credentials</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormData({
+                      email: 'admin@zbkluxury.com',
+                      password: 'ZBKAdmin2024!'
+                    })
+                  }}
+                  className="text-xs text-yellow-400 hover:text-yellow-300 font-medium transition-colors duration-200"
+                >
+                  Auto Fill
+                </button>
               </div>
               <div className="space-y-1">
                 <p className="text-xs text-slate-400">
@@ -193,6 +217,11 @@ export default function AdminLoginPage() {
                 </p>
                 <p className="text-xs text-slate-400">
                   <span className="font-medium text-slate-300">Password:</span> ZBKAdmin2024!
+                </p>
+              </div>
+              <div className="mt-3 pt-3 border-t border-slate-700/50">
+                <p className="text-xs text-slate-400">
+                  <span className="font-medium text-slate-300">Alternative:</span> test@zbkluxury.com / TestAdmin123!
                 </p>
               </div>
             </div>
