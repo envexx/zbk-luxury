@@ -6,8 +6,7 @@ import Button from '@/components/atoms/Button';
 import RideDetailsForm from '@/components/molecules/RideDetailsForm';
 import VehicleSelection from '@/components/molecules/VehicleSelection';
 import OrderSummary from '@/components/molecules/OrderSummary';
-import AuthModal from '@/components/organisms/AuthModal';
-import { useAuth } from '@/contexts/AuthContext';
+// Removed AuthModal and useAuth - booking works without login
 
 export interface BookingData {
   // Step 1: Ride Details
@@ -44,9 +43,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
   onSubmit,
   initialVehicleId,
 }) => {
-  const { isAuthenticated, user } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
-  const [showAuthModal, setShowAuthModal] = useState(false);
   const [bookingData, setBookingData] = useState<BookingData>({
     tripType: 'one-way',
     pickupDate: '',
@@ -69,31 +66,12 @@ const BookingForm: React.FC<BookingFormProps> = ({
     const updatedData = { ...bookingData, ...stepData };
     setBookingData(updatedData);
     
-    // Check authentication before proceeding to vehicle selection (step 2)
-    if (currentStep === 1 && !isAuthenticated) {
-      setShowAuthModal(true);
-      return;
-    }
-    
     if (currentStep < 3) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Auto-fill customer info from authenticated user
-      if (isAuthenticated && user) {
-        updatedData.customerInfo = {
-          name: `${user.firstName} ${user.lastName}`,
-          email: user.email,
-          phone: user.phone || '',
-        };
-      }
+      // Submit booking data (customer info will be collected in the form)
       onSubmit?.(updatedData);
     }
-  };
-
-  const handleAuthSuccess = () => {
-    setShowAuthModal(false);
-    // Continue to next step after successful authentication
-    setCurrentStep(currentStep + 1);
   };
 
   const handlePrevStep = () => {
@@ -202,13 +180,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
         {renderStepContent()}
       </div>
 
-      {/* Auth Modal */}
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-        initialMode="signup"
-        onSuccess={handleAuthSuccess}
-      />
+      {/* Auth Modal removed - booking works without login */}
     </div>
   );
 };

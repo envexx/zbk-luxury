@@ -25,5 +25,9 @@ export {
   CheckCircle,
   XCircle,
   AlertCircle,
-  Info
+  Info,
+  TrendingUp,
+  TrendingDown,
+  Lock,
+  EyeOff
 } from 'lucide-react'
