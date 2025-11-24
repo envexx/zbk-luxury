@@ -41,6 +41,10 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "db:setup": "node scripts/setup-database.js",
+    "db:reset": "prisma db push --force-reset",
+    "test:db": "node -e \"require('./src/lib/prisma').prisma.$connect().then(() => console.log('✅ Database connected!')).catch(e => console.error('❌ Connection failed:', e.message))\"",
+    "test:create-data": "curl -X POST http://localhost:3000/api/test-data || echo 'Make sure dev server is running: npm run dev'"
   }
 }
