@@ -178,9 +178,14 @@ const VehicleSelection: React.FC<VehicleSelectionProps> = ({
               )}
 
               <div className="flex items-center justify-between">
-                <span className="text-2xl font-bold text-deep-navy">${vehicle.purchasePrice ? Math.round(vehicle.purchasePrice / 1000000) : 250}</span>
-                <span className="text-sm text-charcoal">/hour</span>
-                  }}
+                <div>
+                  <span className="text-2xl font-bold text-deep-navy">${vehicle.purchasePrice ? Math.round(vehicle.purchasePrice / 1000000) : 250}</span>
+                  <span className="text-sm text-charcoal">/hour</span>
+                </div>
+                <Button
+                  variant={selectedVehicleId === vehicle.id ? 'primary' : 'secondary'}
+                  size="small"
+                  onClick={() => handleVehicleSelect(vehicle.id)}
                 >
                   {selectedVehicleId === vehicle.id ? 'Selected' : 'Select'}
                 </Button>
@@ -196,16 +201,16 @@ const VehicleSelection: React.FC<VehicleSelectionProps> = ({
           <h4 className="text-lg font-semibold text-luxury-gold mb-2">Selected Vehicle</h4>
           <div className="flex items-center gap-4">
             <img
-              src={selectedVehicle.image}
+              src={selectedVehicle.images?.[0] || '/4.-alphard-colors-black.png'}
               alt={selectedVehicle.name}
               className="w-16 h-12 object-contain rounded"
             />
             <div className="flex-1">
               <div className="font-semibold text-white">{selectedVehicle.name}</div>
-              <div className="text-sm text-charcoal">{selectedVehicle.category} • {selectedVehicle.seats} seats</div>
+              <div className="text-sm text-charcoal">{selectedVehicle.category} • {selectedVehicle.capacity} seats</div>
             </div>
             <div className="text-right">
-              <div className="text-xl font-bold text-luxury-gold">${selectedVehicle.price}/hour</div>
+              <div className="text-xl font-bold text-luxury-gold">${selectedVehicle.purchasePrice ? Math.round(selectedVehicle.purchasePrice / 1000000) : 250}/hour</div>
             </div>
           </div>
         </div>
