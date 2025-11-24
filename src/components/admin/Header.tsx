@@ -30,7 +30,7 @@ export default function Header() {
     try {
       await fetch('/api/auth/logout', { method: 'POST' })
       localStorage.removeItem('admin-user')
-      router.push('/admin/login')
+      router.push('/login/admin')
       router.refresh()
     } catch (error) {
       console.error('Logout error:', error)

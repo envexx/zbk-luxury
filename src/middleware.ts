@@ -4,15 +4,14 @@ import jwt from 'jsonwebtoken'
 const JWT_SECRET = process.env.JWT_SECRET || 'zbk-luxury-secret-key-2024'
 
 export function middleware(request: NextRequest) {
-  // Only protect admin routes (except login)
-  if (request.nextUrl.pathname.startsWith('/admin') && 
-      !request.nextUrl.pathname.startsWith('/admin/login')) {
+  // Only protect admin routes
+  if (request.nextUrl.pathname.startsWith('/admin')) {
     
     const token = request.cookies.get('auth-token')?.value
 
     if (!token) {
-      // Redirect to login if no token
-      return NextResponse.redirect(new URL('/admin/login', request.url))
+      // Redirect to new login page if no token
+      return NextResponse.redirect(new URL('/login/admin', request.url))
     }
 
     try {
@@ -22,7 +21,7 @@ export function middleware(request: NextRequest) {
       return NextResponse.next()
     } catch (error) {
       // Invalid token, redirect to login
-      const response = NextResponse.redirect(new URL('/admin/login', request.url))
+      const response = NextResponse.redirect(new URL('/login/admin', request.url))
       // Clear invalid token
       response.cookies.set('auth-token', '', { maxAge: 0 })
       return response
