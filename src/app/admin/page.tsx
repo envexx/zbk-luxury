@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Car, Calendar, Users, DollarSign } from '@/components/admin/Icons'
+import LogoutButton from '@/components/admin/LogoutButton'
 
 interface DashboardStats {
   vehicles: number
@@ -148,13 +149,16 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          Dashboard Overview
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-1">
-          Welcome to ZBK Luxury Transport Admin Dashboard
-        </p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Dashboard Overview
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
+            Welcome to ZBK Luxury Transport Admin Dashboard
+          </p>
+        </div>
+        <LogoutButton />
       </div>
 
       {/* Stats Grid */}

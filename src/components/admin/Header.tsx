@@ -28,12 +28,28 @@ export default function Header() {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' })
+      // Call logout API to clear server-side cookie
+      await fetch('/api/auth/logout', { 
+        method: 'POST',
+        credentials: 'include' // Ensure cookies are sent
+      })
+      
+      // Clear all localStorage items
       localStorage.removeItem('admin-user')
-      router.push('/login/admin')
-      router.refresh()
+      localStorage.removeItem('auth-token')
+      
+      // Clear all localStorage for complete cleanup
+      localStorage.clear()
+      
+      console.log('Logout successful, redirecting to login')
+      
+      // Force redirect to login
+      window.location.href = '/login/admin'
     } catch (error) {
       console.error('Logout error:', error)
+      // Even if API fails, clear local storage and redirect
+      localStorage.clear()
+      window.location.href = '/login/admin'
     }
   }
 

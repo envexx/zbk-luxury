@@ -17,11 +17,13 @@ export default function AuthGuard({ children, redirectTo = '/login/admin' }: Aut
       try {
         // Get token from localStorage
         const token = localStorage.getItem('auth-token')
+        const userInfo = localStorage.getItem('admin-user')
         
-        if (!token) {
-          console.log('No token found, redirecting to login')
+        if (!token || !userInfo) {
+          console.log('No token or user info found, redirecting to login')
+          localStorage.clear() // Clear all localStorage
           setIsAuthenticated(false)
-          router.push(redirectTo)
+          window.location.href = redirectTo // Force redirect
           return
         }
 
@@ -37,26 +39,25 @@ export default function AuthGuard({ children, redirectTo = '/login/admin' }: Aut
         if (response.ok) {
           const data = await response.json()
           if (data.success) {
-            console.log('Authentication verified')
+            console.log('Authentication verified for user:', data.data.user.email)
             setIsAuthenticated(true)
           } else {
             console.log('Authentication failed:', data.message)
-            localStorage.removeItem('auth-token')
-            localStorage.removeItem('admin-user')
+            localStorage.clear()
             setIsAuthenticated(false)
-            router.push(redirectTo)
+            window.location.href = redirectTo
           }
         } else {
           console.log('Authentication request failed:', response.status)
-          localStorage.removeItem('auth-token')
-          localStorage.removeItem('admin-user')
+          localStorage.clear()
           setIsAuthenticated(false)
-          router.push(redirectTo)
+          window.location.href = redirectTo
         }
       } catch (error) {
         console.error('Auth check error:', error)
+        localStorage.clear()
         setIsAuthenticated(false)
-        router.push(redirectTo)
+        window.location.href = redirectTo
       }
     }
 
