@@ -19,6 +19,8 @@ export async function POST() {
         plateNumber: 'B 1111 TEST',
         capacity: 7,
         color: 'Pearl White',
+        price: 300.00,
+        minimumHours: 5,
         purchaseDate: new Date('2024-01-15'),
         purchasePrice: 1500000000,
         mileage: '2500 km',

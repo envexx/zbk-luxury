@@ -30,16 +30,20 @@ export default function BlogPage() {
 
   const fetchBlogPosts = async () => {
     try {
+      // Fetch blog posts from database API
       const response = await fetch('/api/blog');
-      const data = await response.json();
+      const result = await response.json();
       
-      if (data.success && Array.isArray(data.data)) {
-        // Filter only published posts
-        const publishedPosts = data.data.filter((post: BlogPost) => post.isPublished);
+      if (result.success && result.data) {
+        // Filter published posts and format for display
+        const publishedPosts = result.data.filter((post: any) => post.isPublished);
         setBlogPosts(publishedPosts);
+      } else {
+        console.error('Failed to fetch blog posts:', result.error);
+        setBlogPosts([]);
       }
     } catch (error) {
-      console.error('Error fetching blog posts:', error);
+      console.error('Error loading blog posts:', error);
       setBlogPosts([]);
     } finally {
       setLoading(false);
@@ -153,7 +157,7 @@ export default function BlogPage() {
                           </div>
                           
                           <div className="text-sm text-gray-500">
-                            By {post.author}
+                            By {typeof post.author === 'string' ? post.author : (post.author as any)?.name || 'ZBK Team'}
                           </div>
                         </div>
                       </div>

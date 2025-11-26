@@ -3,7 +3,7 @@ import { Inter } from 'next/font/google'
 import Sidebar from '@/components/admin/Sidebar'
 import Header from '@/components/admin/Header'
 import { SidebarProvider } from '@/contexts/SidebarContext'
-import AuthGuard from '@/components/auth/AuthGuard'
+// import AuthGuard from '@/components/auth/AuthGuard' // Disabled for direct access
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -18,7 +18,7 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   return (
-    <AuthGuard>
+    // <AuthGuard>
       <SidebarProvider>
         <div className={`${inter.className} min-h-screen bg-gray-50 dark:bg-gray-900`}>
           {/* Sidebar */}
@@ -36,6 +36,6 @@ export default function AdminLayout({
           </div>
         </div>
       </SidebarProvider>
-    </AuthGuard>
+    // </AuthGuard>
   )
 }

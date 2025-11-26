@@ -6,7 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { BlogPost } from '@/types/blog';
 import BlogCard from '@/components/molecules/BlogCard';
-import { getBlogPostBySlug, getRelatedPosts } from '@/data/blogContent';
+// Removed blogContent import - now using database
 import '@/styles/blog.css';
 
 // Data akan diambil dari dataset dummy
@@ -18,16 +18,43 @@ export default function BlogPostPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate API call dengan dataset dummy
-    setTimeout(() => {
-      const foundPost = getBlogPostBySlug(params.slug as string);
-      if (foundPost) {
-        setPost(foundPost);
-        const related = getRelatedPosts(foundPost.id, foundPost.category.slug);
-        setRelatedPosts(related);
+    const fetchBlogPost = async () => {
+      try {
+        // Fetch blog post by slug using the updated endpoint
+        const response = await fetch(`/api/blog/${params.slug}`);
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+          // Calculate reading time (average 200 words per minute)
+          const wordCount = result.data.content.replace(/<[^>]*>/g, '').split(/\s+/).length;
+          const readingTime = Math.ceil(wordCount / 200);
+          
+          setPost({
+            ...result.data,
+            readingTime: readingTime
+          });
+          
+          // Fetch all posts for related posts
+          const allPostsResponse = await fetch('/api/blog');
+          const allPostsResult = await allPostsResponse.json();
+          
+          if (allPostsResult.success && allPostsResult.data) {
+            const related = allPostsResult.data
+              .filter((p: any) => p.id !== result.data.id && p.isPublished)
+              .slice(0, 3);
+            setRelatedPosts(related);
+          }
+        } else {
+          console.error('Blog post not found:', result.error);
+        }
+      } catch (error) {
+        console.error('Error fetching blog post:', error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
-    }, 1000);
+    };
+
+    fetchBlogPost();
   }, [params.slug]);
 
   const formatDate = (dateString: string) => {
@@ -73,9 +100,9 @@ export default function BlogPostPage() {
             <span>/</span>
             <Link href="/blog" className="hover:text-luxury-gold transition-colors">Blog</Link>
             <span>/</span>
-            <Link href={`/blog/category/${post.category.slug}`} className="hover:text-luxury-gold transition-colors">
-              {post.category.name}
-            </Link>
+            <span className="text-gray-500">
+              {post.tags && post.tags.length > 0 ? post.tags[0].replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Blog'}
+            </span>
             <span>/</span>
             <span className="text-gray-400 truncate">{post.title}</span>
           </nav>
@@ -87,12 +114,9 @@ export default function BlogPostPage() {
         <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12">
           {/* Category and Reading Time */}
           <div className="flex flex-wrap items-center gap-4 mb-8">
-            <Link 
-              href={`/blog/category/${post.category.slug}`}
-              className="inline-flex items-center px-4 py-2 bg-luxury-gold text-deep-navy text-sm font-semibold rounded-full hover:bg-opacity-90 transition-all duration-200 shadow-sm hover:shadow-md"
-            >
-              {post.category.name}
-            </Link>
+            <span className="inline-flex items-center px-4 py-2 bg-luxury-gold text-deep-navy text-sm font-semibold rounded-full">
+              {post.tags && post.tags.length > 0 ? post.tags[0].replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Luxury Transport'}
+            </span>
             <div className="flex items-center space-x-4 text-gray-500 text-sm">
               <span className="flex items-center">
                 <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -136,15 +160,17 @@ export default function BlogPostPage() {
           </div>
 
           {/* Featured Image */}
-          <div className="mb-16 rounded-2xl overflow-hidden shadow-2xl bg-gray-100">
-            <Image
-              src={post.featuredImage}
-              alt={post.title}
-              width={1200}
-              height={600}
-              className="object-cover w-full h-auto transition-transform duration-300 hover:scale-105"
-            />
-          </div>
+          {post.image && (
+            <div className="mb-16 rounded-2xl overflow-hidden shadow-2xl bg-gray-100">
+              <Image
+                src={post.image}
+                alt={post.title}
+                width={1200}
+                height={600}
+                className="object-cover w-full h-auto transition-transform duration-300 hover:scale-105"
+              />
+            </div>
+          )}
 
           {/* Article Content */}
           <div 

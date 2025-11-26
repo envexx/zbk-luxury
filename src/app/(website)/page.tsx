@@ -1,9 +1,13 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import Hero from "@/components/organisms/Hero";
 import FleetSection from "@/components/organisms/FleetSection";
 import ServicesSection from "@/components/organisms/ServicesSection";
-import TestimonialsSection from "@/components/organisms/TestimonialsSection";
+
+const TestimonialsSection = dynamic(() => import("@/components/organisms/TestimonialsSection"), {
+  ssr: false
+});
 
 export default function Home() {
   const handleViewAllFleet = () => {

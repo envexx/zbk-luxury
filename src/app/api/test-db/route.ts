@@ -21,6 +21,8 @@ export async function GET() {
           plateNumber: 'B 1234 ZBK',
           capacity: 4,
           color: 'Black',
+          price: 400.00,
+          minimumHours: 4,
           purchaseDate: new Date('2024-01-01'),
           purchasePrice: 2500000000,
           mileage: '5000 km',

@@ -4,29 +4,14 @@ export interface BlogPost {
   slug: string;
   excerpt: string;
   content: string;
-  featuredImage: string;
-  author: {
-    name: string;
-    avatar: string;
-    bio: string;
-  };
-  category: {
-    name: string;
-    slug: string;
-  };
+  image: string; // Changed from featuredImage to match database
+  author: string; // Simplified to string to match database
   tags: string[];
   publishedAt: string;
+  createdAt: string;
   updatedAt: string;
-  readingTime: number;
-  seo: {
-    metaTitle: string;
-    metaDescription: string;
-    keywords: string[];
-    ogImage?: string;
-    canonicalUrl?: string;
-  };
-  status: 'draft' | 'published' | 'archived';
-  featured: boolean;
+  isPublished: boolean;
+  readingTime?: number; // Optional, calculated on frontend
 }
 
 export interface BlogCategory {

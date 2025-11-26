@@ -25,7 +25,7 @@ const BlogCard: React.FC<BlogCardProps> = ({ post, featured = false }) => {
         <Link href={`/blog/${post.slug}`}>
           <div className="aspect-w-16 aspect-h-9 relative">
             <Image
-              src={post.featuredImage}
+              src={post.image || '/4.-alphard-colors-black.png'}
               alt={post.title}
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -34,7 +34,7 @@ const BlogCard: React.FC<BlogCardProps> = ({ post, featured = false }) => {
             <div className="absolute bottom-4 left-4 right-4">
               <div className="flex items-center space-x-2 mb-2">
                 <span className="inline-block px-3 py-1 bg-luxury-gold text-deep-navy text-xs font-semibold rounded-full">
-                  {post.category.name}
+                  {post.tags && post.tags.length > 0 ? post.tags[0].replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Blog'}
                 </span>
                 <span className="text-white text-sm">
                   {post.readingTime} min read
@@ -79,7 +79,7 @@ const BlogCard: React.FC<BlogCardProps> = ({ post, featured = false }) => {
       <Link href={`/blog/${post.slug}`}>
         <div className="aspect-w-16 aspect-h-10 relative">
           <Image
-            src={post.featuredImage}
+            src={post.image || '/4.-alphard-colors-black.png'}
             alt={post.title}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -90,10 +90,10 @@ const BlogCard: React.FC<BlogCardProps> = ({ post, featured = false }) => {
       <div className="p-6">
         <div className="flex items-center space-x-2 mb-3">
           <span className="inline-block px-3 py-1 bg-luxury-gold bg-opacity-10 text-luxury-gold text-xs font-semibold rounded-full">
-            {post.category.name}
+            {post.tags && post.tags.length > 0 ? post.tags[0].replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Blog'}
           </span>
           <span className="text-gray-500 text-sm">
-            {post.readingTime} min read
+            {Math.ceil((post.content?.replace(/<[^>]*>/g, '').split(/\s+/).length || 100) / 200)} min read
           </span>
         </div>
         

@@ -21,12 +21,8 @@ const Hero: React.FC<HeroProps> = ({ onBookingClick }) => {
     if (onBookingClick) {
       onBookingClick();
     } else {
-      // Check authentication before showing booking form
-      if (!isAuthenticated) {
-        setShowAuthModal(true);
-      } else {
-        setShowBookingForm(true);
-      }
+      // Allow guest booking - no authentication required
+      setShowBookingForm(true);
     }
   };
 

@@ -33,6 +33,8 @@ model Vehicle {
   plateNumber      String            @unique
   capacity         Int
   color            String
+  price            Float             // Hourly rental price
+  minimumHours     Int?              // Minimum booking hours
   lastMaintenance  DateTime?
   nextMaintenance  DateTime?
   purchaseDate     DateTime

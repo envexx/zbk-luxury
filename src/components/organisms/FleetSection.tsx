@@ -17,6 +17,8 @@ interface Vehicle {
   plateNumber: string
   capacity: number
   color: string
+  price: number
+  minimumHours: number
   features: string[]
   images: string[]
   description?: string
@@ -45,11 +47,11 @@ const FleetSection: React.FC<FleetSectionProps> = ({
 
   const fetchVehicles = async () => {
     try {
-      const response = await fetch('/api/admin/vehicles')
-      const data = await response.json()
-      // Filter only available vehicles for public display
-      const availableVehicles = Array.isArray(data) 
-        ? data.filter(v => v.status === 'AVAILABLE') 
+      const response = await fetch('/api/vehicles')
+      const result = await response.json()
+      // Use the data from the API response
+      const availableVehicles = result.success && Array.isArray(result.data) 
+        ? result.data.filter((v: any) => v.status === 'AVAILABLE') 
         : []
       setVehicles(availableVehicles)
     } catch (error) {
@@ -127,7 +129,7 @@ const FleetSection: React.FC<FleetSectionProps> = ({
                   id={vehicle.id}
                   name={vehicle.name}
                   image={vehicle.images?.[0] || '/4.-alphard-colors-black.png'}
-                  price={vehicle.purchasePrice ? Math.round(vehicle.purchasePrice / 1000000) : 250} // Convert to hourly rate estimate
+                  price={vehicle.price || 0}
                   priceUnit="hour"
                   category={vehicle.category}
                   seats={vehicle.capacity}

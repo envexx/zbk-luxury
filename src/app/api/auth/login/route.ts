@@ -7,7 +7,22 @@ const JWT_SECRET = process.env.JWT_SECRET || 'zbk-luxury-secret-key-2024'
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json()
+    console.log('Login API called') // Debug log
+    
+    // Parse request body
+    let body
+    try {
+      body = await request.json()
+    } catch (parseError) {
+      console.error('Failed to parse request body:', parseError)
+      return NextResponse.json({
+        success: false,
+        message: 'Invalid request body'
+      }, { status: 400 })
+    }
+
+    const { email, password } = body
+    console.log('Login attempt for email:', email) // Debug log
 
     if (!email || !password) {
       return NextResponse.json({
@@ -16,10 +31,34 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
+    // Test database connection first
+    try {
+      await prisma.$connect()
+      console.log('Database connected successfully') // Debug log
+    } catch (dbError) {
+      console.error('Database connection failed:', dbError)
+      return NextResponse.json({
+        success: false,
+        message: 'Database connection failed',
+        error: dbError instanceof Error ? dbError.message : 'Unknown database error'
+      }, { status: 500 })
+    }
+
     // Find user by email
-    const user = await prisma.user.findUnique({
-      where: { email }
-    })
+    let user
+    try {
+      user = await prisma.user.findUnique({
+        where: { email }
+      })
+      console.log('User query result:', user ? 'User found' : 'User not found') // Debug log
+    } catch (queryError) {
+      console.error('Database query error:', queryError)
+      return NextResponse.json({
+        success: false,
+        message: 'Database query failed',
+        error: queryError instanceof Error ? queryError.message : 'Unknown query error'
+      }, { status: 500 })
+    }
 
     if (!user) {
       return NextResponse.json({
@@ -29,7 +68,18 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify password
-    const isValidPassword = await bcrypt.compare(password, user.password)
+    let isValidPassword
+    try {
+      isValidPassword = await bcrypt.compare(password, user.password)
+      console.log('Password verification result:', isValidPassword) // Debug log
+    } catch (bcryptError) {
+      console.error('Password verification error:', bcryptError)
+      return NextResponse.json({
+        success: false,
+        message: 'Password verification failed',
+        error: bcryptError instanceof Error ? bcryptError.message : 'Unknown bcrypt error'
+      }, { status: 500 })
+    }
 
     if (!isValidPassword) {
       return NextResponse.json({
@@ -39,15 +89,26 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate JWT token
-    const token = jwt.sign(
-      { 
-        userId: user.id, 
-        email: user.email, 
-        role: user.role 
-      },
-      JWT_SECRET,
-      { expiresIn: '24h' }
-    )
+    let token
+    try {
+      token = jwt.sign(
+        { 
+          userId: user.id, 
+          email: user.email, 
+          role: user.role 
+        },
+        JWT_SECRET,
+        { expiresIn: '24h' }
+      )
+      console.log('JWT token generated successfully') // Debug log
+    } catch (jwtError) {
+      console.error('JWT generation error:', jwtError)
+      return NextResponse.json({
+        success: false,
+        message: 'Token generation failed',
+        error: jwtError instanceof Error ? jwtError.message : 'Unknown JWT error'
+      }, { status: 500 })
+    }
 
     // Create response with token in cookie
     const response = NextResponse.json({
@@ -79,10 +140,21 @@ export async function POST(request: NextRequest) {
     return response
 
   } catch (error) {
-    console.error('Error during login:', error)
+    console.error('Unexpected error during login:', error)
     return NextResponse.json({
       success: false,
-      message: 'Login failed'
+      message: 'Internal server error',
+      error: {
+        name: error instanceof Error ? error.name : 'Unknown',
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.stack : undefined) : undefined
+      }
     }, { status: 500 })
+  } finally {
+    try {
+      await prisma.$disconnect()
+    } catch (disconnectError) {
+      console.error('Error disconnecting from database:', disconnectError)
+    }
   }
 }

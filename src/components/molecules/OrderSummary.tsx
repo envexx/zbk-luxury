@@ -8,45 +8,22 @@ import PhoneInput from '@/components/atoms/PhoneInput';
 import Badge from '@/components/atoms/Badge';
 import { BookingData } from '@/components/organisms/BookingForm';
 
-// Real fleet data (in a real app, this would come from a shared service)
-const availableVehicles = [
-  {
-    id: '1',
-    name: 'TOYOTA ALPHARD',
-    image: '/4.-alphard-colors-black.png',
-    price: 240,
-    category: 'Wedding Affairs',
-    seats: 7,
-    transmission: 'Automatic' as const,
-    year: 2024,
-    rating: 4.9,
-    isLuxury: true,
-  },
-  {
-    id: '2',
-    name: 'TOYOTA ALPHARD / VELLFIRE',
-    image: '/4.-alphard-colors-black.png',
-    price: 320,
-    category: 'Alphard',
-    seats: 4,
-    transmission: 'Automatic' as const,
-    year: 2024,
-    rating: 4.8,
-    isLuxury: true,
-  },
-  {
-    id: '3',
-    name: 'TOYOTA HIACE COMBI 13 SEATER',
-    image: '/4.-alphard-colors-black.png',
-    price: 360,
-    category: 'COMBI',
-    seats: 12,
-    transmission: 'Automatic' as const,
-    year: 2024,
-    rating: 4.7,
-    isLuxury: false,
-  },
-];
+import { vehicleData } from '@/data/vehicleData';
+
+// Use updated vehicle data with correct pricing from extracted information
+const availableVehicles = vehicleData.map(vehicle => ({
+  id: vehicle.id,
+  name: vehicle.name,
+  image: vehicle.images[0],
+  price: vehicle.price, // Updated prices: Wedding Affairs $300, Alphard/Vellfire $140
+  category: vehicle.category,
+  seats: vehicle.capacity,
+  transmission: vehicle.transmission as 'Automatic',
+  year: vehicle.year,
+  rating: vehicle.rating || 4.8,
+  isLuxury: vehicle.isLuxury || false,
+  minimumHours: vehicle.minimumHours || 1,
+}));
 
 export interface OrderSummaryProps {
   className?: string;
@@ -115,11 +92,60 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
 
     setIsSubmitting(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    onComplete({ customerInfo });
-    setIsSubmitting(false);
+    try {
+      // Prepare booking data for API
+      const bookingPayload = {
+        customerName: customerInfo.name,
+        customerEmail: customerInfo.email,
+        customerPhone: customerInfo.phone,
+        vehicleId: bookingData.selectedVehicleId,
+        service: 'RENTAL', // Default service type
+        startDate: bookingData.pickupDate,
+        endDate: bookingData.returnDate || bookingData.pickupDate,
+        startTime: bookingData.pickupTime,
+        duration: parseInt(bookingData.hours) || 8,
+        pickupLocation: bookingData.pickupLocation,
+        dropoffLocation: bookingData.dropOffLocation,
+        status: 'PENDING',
+        notes: `Trip Type: ${bookingData.tripType}${bookingData.returnTime ? `, Return Time: ${bookingData.returnTime}` : ''}`
+      };
+
+      console.log('Sending booking data:', bookingPayload);
+
+      // Send to booking API
+      const response = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bookingPayload),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        console.log('Booking created successfully:', result.data);
+        onComplete({ customerInfo });
+        
+        // Show success message
+        alert(`Booking confirmed! 
+        
+Booking ID: ${result.data.id}
+Email notifications have been sent to:
+- Customer: ${customerInfo.email}
+- Admin: Notification sent
+
+You will receive a confirmation email shortly.`);
+      } else {
+        console.error('Booking failed:', result.error);
+        alert(`Booking failed: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Error submitting booking:', error);
+      alert('Network error. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const formatDate = (dateString: string) => {

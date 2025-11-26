@@ -47,13 +47,16 @@ const VehicleSelection: React.FC<VehicleSelectionProps> = ({
 
   const fetchVehicles = async () => {
     try {
-      const response = await fetch('/api/admin/vehicles')
-      const data = await response.json()
-      // Filter only available vehicles for booking
-      const availableVehicles = Array.isArray(data) 
-        ? data.filter(v => v.status === 'AVAILABLE') 
-        : []
-      setVehicles(availableVehicles)
+      const response = await fetch('/api/vehicles')
+      const result = await response.json()
+      
+      if (result.success && result.data) {
+        // Filter only available vehicles for booking
+        const availableVehicles = result.data.filter((v: Vehicle) => v.status === 'AVAILABLE')
+        setVehicles(availableVehicles)
+      } else {
+        setVehicles([])
+      }
     } catch (error) {
       console.error('Error fetching vehicles:', error)
       setVehicles([])

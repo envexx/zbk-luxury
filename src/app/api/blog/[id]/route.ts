@@ -1,16 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
-// GET /api/blog/[id] - Get single blog post
+// GET /api/blog/[id] - Get single blog post by ID or slug
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params
-    const post = await prisma.blogPost.findUnique({
+    
+    // Try to find by ID first, then by slug
+    let post = await prisma.blogPost.findUnique({
       where: { id }
     })
+
+    // If not found by ID, try by slug
+    if (!post) {
+      post = await prisma.blogPost.findUnique({
+        where: { 
+          slug: id,
+          isPublished: true 
+        }
+      })
+    }
 
     if (!post) {
       return NextResponse.json({

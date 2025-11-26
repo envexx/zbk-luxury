@@ -78,22 +78,21 @@ export function generateSEOMetadata(config: SEOConfig): Metadata {
 
 export function generateBlogPostSEO(post: BlogPost): Metadata {
   return generateSEOMetadata({
-    title: post.seo.metaTitle || `${post.title} | ZBK Luxury Car Rental Blog`,
-    description: post.seo.metaDescription || post.excerpt,
-    keywords: post.seo.keywords.length > 0 ? post.seo.keywords : [
+    title: `${post.title} | ZBK Luxury Car Rental Blog`,
+    description: post.excerpt,
+    keywords: [
       ...post.tags,
       'toyota alphard rental',
       'toyota hiace rental',
       'luxury mpv rental',
-      'ZBK luxury',
-      post.category.name.toLowerCase()
+      'ZBK luxury'
     ],
-    ogImage: post.seo.ogImage || post.featuredImage,
-    canonicalUrl: post.seo.canonicalUrl || `/blog/${post.slug}`,
+    ogImage: post.image,
+    canonicalUrl: `/blog/${post.slug}`,
     publishedTime: post.publishedAt,
     modifiedTime: post.updatedAt,
-    author: post.author.name,
-    section: post.category.name,
+    author: post.author,
+    section: post.tags[0] || 'Blog',
     tags: post.tags,
   });
 }
@@ -147,11 +146,11 @@ export function generateStructuredData(post: BlogPost) {
     '@type': 'BlogPosting',
     headline: post.title,
     description: post.excerpt,
-    image: post.featuredImage,
+    image: post.image,
     author: {
       '@type': 'Person',
-      name: post.author.name,
-      url: `${baseUrl}/blog/author/${post.author.name.toLowerCase().replace(/\s+/g, '-')}`,
+      name: post.author,
+      url: `${baseUrl}/blog/author/${post.author.toLowerCase().replace(/\s+/g, '-')}`,
     },
     publisher: {
       '@type': 'Organization',
@@ -167,7 +166,7 @@ export function generateStructuredData(post: BlogPost) {
       '@type': 'WebPage',
       '@id': `${baseUrl}/blog/${post.slug}`,
     },
-    articleSection: post.category.name,
+    articleSection: post.tags[0] || 'Blog',
     keywords: post.tags.join(', '),
     wordCount: post.content.split(' ').length,
     timeRequired: `PT${post.readingTime}M`,
