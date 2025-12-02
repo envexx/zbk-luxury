@@ -50,14 +50,19 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
   })
 
   const [featuresInput, setFeaturesInput] = useState('')
+  const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([])
+  const [isUploading, setIsUploading] = useState(false)
+  const [isDragOver, setIsDragOver] = useState(false)
 
   useEffect(() => {
     if (vehicle && mode === 'edit') {
       setFormData({
         ...vehicle,
-        purchaseDate: vehicle.purchaseDate ? new Date(vehicle.purchaseDate).toISOString().split('T')[0] : ''
+        purchaseDate: vehicle.purchaseDate ? new Date(vehicle.purchaseDate).toISOString().split('T')[0] : '',
+        features: Array.isArray(vehicle.features) ? vehicle.features : [],
+        images: Array.isArray(vehicle.images) ? vehicle.images : []
       })
-      setFeaturesInput(vehicle.features.join(', '))
+      setFeaturesInput(Array.isArray(vehicle.features) ? vehicle.features.join(', ') : '')
     } else {
       // Reset form for add mode
       setFormData({
@@ -84,12 +89,33 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     
+    // Validate minimum images requirement
+    if (!Array.isArray(formData.images) || formData.images.length < 1) {
+      alert('Please upload at least 1 image for the vehicle')
+      return
+    }
+    
+    // Validate required fields
+    if (!formData.name || !formData.model || !formData.plateNumber) {
+      alert('Please fill in all required fields (Name, Model, Plate Number)')
+      return
+    }
+    
     const vehicleData = {
       ...formData,
       features: featuresInput.split(',').map(f => f.trim()).filter(f => f.length > 0),
-      images: formData.images.length > 0 ? formData.images : ['/api/placeholder/800/600']
+      images: formData.images
     }
     
+    // Include ID for update operations
+    if (mode === 'edit' && vehicle?.id) {
+      vehicleData.id = vehicle.id
+      console.log('🔄 Updating vehicle with ID:', vehicle.id)
+    } else {
+      console.log('➕ Creating new vehicle')
+    }
+    
+    console.log('💾 Saving vehicle data:', vehicleData)
     onSave(vehicleData)
   }
 
@@ -101,6 +127,116 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
         ? parseInt(value) || 0 
         : value
     }))
+  }
+
+  const handleFileUpload = async (files: FileList) => {
+    console.log('🔄 Starting file upload...', files.length, 'files')
+    setIsUploading(true)
+
+    try {
+      // Validate files first
+      const validFiles: File[] = []
+      for (const file of Array.from(files)) {
+        console.log('📁 Processing file:', file.name, file.type, file.size)
+        
+        if (!file.type.startsWith('image/')) {
+          console.warn('❌ Invalid file type:', file.type)
+          alert(`${file.name} is not an image file`)
+          continue
+        }
+        
+        if (file.size > 5 * 1024 * 1024) { // 5MB limit
+          console.warn('❌ File too large:', file.size)
+          alert(`${file.name} is too large. Maximum size is 5MB`)
+          continue
+        }
+
+        validFiles.push(file)
+      }
+
+      if (validFiles.length === 0) {
+        console.warn('⚠️ No valid files to upload')
+        return
+      }
+
+      // Upload files to server
+      const uploadFormData = new FormData()
+      validFiles.forEach(file => {
+        uploadFormData.append('files', file)
+      })
+
+      console.log('📤 Uploading to server...')
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: uploadFormData
+      })
+
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.statusText}`)
+      }
+
+      const result = await response.json()
+      console.log('✅ Upload response:', result)
+
+      if (result.success && result.files) {
+        // Update state with server file paths
+        const updatedImages = [...formData.images, ...result.files]
+        console.log('🔄 Updated images array:', updatedImages)
+        
+        setFormData(prev => ({
+          ...prev,
+          images: updatedImages
+        }))
+        
+        console.log('✅ State updated with server paths')
+      } else {
+        throw new Error(result.error || 'Upload failed')
+      }
+      
+    } catch (error) {
+      console.error('❌ Error uploading files:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      alert(`Error uploading files: ${errorMessage}`)
+    } finally {
+      setIsUploading(false)
+      console.log('🏁 Upload process completed')
+    }
+  }
+
+  const removeImage = (index: number) => {
+    const imageToRemove = formData.images[index]
+    
+    // Revoke object URL if it's a blob URL
+    if (imageToRemove.startsWith('blob:')) {
+      URL.revokeObjectURL(imageToRemove)
+    }
+    
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index)
+    }))
+    
+    setImagePreviewUrls(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragOver(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragOver(false)
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragOver(false)
+    
+    const files = e.dataTransfer.files
+    if (files && files.length > 0) {
+      handleFileUpload(files)
+    }
   }
 
   if (!isOpen) return null
@@ -336,16 +472,40 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Upload Images
                 </label>
-                <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6">
+                <div 
+                  className={`border-2 border-dashed rounded-lg p-6 transition-all duration-200 ${
+                    isUploading 
+                      ? 'border-yellow-300 bg-yellow-50 dark:bg-yellow-900/20' 
+                      : isDragOver
+                        ? 'border-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 scale-105'
+                        : 'border-gray-300 dark:border-gray-600 hover:border-yellow-400 dark:hover:border-yellow-500'
+                  }`}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                >
                   <div className="text-center">
-                    <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                    {isUploading ? (
+                      <div className="animate-spin mx-auto h-12 w-12 text-yellow-500">
+                        <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                      </div>
+                    ) : (
+                      <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                    )}
                     <div className="mt-4">
-                      <label htmlFor="vehicle-images" className="cursor-pointer">
+                      <label htmlFor="vehicle-images" className={`cursor-pointer ${isUploading ? 'pointer-events-none' : ''}`}>
                         <span className="mt-2 block text-sm font-medium text-gray-900 dark:text-white">
-                          Click to upload vehicle images
+                          {isUploading 
+                            ? 'Uploading images...' 
+                            : isDragOver 
+                              ? 'Drop images here!' 
+                              : 'Click to upload or drag & drop images'
+                          }
                         </span>
                         <span className="mt-1 block text-xs text-gray-500 dark:text-gray-400">
-                          PNG, JPG, JPEG up to 5MB each
+                          PNG, JPG, JPEG up to 5MB each • Multiple files supported
                         </span>
                       </label>
                       <input
@@ -355,10 +515,11 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
                         accept="image/*"
                         className="hidden"
                         onChange={(e) => {
-                          const files = Array.from(e.target.files || [])
-                          // Handle file upload here
-                          console.log('Selected files:', files)
+                          if (e.target.files && e.target.files.length > 0) {
+                            handleFileUpload(e.target.files)
+                          }
                         }}
+                        disabled={isUploading}
                       />
                     </div>
                   </div>
@@ -369,26 +530,53 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
               {formData.images.length > 0 && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Current Images
+                    Current Images ({formData.images.length})
                   </label>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {(() => {
+                    console.log('🖼️ Rendering images:', formData.images);
+                    return null;
+                  })()}
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {formData.images.map((image, index) => (
                       <div key={index} className="relative group">
-                        <img
-                          src={image}
-                          alt={`Vehicle ${index + 1}`}
-                          className="w-full h-24 object-cover rounded-lg border border-gray-200 dark:border-gray-600"
-                        />
+                        <div className="aspect-square rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700">
+                          <img
+                            src={image}
+                            alt={`Vehicle ${index + 1}`}
+                            className="w-full h-full object-cover transition-transform group-hover:scale-105 transition-opacity duration-300"
+                            onError={(e) => {
+                              console.log('❌ Image load error for:', image)
+                              const target = e.target as HTMLImageElement;
+                              target.src = '/api/placeholder/400/400';
+                              target.style.opacity = '1';
+                            }}
+                            onLoad={(e) => {
+                              console.log('✅ Image loaded successfully:', image)
+                              const target = e.target as HTMLImageElement;
+                              target.style.opacity = '1';
+                            }}
+                            style={{ opacity: 0 }}
+                          />
+                          {/* Loading overlay */}
+                          <div className="absolute inset-0 bg-gray-200 dark:bg-gray-600 animate-pulse flex items-center justify-center">
+                            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                          </div>
+                        </div>
+                        {/* Remove button */}
                         <button
                           type="button"
-                          onClick={() => {
-                            const newImages = formData.images.filter((_, i) => i !== index)
-                            setFormData(prev => ({ ...prev, images: newImages }))
-                          }}
-                          className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => removeImage(index)}
+                          className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-lg"
+                          title="Remove image"
                         >
-                          <X className="h-3 w-3" />
+                          <X className="h-4 w-4" />
                         </button>
+                        {/* Image info overlay */}
+                        <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          Image {index + 1}
+                        </div>
                       </div>
                     ))}
                   </div>

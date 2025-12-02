@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Car, Plus, Edit, Trash, Eye, Settings, CheckCircle, XCircle, AlertCircle } from '@/components/admin/Icons'
+import { Car, Plus, Edit, Trash, Eye, Settings, CheckCircle, XCircle, AlertCircle, X } from '@/components/admin/Icons'
 import VehicleModal from '@/components/admin/VehicleModal'
 
 interface Vehicle {
@@ -27,7 +27,9 @@ export default function VehiclesPage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([])
   const [loading, setLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false)
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null)
+  const [previewVehicle, setPreviewVehicle] = useState<Vehicle | null>(null)
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add')
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
 
@@ -40,8 +42,47 @@ export default function VehiclesPage() {
     try {
       const response = await fetch('/api/admin/vehicles')
       const data = await response.json()
+      
+      // Debug logging
+      console.log('API Response Status:', response.status)
+      console.log('API Response Data:', data)
+      console.log('Is Array:', Array.isArray(data))
+      
+      if (Array.isArray(data)) {
+        console.log('Vehicles count:', data.length)
+        if (data.length > 0) {
+          console.log('First vehicle:', data[0])
+          console.log('First vehicle ID:', data[0].id)
+        }
+      }
+      
       // Ensure data is an array
-      setVehicles(Array.isArray(data) ? data : [])
+      if (Array.isArray(data)) {
+        setVehicles(data)
+      } else {
+        console.warn('API did not return array, using fallback data')
+        // Fallback data for testing when database is not available
+        setVehicles([
+          {
+            id: 'fallback-1',
+            name: 'Toyota Alphard Executive (Demo)',
+            model: 'Alphard',
+            year: 2024,
+            category: 'WEDDING_AFFAIRS',
+            status: 'AVAILABLE',
+            location: 'Jakarta Pusat',
+            plateNumber: 'B 1234 DEMO',
+            capacity: 7,
+            color: 'Pearl White',
+            purchaseDate: '2024-01-15',
+            purchasePrice: 1500000000,
+            mileage: '2500 km',
+            features: ['Leather Seats', 'Sunroof', 'Premium Audio'],
+            images: ['/api/placeholder/800/600'],
+            description: 'Demo vehicle - Database not connected'
+          }
+        ])
+      }
     } catch (error) {
       console.error('Error fetching vehicles:', error)
       setVehicles([]) // Set empty array on error
@@ -60,6 +101,11 @@ export default function VehiclesPage() {
     setSelectedVehicle(vehicle)
     setModalMode('edit')
     setIsModalOpen(true)
+  }
+
+  const handleViewVehicle = (vehicle: Vehicle) => {
+    setPreviewVehicle(vehicle)
+    setIsPreviewModalOpen(true)
   }
 
   const handleDeleteVehicle = async (vehicleId: string) => {
@@ -100,16 +146,19 @@ export default function VehiclesPage() {
       })
       
       const data = await response.json()
-      if (response.ok) {
+      if (response.ok && data.success) {
+        const vehicleData = data.data || data // Support both formats for backward compatibility
         if (modalMode === 'add') {
-          setVehicles([...vehicles, data])
+          setVehicles([...vehicles, vehicleData])
         } else {
-          setVehicles(vehicles.map(v => v.id === selectedVehicle?.id ? data : v))
+          setVehicles(vehicles.map(v => v.id === selectedVehicle?.id ? vehicleData : v))
         }
         setIsModalOpen(false)
         setSelectedVehicle(null)
+        // Refresh vehicles list to get updated stats
+        fetchVehicles()
       } else {
-        alert('Failed to save vehicle')
+        alert(data.error || 'Failed to save vehicle')
       }
     } catch (error) {
       console.error('Error saving vehicle:', error)
@@ -238,8 +287,8 @@ export default function VehiclesPage() {
               </tr>
             </thead>
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              {Array.isArray(vehicles) && vehicles.map((vehicle) => (
-                <tr key={vehicle.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+              {Array.isArray(vehicles) && vehicles.map((vehicle, index) => (
+                <tr key={vehicle.id || `vehicle-${index}`} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900 dark:text-white">
                       {vehicle.name}
@@ -263,8 +312,9 @@ export default function VehiclesPage() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
                       <button 
-                        className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 p-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                        title="View Details"
+                        onClick={() => handleViewVehicle(vehicle)}
+                        className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 p-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                        title="View Vehicle"
                       >
                         <Eye className="h-4 w-4" />
                       </button>
@@ -303,6 +353,129 @@ export default function VehiclesPage() {
         vehicle={selectedVehicle}
         mode={modalMode}
       />
+
+      {/* Preview Modal */}
+      {isPreviewModalOpen && previewVehicle && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                  <Eye className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    Vehicle Preview
+                  </h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Preview vehicle details
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsPreviewModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6">
+              {previewVehicle.images && previewVehicle.images.length > 0 && (
+                <div className="mb-6">
+                  <img
+                    src={previewVehicle.images[0]}
+                    alt={previewVehicle.name}
+                    className="w-full h-64 object-cover rounded-lg"
+                  />
+                </div>
+              )}
+              
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                {previewVehicle.name}
+              </h1>
+              
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Model</p>
+                  <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                    {previewVehicle.model} ({previewVehicle.year})
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Plate Number</p>
+                  <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                    {previewVehicle.plateNumber}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Category</p>
+                  <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                    {previewVehicle.category.replace(/_/g, ' ')}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Status</p>
+                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(previewVehicle.status)}`}>
+                    {previewVehicle.status}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Capacity</p>
+                  <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                    {previewVehicle.capacity} seats
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Color</p>
+                  <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                    {previewVehicle.color}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Location</p>
+                  <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                    {previewVehicle.location}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Mileage</p>
+                  <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                    {previewVehicle.mileage || 'N/A'}
+                  </p>
+                </div>
+              </div>
+
+              {previewVehicle.features && previewVehicle.features.length > 0 && (
+                <div className="mb-6">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Features</p>
+                  <div className="flex flex-wrap gap-2">
+                    {previewVehicle.features.map((feature, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-md text-sm text-gray-700 dark:text-gray-300"
+                      >
+                        {feature}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {previewVehicle.description && (
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Description</p>
+                  <p className="text-gray-700 dark:text-gray-300">
+                    {previewVehicle.description}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

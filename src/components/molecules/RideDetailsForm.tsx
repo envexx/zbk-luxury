@@ -5,6 +5,7 @@ import { cn } from '@/utils/cn';
 import Input from '@/components/atoms/Input';
 import Select from '@/components/atoms/Select';
 import Button from '@/components/atoms/Button';
+import LocationInput from '@/components/atoms/LocationInput';
 import { BookingData } from '@/components/organisms/BookingForm';
 
 export interface RideDetailsFormProps {
@@ -198,24 +199,28 @@ const RideDetailsForm: React.FC<RideDetailsFormProps> = ({
 
         {/* Location Fields */}
         <div className="space-y-4">
-          <Input
-            type="text"
+          <LocationInput
             label="Pickup Location"
             placeholder="Enter pickup address or landmark"
             value={formData.pickupLocation}
-            onChange={(e) => handleInputChange('pickupLocation', e.target.value)}
+            onChange={(value) => handleInputChange('pickupLocation', value)}
             error={errors.pickupLocation}
             isRequired
+            icon={
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+            }
           />
           
-          <Input
-            type="text"
+          <LocationInput
             label="Drop-Off Location"
             placeholder="Enter destination address or landmark"
             value={formData.dropOffLocation}
-            onChange={(e) => handleInputChange('dropOffLocation', e.target.value)}
+            onChange={(value) => handleInputChange('dropOffLocation', value)}
             error={errors.dropOffLocation}
             isRequired
+            icon={
+              <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+            }
           />
         </div>
 

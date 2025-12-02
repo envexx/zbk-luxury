@@ -41,15 +41,15 @@ export default function Header() {
       // Clear all localStorage for complete cleanup
       localStorage.clear()
       
-      console.log('Logout successful, redirecting to login')
+      console.log('Logout successful, redirecting to homepage')
       
-      // Force redirect to login
-      window.location.href = '/login/admin'
+      // Force redirect to homepage
+      window.location.href = '/'
     } catch (error) {
       console.error('Logout error:', error)
       // Even if API fails, clear local storage and redirect
       localStorage.clear()
-      window.location.href = '/login/admin'
+      window.location.href = '/'
     }
   }
 

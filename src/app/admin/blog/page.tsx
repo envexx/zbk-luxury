@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { FileText, Plus, Edit, Trash, Eye, Search, Filter, CheckCircle, XCircle } from '@/components/admin/Icons'
+import { FileText, Plus, Edit, Trash, Eye, Search, Filter, CheckCircle, XCircle, X } from '@/components/admin/Icons'
 import BlogModal from '@/components/admin/BlogModal'
 
 interface BlogPost {
@@ -23,7 +23,9 @@ export default function BlogPage() {
   const [posts, setPosts] = useState<BlogPost[]>([])
   const [loading, setLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false)
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null)
+  const [previewPost, setPreviewPost] = useState<BlogPost | null>(null)
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add')
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
@@ -58,6 +60,11 @@ export default function BlogPage() {
     setSelectedPost(post)
     setModalMode('edit')
     setIsModalOpen(true)
+  }
+
+  const handleViewPost = (post: BlogPost) => {
+    setPreviewPost(post)
+    setIsPreviewModalOpen(true)
   }
 
   const handleDeletePost = async (postId: string) => {
@@ -282,23 +289,23 @@ export default function BlogPage() {
             Blog Posts ({filteredPosts.length})
           </h2>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-700">
+        <div className="overflow-x-auto max-h-[600px] overflow-y-auto">
+          <table className="w-full min-w-[800px]">
+            <thead className="bg-gray-50 dark:bg-gray-700 sticky top-0 z-10">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[300px]">
                   Post
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[120px]">
                   Author
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[100px]">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[120px]">
                   Date
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[120px] sticky right-0 bg-gray-50 dark:bg-gray-700 z-20">
                   Actions
                 </th>
               </tr>
@@ -330,36 +337,38 @@ export default function BlogPage() {
                 </tr>
               ) : (
                 filteredPosts.map((post) => (
-                  <tr key={post.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                    <td className="px-6 py-4 whitespace-nowrap">
+                  <tr key={post.id} className="group hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <td className="px-4 py-4">
                       <div className="flex items-center">
-                        <div className="flex-shrink-0 h-12 w-12">
+                        <div className="flex-shrink-0 h-10 w-10">
                           {post.image ? (
                             <img
                               src={post.image}
                               alt={post.title}
-                              className="h-12 w-12 rounded-lg object-cover"
+                              className="h-10 w-10 rounded-lg object-cover"
                             />
                           ) : (
-                            <div className="h-12 w-12 rounded-lg bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
-                              <FileText className="h-6 w-6 text-gray-400" />
+                            <div className="h-10 w-10 rounded-lg bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
+                              <FileText className="h-5 w-5 text-gray-400" />
                             </div>
                           )}
                         </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900 dark:text-white">
+                        <div className="ml-3 min-w-0 flex-1">
+                          <div className="text-sm font-medium text-gray-900 dark:text-white truncate max-w-[200px]" title={post.title}>
                             {post.title}
                           </div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate">
+                          <div className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[200px]">
                             {post.excerpt}
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900 dark:text-white">{post.author}</div>
+                    <td className="px-4 py-4">
+                      <div className="text-sm text-gray-900 dark:text-white truncate max-w-[100px]" title={post.author}>
+                        {post.author}
+                      </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 py-4">
                       <button
                         onClick={() => togglePublishStatus(post)}
                         className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full transition-colors ${getStatusColor(post.isPublished)}`}
@@ -367,27 +376,28 @@ export default function BlogPage() {
                         {post.isPublished ? 'Published' : 'Draft'}
                       </button>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                    <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">
                       {formatDate(post.createdAt)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
+                    <td className="px-4 py-4 text-sm font-medium sticky right-0 bg-white dark:bg-gray-800 group-hover:bg-gray-50 dark:group-hover:bg-gray-700 z-10 transition-colors">
+                      <div className="flex space-x-1">
                         <button 
-                          className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 p-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                          onClick={() => handleViewPost(post)}
+                          className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 p-1.5 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
                           title="View Post"
                         >
                           <Eye className="h-4 w-4" />
                         </button>
                         <button 
                           onClick={() => handleEditPost(post)}
-                          className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 p-1 rounded hover:bg-green-50 dark:hover:bg-green-900/20"
+                          className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 p-1.5 rounded hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
                           title="Edit Post"
                         >
                           <Edit className="h-4 w-4" />
                         </button>
                         <button 
                           onClick={() => handleDeletePost(post.id)}
-                          className={`p-1 rounded transition-colors ${
+                          className={`p-1.5 rounded transition-colors ${
                             deleteConfirm === post.id 
                               ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400' 
                               : 'text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20'
@@ -414,6 +424,85 @@ export default function BlogPage() {
         blog={selectedPost}
         mode={modalMode}
       />
+
+      {/* Preview Modal */}
+      {isPreviewModalOpen && previewPost && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                  <Eye className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    Blog Post Preview
+                  </h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Preview how your blog post will appear
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsPreviewModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6">
+              {previewPost.image && (
+                <div className="mb-6">
+                  <img
+                    src={previewPost.image}
+                    alt={previewPost.title}
+                    className="w-full h-64 object-cover rounded-lg"
+                  />
+                </div>
+              )}
+              
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                {previewPost.title}
+              </h1>
+              
+              <div className="flex items-center space-x-4 mb-6 text-sm text-gray-500 dark:text-gray-400">
+                <span>By {previewPost.author}</span>
+                <span>•</span>
+                <span>{formatDate(previewPost.createdAt)}</span>
+                {previewPost.tags && previewPost.tags.length > 0 && (
+                  <>
+                    <span>•</span>
+                    <div className="flex flex-wrap gap-2">
+                      {previewPost.tags.map((tag, index) => (
+                        <span
+                          key={index}
+                          className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {previewPost.excerpt && (
+                <p className="text-lg text-gray-600 dark:text-gray-300 mb-6 italic">
+                  {previewPost.excerpt}
+                </p>
+              )}
+
+              <div
+                className="prose dark:prose-invert max-w-none"
+                dangerouslySetInnerHTML={{ __html: previewPost.content }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

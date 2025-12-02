@@ -122,7 +122,10 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    return NextResponse.json(vehicle, { status: 201 })
+    return NextResponse.json({
+      success: true,
+      data: vehicle
+    }, { status: 201 })
   } catch (error) {
     console.error('Error creating vehicle:', error)
     return NextResponse.json(

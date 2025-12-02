@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Button from '@/components/atoms/Button';
 import AuthModal from '@/components/organisms/AuthModal';
 import BookingForm from '@/components/organisms/BookingForm';
+import LocationInput from '@/components/atoms/LocationInput';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/utils/cn';
 
@@ -16,6 +17,8 @@ const Hero: React.FC<HeroProps> = ({ onBookingClick }) => {
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [tripType, setTripType] = useState<'oneWay' | 'roundTrip'>('oneWay');
+  const [pickupLocation, setPickupLocation] = useState('');
+  const [dropOffLocation, setDropOffLocation] = useState('');
 
   const handleBookingClick = () => {
     if (onBookingClick) {
@@ -118,43 +121,47 @@ const Hero: React.FC<HeroProps> = ({ onBookingClick }) => {
             {/* Location Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 mb-8 lg:mb-10">
               <div className="relative group">
-                <label className="flex items-center text-sm font-semibold text-gray-800 mb-3">
-                  <svg className="w-4 h-4 mr-2 text-luxury-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 616 0z" />
-                  </svg>
-                  PICK-UP LOCATION
-                </label>
-                <div className="relative">
-                  <input 
-                    type="text" 
-                    placeholder="Enter pickup location"
-                    className="w-full h-14 pl-12 pr-4 py-3 border-2 border-white/40 rounded-xl focus:border-luxury-gold focus:outline-none bg-white/70 backdrop-blur-sm text-gray-800 placeholder-gray-500 transition-all duration-300 group-hover:border-white/60"
-                  />
-                  <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+                <LocationInput
+                  label={
+                    <span className="flex items-center text-sm font-semibold text-gray-800">
+                      <svg className="w-4 h-4 mr-2 text-luxury-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 616 0z" />
+                      </svg>
+                      PICK-UP LOCATION
+                    </span>
+                  }
+                  placeholder="Enter pickup location"
+                  value={pickupLocation}
+                  onChange={setPickupLocation}
+                  className="[&_label]:mb-3"
+                  inputClassName="h-14 pl-12 pr-4 py-3 border-2 border-white/40 rounded-xl focus:border-luxury-gold focus:outline-none bg-white/70 backdrop-blur-sm text-gray-800 placeholder-gray-500 transition-all duration-300 group-hover:border-white/60"
+                  icon={
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  </div>
-                </div>
+                  }
+                />
               </div>
               
               <div className="relative group">
-                <label className="flex items-center text-sm font-semibold text-gray-800 mb-3">
-                  <svg className="w-4 h-4 mr-2 text-luxury-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 616 0z" />
-                  </svg>
-                  DROP-OFF LOCATION
-                </label>
-                <div className="relative">
-                  <input 
-                    type="text" 
-                    placeholder="Enter destination"
-                    className="w-full h-14 pl-12 pr-4 py-3 border-2 border-white/40 rounded-xl focus:border-luxury-gold focus:outline-none bg-white/70 backdrop-blur-sm text-gray-800 placeholder-gray-500 transition-all duration-300 group-hover:border-white/60"
-                  />
-                  <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+                <LocationInput
+                  label={
+                    <span className="flex items-center text-sm font-semibold text-gray-800">
+                      <svg className="w-4 h-4 mr-2 text-luxury-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 616 0z" />
+                      </svg>
+                      DROP-OFF LOCATION
+                    </span>
+                  }
+                  placeholder="Enter destination"
+                  value={dropOffLocation}
+                  onChange={setDropOffLocation}
+                  className="[&_label]:mb-3"
+                  inputClassName="h-14 pl-12 pr-4 py-3 border-2 border-white/40 rounded-xl focus:border-luxury-gold focus:outline-none bg-white/70 backdrop-blur-sm text-gray-800 placeholder-gray-500 transition-all duration-300 group-hover:border-white/60"
+                  icon={
                     <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                  </div>
-                </div>
+                  }
+                />
               </div>
             </div>
 

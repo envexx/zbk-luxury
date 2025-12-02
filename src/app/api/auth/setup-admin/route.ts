@@ -4,19 +4,7 @@ import bcrypt from 'bcryptjs'
 
 export async function POST(request: NextRequest) {
   try {
-    // Check if any admin already exists
-    const existingAdmin = await prisma.user.findFirst({
-      where: { role: 'ADMIN' }
-    })
-
-    if (existingAdmin) {
-      return NextResponse.json({
-        success: false,
-        message: 'Admin user already exists'
-      }, { status: 400 })
-    }
-
-    // Create default admin users
+    // Create or update default admin users
     const adminUsers = [
       {
         email: 'admin@zbkluxury.com',
@@ -30,13 +18,21 @@ export async function POST(request: NextRequest) {
       }
     ]
 
-    const createdUsers = []
+    const processedUsers = []
 
     for (const userData of adminUsers) {
+      // Hash password
       const hashedPassword = await bcrypt.hash(userData.password, 12)
       
-      const admin = await prisma.user.create({
-        data: {
+      // Use upsert to create or update admin user
+      const admin = await prisma.user.upsert({
+        where: { email: userData.email },
+        update: {
+          password: hashedPassword,
+          name: userData.name,
+          role: 'ADMIN'
+        },
+        create: {
           email: userData.email,
           password: hashedPassword,
           name: userData.name,
@@ -47,17 +43,18 @@ export async function POST(request: NextRequest) {
           email: true,
           name: true,
           role: true,
-          createdAt: true
+          createdAt: true,
+          updatedAt: true
         }
       })
 
-      createdUsers.push(admin)
+      processedUsers.push(admin)
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Admin users created successfully',
-      data: createdUsers
+      message: 'Admin users setup successfully',
+      data: processedUsers
     })
 
   } catch (error) {

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useCallback, useMemo } from 'react';
 import { AuthState, AuthContextType, LoginCredentials, SignupData, User } from '@/types/auth';
 
 // Initial state
@@ -83,7 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // Mock API calls - replace with actual API integration
-  const login = async (credentials: LoginCredentials) => {
+  const login = useCallback(async (credentials: LoginCredentials) => {
     dispatch({ type: 'AUTH_START' });
     
     try {
@@ -110,9 +110,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       dispatch({ type: 'AUTH_ERROR', payload: error instanceof Error ? error.message : 'Login failed' });
     }
-  };
+  }, []);
 
-  const signup = async (data: SignupData) => {
+  const signup = useCallback(async (data: SignupData) => {
     dispatch({ type: 'AUTH_START' });
     
     try {
@@ -145,24 +145,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       dispatch({ type: 'AUTH_ERROR', payload: error instanceof Error ? error.message : 'Signup failed' });
     }
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem('zbk_user');
     dispatch({ type: 'AUTH_LOGOUT' });
-  };
+  }, []);
 
-  const clearError = () => {
+  const clearError = useCallback(() => {
     dispatch({ type: 'CLEAR_ERROR' });
-  };
+  }, []);
 
-  const value: AuthContextType = {
+  const value: AuthContextType = useMemo(() => ({
     ...state,
     login,
     signup,
     logout,
     clearError,
-  };
+  }), [state, login, signup, logout, clearError]);
 
   return (
     <AuthContext.Provider value={value}>

@@ -40,6 +40,7 @@ export default function BlogModal({ isOpen, onClose, onSave, blog, mode }: BlogM
 
   const [tagsInput, setTagsInput] = useState('')
   const [previewMode, setPreviewMode] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
 
   useEffect(() => {
     if (blog && mode === 'edit') {
@@ -98,6 +99,61 @@ export default function BlogModal({ isOpen, onClose, onSave, blog, mode }: BlogM
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '')
+  }
+
+  const handleFileUpload = async (file: File) => {
+    console.log('🔄 Starting blog image upload...', file.name)
+    setIsUploading(true)
+
+    try {
+      // Validate file
+      if (!file.type.startsWith('image/')) {
+        alert(`${file.name} is not an image file`)
+        return
+      }
+      
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        alert(`${file.name} is too large. Maximum size is 5MB`)
+        return
+      }
+
+      // Upload file to server
+      const uploadFormData = new FormData()
+      uploadFormData.append('files', file)
+      uploadFormData.append('type', 'blog')
+
+      console.log('📤 Uploading to server...')
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: uploadFormData
+      })
+
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.statusText}`)
+      }
+
+      const result = await response.json()
+      console.log('✅ Upload response:', result)
+
+      if (result.success && result.files && result.files.length > 0) {
+        // Update form data with uploaded image URL
+        setFormData(prev => ({
+          ...prev,
+          image: result.files[0]
+        }))
+        console.log('✅ Image URL updated:', result.files[0])
+      } else {
+        throw new Error(result.error || 'Upload failed')
+      }
+      
+    } catch (error) {
+      console.error('❌ Error uploading file:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      alert(`Error uploading image: ${errorMessage}`)
+    } finally {
+      setIsUploading(false)
+      console.log('🏁 Upload process completed')
+    }
   }
 
   if (!isOpen) return null
@@ -225,11 +281,11 @@ export default function BlogModal({ isOpen, onClose, onSave, blog, mode }: BlogM
                   {/* Upload Alternative */}
                   <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4">
                     <div className="text-center">
-                      <Upload className="mx-auto h-8 w-8 text-gray-400" />
+                      <Upload className={`mx-auto h-8 w-8 ${isUploading ? 'text-yellow-500 animate-pulse' : 'text-gray-400'}`} />
                       <div className="mt-2">
-                        <label htmlFor="blog-image" className="cursor-pointer">
+                        <label htmlFor="blog-image" className={`cursor-pointer ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}>
                           <span className="text-sm font-medium text-gray-900 dark:text-white">
-                            Upload featured image
+                            {isUploading ? 'Uploading...' : 'Upload featured image'}
                           </span>
                           <span className="block text-xs text-gray-500 dark:text-gray-400">
                             PNG, JPG, JPEG up to 5MB
@@ -240,11 +296,11 @@ export default function BlogModal({ isOpen, onClose, onSave, blog, mode }: BlogM
                           type="file"
                           accept="image/*"
                           className="hidden"
+                          disabled={isUploading}
                           onChange={(e) => {
                             const file = e.target.files?.[0]
                             if (file) {
-                              // Handle file upload here
-                              console.log('Selected file:', file)
+                              handleFileUpload(file)
                             }
                           }}
                         />

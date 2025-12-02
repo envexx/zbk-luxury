@@ -75,12 +75,12 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
       className
     )}>
       {/* Image Section */}
-      <div className="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
+      <div className="relative aspect-[16/10] overflow-hidden">
         <Image
           src={image}
           alt={name}
           fill
-          className="object-contain transition-all duration-700 group-hover:scale-105"
+          className="object-cover transition-all duration-700 group-hover:scale-105"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
         

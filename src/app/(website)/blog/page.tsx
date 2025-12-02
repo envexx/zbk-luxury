@@ -23,6 +23,8 @@ interface BlogPost {
 export default function BlogPage() {
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 10;
 
   useEffect(() => {
     fetchBlogPosts();
@@ -60,8 +62,19 @@ export default function BlogPage() {
 
   const calculateReadingTime = (content: string) => {
     const wordsPerMinute = 200;
-    const wordCount = content.split(' ').length;
+    const wordCount = content.replace(/<[^>]*>/g, '').split(/\s+/).length;
     return Math.ceil(wordCount / wordsPerMinute);
+  };
+
+  // Pagination calculations
+  const totalPages = Math.ceil(blogPosts.length / postsPerPage);
+  const startIndex = (currentPage - 1) * postsPerPage;
+  const endIndex = startIndex + postsPerPage;
+  const currentPosts = blogPosts.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   if (loading) {
@@ -106,57 +119,66 @@ export default function BlogPage() {
           {/* Article List */}
           <div className="max-w-4xl mx-auto">
             <div className="space-y-6">
-              {blogPosts.length > 0 ? (
-                blogPosts.map((post) => (
-                  <article key={post.id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow duration-300">
+              {currentPosts.length > 0 ? (
+                currentPosts.map((post) => (
+                  <article key={post.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300">
                     <Link href={`/blog/${post.slug}`} className="block group">
-                      <div className="flex flex-col md:flex-row gap-6">
-                        {/* Article Image */}
-                        <div className="md:w-1/3">
-                          <div className="aspect-w-16 aspect-h-10 relative rounded-lg overflow-hidden">
+                      <div className="flex flex-col md:flex-row">
+                        {/* Article Image - Cover */}
+                        <div className="md:w-1/3 w-full h-48 md:h-auto relative bg-gray-200">
+                          {post.image ? (
                             <Image
-                              src={post.image || '/Hero.jpg'}
+                              src={post.image}
                               alt={post.title}
                               fill
                               className="object-cover group-hover:scale-105 transition-transform duration-300"
+                              sizes="(max-width: 768px) 100vw, 33vw"
                             />
-                          </div>
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300">
+                              <span className="text-gray-400 text-sm">No Image</span>
+                            </div>
+                          )}
                         </div>
                         
                         {/* Article Content */}
-                        <div className="md:w-2/3">
-                          <div className="flex items-center space-x-2 mb-3">
-                            <span className="inline-block px-3 py-1 bg-luxury-gold text-deep-navy text-xs font-semibold rounded-full">
-                              Blog Post
-                            </span>
-                            <span className="text-gray-500 text-sm">
-                              {calculateReadingTime(post.content)} min read
-                            </span>
-                            <span className="text-gray-500 text-sm">
-                              {formatDate(post.publishedAt || post.createdAt)}
-                            </span>
-                          </div>
-                          
-                          <h3 className="text-xl font-bold text-deep-navy mb-3 group-hover:text-luxury-gold transition-colors">
-                            {post.title}
-                          </h3>
-                          
-                          <p className="text-gray-600 mb-4 line-clamp-2">
-                            {post.excerpt}
-                          </p>
-                          
-                          <div className="flex flex-wrap gap-2 mb-3">
-                            {post.tags.slice(0, 3).map((tag: string) => (
-                              <span
-                                key={tag}
-                                className="inline-block px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded"
-                              >
-                                #{tag}
+                        <div className="md:w-2/3 p-6 flex flex-col justify-between">
+                          <div>
+                            <div className="flex items-center flex-wrap gap-2 mb-3">
+                              <span className="inline-block px-3 py-1 bg-luxury-gold text-deep-navy text-xs font-semibold rounded-full">
+                                Blog Post
                               </span>
-                            ))}
+                              <span className="text-gray-500 text-sm">
+                                {calculateReadingTime(post.content)} min read
+                              </span>
+                              <span className="text-gray-500 text-sm">
+                                {formatDate(post.publishedAt || post.createdAt)}
+                              </span>
+                            </div>
+                            
+                            <h3 className="text-xl font-bold text-deep-navy mb-3 group-hover:text-luxury-gold transition-colors">
+                              {post.title}
+                            </h3>
+                            
+                            <p className="text-gray-600 mb-4 line-clamp-2">
+                              {post.excerpt || 'No excerpt available'}
+                            </p>
+                            
+                            {post.tags && post.tags.length > 0 && (
+                              <div className="flex flex-wrap gap-2 mb-3">
+                                {post.tags.slice(0, 3).map((tag: string) => (
+                                  <span
+                                    key={tag}
+                                    className="inline-block px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded"
+                                  >
+                                    #{tag}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
                           </div>
                           
-                          <div className="text-sm text-gray-500">
+                          <div className="text-sm text-gray-500 mt-4">
                             By {typeof post.author === 'string' ? post.author : (post.author as any)?.name || 'ZBK Team'}
                           </div>
                         </div>
@@ -171,6 +193,62 @@ export default function BlogPage() {
                 </div>
               )}
             </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="mt-12 flex items-center justify-center space-x-2">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Previous
+                </button>
+                
+                <div className="flex items-center space-x-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                    // Show first page, last page, current page, and pages around current
+                    if (
+                      page === 1 ||
+                      page === totalPages ||
+                      (page >= currentPage - 1 && page <= currentPage + 1)
+                    ) {
+                      return (
+                        <button
+                          key={page}
+                          onClick={() => handlePageChange(page)}
+                          className={`px-4 py-2 border rounded-md transition-colors ${
+                            currentPage === page
+                              ? 'bg-luxury-gold text-deep-navy border-luxury-gold font-semibold'
+                              : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      );
+                    } else if (
+                      page === currentPage - 2 ||
+                      page === currentPage + 2
+                    ) {
+                      return (
+                        <span key={page} className="px-2 text-gray-500">
+                          ...
+                        </span>
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
+                
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </section>

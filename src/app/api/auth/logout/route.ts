@@ -7,12 +7,15 @@ export async function POST(request: NextRequest) {
       message: 'Logout successful'
     })
 
-    // Clear the auth token cookie
+    // Clear the auth token cookie by setting it to empty and expiring it
+    // Use same settings as login endpoint for consistency
     response.cookies.set('auth-token', '', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: false, // Match login endpoint setting for localhost development
       sameSite: 'lax',
-      maxAge: 0 // Expire immediately
+      maxAge: 0, // Expire immediately
+      path: '/', // Ensure cookie is cleared for all paths
+      expires: new Date(0) // Set expiration to epoch time
     })
 
     return response

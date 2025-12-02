@@ -8,7 +8,7 @@ interface AuthGuardProps {
   redirectTo?: string
 }
 
-export default function AuthGuard({ children, redirectTo = '/login/admin' }: AuthGuardProps) {
+export default function AuthGuard({ children, redirectTo = '/' }: AuthGuardProps) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
   const router = useRouter()
 
@@ -24,24 +24,23 @@ export default function AuthGuard({ children, redirectTo = '/login/admin' }: Aut
         console.log('🔑 Token found:', !!token)
         console.log('👤 User info found:', !!userInfo)
         
+        // If no token or user info, redirect immediately
         if (!token || !userInfo) {
-          console.log('❌ No token or user info found, redirecting to login')
-          // Give a small delay to prevent immediate redirect loops
-          setTimeout(() => {
-            localStorage.clear() // Clear all localStorage
-            setIsAuthenticated(false)
-            window.location.href = redirectTo // Force redirect
-          }, 500)
+          console.log('❌ No token or user info found, redirecting to homepage')
+          localStorage.removeItem('auth-token')
+          localStorage.removeItem('admin-user')
+          localStorage.removeItem('zbk_user')
+          setIsAuthenticated(false)
+          window.location.href = redirectTo
           return
         }
 
         console.log('🌐 Verifying token with /api/auth/me...')
         
-        // Verify token with API
+        // Verify token with API - use credentials: 'include' to send cookies
         const response = await fetch('/api/auth/me', {
           credentials: 'include',
           headers: {
-            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         })
@@ -57,7 +56,9 @@ export default function AuthGuard({ children, redirectTo = '/login/admin' }: Aut
             setIsAuthenticated(true)
           } else {
             console.log('❌ Authentication failed:', data.message)
-            localStorage.clear()
+            localStorage.removeItem('auth-token')
+            localStorage.removeItem('admin-user')
+            localStorage.removeItem('zbk_user')
             setIsAuthenticated(false)
             window.location.href = redirectTo
           }
@@ -65,20 +66,24 @@ export default function AuthGuard({ children, redirectTo = '/login/admin' }: Aut
           console.log('❌ Authentication request failed:', response.status)
           const errorData = await response.json().catch(() => ({}))
           console.log('❌ Error details:', errorData)
-          localStorage.clear()
+          localStorage.removeItem('auth-token')
+          localStorage.removeItem('admin-user')
+          localStorage.removeItem('zbk_user')
           setIsAuthenticated(false)
           window.location.href = redirectTo
         }
       } catch (error) {
         console.error('💥 Auth check error:', error)
-        localStorage.clear()
+        localStorage.removeItem('auth-token')
+        localStorage.removeItem('admin-user')
+        localStorage.removeItem('zbk_user')
         setIsAuthenticated(false)
         window.location.href = redirectTo
       }
     }
 
     checkAuth()
-  }, [router, redirectTo])
+  }, [redirectTo])
 
   // Show loading while checking authentication
   if (isAuthenticated === null) {
@@ -102,7 +107,7 @@ export default function AuthGuard({ children, redirectTo = '/login/admin' }: Aut
     <div className="flex items-center justify-center min-h-screen bg-gray-900">
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400 mx-auto mb-4"></div>
-        <p className="text-white text-lg">Redirecting to login...</p>
+        <p className="text-white text-lg">Redirecting...</p>
       </div>
     </div>
   )
