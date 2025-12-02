@@ -1,10 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Button from '@/components/atoms/Button';
 import AuthModal from '@/components/organisms/AuthModal';
 import BookingForm from '@/components/organisms/BookingForm';
 import LocationInput from '@/components/atoms/LocationInput';
+import VehicleSearchModal from '@/components/organisms/VehicleSearchModal';
+import AlertModal from '@/components/molecules/AlertModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/utils/cn';
 
@@ -16,9 +18,74 @@ const Hero: React.FC<HeroProps> = ({ onBookingClick }) => {
   const { isAuthenticated } = useAuth();
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showVehicleSearchModal, setShowVehicleSearchModal] = useState(false);
+  const [alertModal, setAlertModal] = useState<{
+    isOpen: boolean;
+    title?: string;
+    message: string;
+    type?: 'success' | 'error' | 'warning' | 'info';
+  }>({
+    isOpen: false,
+    message: '',
+    type: 'info',
+  });
   const [tripType, setTripType] = useState<'oneWay' | 'roundTrip'>('oneWay');
   const [pickupLocation, setPickupLocation] = useState('');
   const [dropOffLocation, setDropOffLocation] = useState('');
+  const [pickupDate, setPickupDate] = useState('');
+  const [pickupTime, setPickupTime] = useState('');
+  const [returnDate, setReturnDate] = useState('');
+  const [returnTime, setReturnTime] = useState('');
+  
+  // Refs for form inputs
+  const pickupDateRef = useRef<HTMLInputElement>(null);
+  const pickupTimeRef = useRef<HTMLSelectElement>(null);
+  const returnDateRef = useRef<HTMLInputElement>(null);
+  const returnTimeRef = useRef<HTMLSelectElement>(null);
+
+  const showAlert = (message: string, type: 'success' | 'error' | 'warning' | 'info' = 'info', title?: string) => {
+    setAlertModal({
+      isOpen: true,
+      message,
+      type,
+      title,
+    });
+  };
+
+  const handleSearchVehicles = () => {
+    // Get form values
+    const bookingData = {
+      tripType,
+      pickupLocation,
+      dropOffLocation,
+      pickupDate: pickupDateRef.current?.value || pickupDate,
+      pickupTime: pickupTimeRef.current?.value || pickupTime,
+      returnDate: tripType === 'roundTrip' ? (returnDateRef.current?.value || returnDate) : undefined,
+      returnTime: tripType === 'roundTrip' ? (returnTimeRef.current?.value || returnTime) : undefined,
+    };
+
+    // Validate required fields
+    if (!bookingData.pickupLocation || !bookingData.dropOffLocation || !bookingData.pickupDate || !bookingData.pickupTime) {
+      showAlert(
+        'Please fill in all required fields (Pickup Location, Drop-off Location, Pickup Date, and Pickup Time)',
+        'warning',
+        'Missing Required Fields'
+      );
+      return;
+    }
+
+    if (tripType === 'roundTrip' && (!bookingData.returnDate || !bookingData.returnTime)) {
+      showAlert(
+        'Please fill in Return Date and Return Time for round trip',
+        'warning',
+        'Missing Return Information'
+      );
+      return;
+    }
+
+    // Open vehicle search modal
+    setShowVehicleSearchModal(true);
+  };
 
   const handleBookingClick = () => {
     if (onBookingClick) {
@@ -27,6 +94,17 @@ const Hero: React.FC<HeroProps> = ({ onBookingClick }) => {
       // Allow guest booking - no authentication required
       setShowBookingForm(true);
     }
+  };
+
+  const handleSelectVehicle = (vehicleId: string, bookingData: any) => {
+    // Close vehicle search modal
+    setShowVehicleSearchModal(false);
+    
+    // Open booking form with selected vehicle and booking data
+    setShowBookingForm(true);
+    // You can pass bookingData to BookingForm if needed
+    console.log('Selected vehicle:', vehicleId);
+    console.log('Booking data:', bookingData);
   };
 
   const handleAuthSuccess = () => {
@@ -41,7 +119,11 @@ const Hero: React.FC<HeroProps> = ({ onBookingClick }) => {
   const handleBookingComplete = (bookingData: any) => {
     console.log('Booking completed:', bookingData);
     setShowBookingForm(false);
-    alert('Booking confirmed! You will receive a confirmation email shortly.');
+    showAlert(
+      'Booking confirmed! You will receive a confirmation email shortly.',
+      'success',
+      'Booking Successful'
+    );
   };
 
   const scrollToFleet = () => {
@@ -126,7 +208,7 @@ const Hero: React.FC<HeroProps> = ({ onBookingClick }) => {
                     <span className="flex items-center text-sm font-semibold text-gray-800">
                       <svg className="w-4 h-4 mr-2 text-luxury-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 616 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
                       PICK-UP LOCATION
                     </span>
@@ -136,9 +218,7 @@ const Hero: React.FC<HeroProps> = ({ onBookingClick }) => {
                   onChange={setPickupLocation}
                   className="[&_label]:mb-3"
                   inputClassName="h-14 pl-12 pr-4 py-3 border-2 border-white/40 rounded-xl focus:border-luxury-gold focus:outline-none bg-white/70 backdrop-blur-sm text-gray-800 placeholder-gray-500 transition-all duration-300 group-hover:border-white/60"
-                  icon={
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  }
+                  icon={<div className="w-2 h-2 bg-green-500 rounded-full"></div>}
                 />
               </div>
               
@@ -148,7 +228,7 @@ const Hero: React.FC<HeroProps> = ({ onBookingClick }) => {
                     <span className="flex items-center text-sm font-semibold text-gray-800">
                       <svg className="w-4 h-4 mr-2 text-luxury-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 616 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
                       DROP-OFF LOCATION
                     </span>
@@ -158,9 +238,7 @@ const Hero: React.FC<HeroProps> = ({ onBookingClick }) => {
                   onChange={setDropOffLocation}
                   className="[&_label]:mb-3"
                   inputClassName="h-14 pl-12 pr-4 py-3 border-2 border-white/40 rounded-xl focus:border-luxury-gold focus:outline-none bg-white/70 backdrop-blur-sm text-gray-800 placeholder-gray-500 transition-all duration-300 group-hover:border-white/60"
-                  icon={
-                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                  }
+                  icon={<div className="w-2 h-2 bg-red-500 rounded-full"></div>}
                 />
               </div>
             </div>
@@ -180,7 +258,10 @@ const Hero: React.FC<HeroProps> = ({ onBookingClick }) => {
                   PICK-UP DATE
                 </label>
                 <input 
+                  ref={pickupDateRef}
                   type="date" 
+                  value={pickupDate}
+                  onChange={(e) => setPickupDate(e.target.value)}
                   className="w-full h-14 px-4 py-3 border-2 border-white/40 rounded-xl focus:border-luxury-gold focus:outline-none bg-white/70 backdrop-blur-sm text-gray-800 transition-all duration-300 group-hover:border-white/60"
                   min={new Date().toISOString().split('T')[0]}
                 />
@@ -193,7 +274,12 @@ const Hero: React.FC<HeroProps> = ({ onBookingClick }) => {
                   </svg>
                   PICK-UP TIME
                 </label>
-                <select className="w-full h-14 px-4 py-3 border-2 border-white/40 rounded-xl focus:border-luxury-gold focus:outline-none bg-white/80 backdrop-blur-sm text-gray-800 transition-all duration-300 group-hover:border-white/60">
+                <select 
+                  ref={pickupTimeRef}
+                  value={pickupTime}
+                  onChange={(e) => setPickupTime(e.target.value)}
+                  className="w-full h-14 px-4 py-3 border-2 border-white/40 rounded-xl focus:border-luxury-gold focus:outline-none bg-white/80 backdrop-blur-sm text-gray-800 transition-all duration-300 group-hover:border-white/60"
+                >
                   <option value="" className="text-gray-600">Select time</option>
                   {Array.from({ length: 24 }, (_, i) => {
                     const hour24 = i;
@@ -216,7 +302,10 @@ const Hero: React.FC<HeroProps> = ({ onBookingClick }) => {
                       RETURN DATE
                     </label>
                     <input 
+                      ref={returnDateRef}
                       type="date" 
+                      value={returnDate}
+                      onChange={(e) => setReturnDate(e.target.value)}
                       className="w-full h-14 px-4 py-3 border-2 border-white/40 rounded-xl focus:border-luxury-gold focus:outline-none bg-white/70 backdrop-blur-sm text-gray-800 transition-all duration-300 group-hover:border-white/60"
                       min={new Date().toISOString().split('T')[0]}
                     />
@@ -229,7 +318,12 @@ const Hero: React.FC<HeroProps> = ({ onBookingClick }) => {
                       </svg>
                       RETURN TIME
                     </label>
-                    <select className="w-full h-14 px-4 py-3 border-2 border-white/40 rounded-xl focus:border-luxury-gold focus:outline-none bg-white/80 backdrop-blur-sm text-gray-800 transition-all duration-300 group-hover:border-white/60">
+                    <select 
+                      ref={returnTimeRef}
+                      value={returnTime}
+                      onChange={(e) => setReturnTime(e.target.value)}
+                      className="w-full h-14 px-4 py-3 border-2 border-white/40 rounded-xl focus:border-luxury-gold focus:outline-none bg-white/80 backdrop-blur-sm text-gray-800 transition-all duration-300 group-hover:border-white/60"
+                    >
                       <option value="" className="text-gray-600">Select time</option>
                       {Array.from({ length: 24 }, (_, i) => {
                         const hour24 = i;
@@ -250,7 +344,7 @@ const Hero: React.FC<HeroProps> = ({ onBookingClick }) => {
                 variant="primary" 
                 size="large"
                 className="px-10 py-3 h-14 bg-luxury-gold hover:bg-luxury-gold/90 text-white font-semibold text-base rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-luxury-gold/20"
-                onClick={handleBookingClick}
+                onClick={handleSearchVehicles}
               >
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -292,6 +386,31 @@ const Hero: React.FC<HeroProps> = ({ onBookingClick }) => {
         onClose={() => setShowAuthModal(false)}
         initialMode="signup"
         onSuccess={handleAuthSuccess}
+      />
+
+      {/* Vehicle Search Modal */}
+      <VehicleSearchModal
+        isOpen={showVehicleSearchModal}
+        onClose={() => setShowVehicleSearchModal(false)}
+        bookingData={{
+          tripType,
+          pickupLocation,
+          dropOffLocation,
+          pickupDate: pickupDateRef.current?.value || pickupDate,
+          pickupTime: pickupTimeRef.current?.value || pickupTime,
+          returnDate: tripType === 'roundTrip' ? (returnDateRef.current?.value || returnDate) : undefined,
+          returnTime: tripType === 'roundTrip' ? (returnTimeRef.current?.value || returnTime) : undefined,
+        }}
+        onSelectVehicle={handleSelectVehicle}
+      />
+
+      {/* Alert Modal */}
+      <AlertModal
+        isOpen={alertModal.isOpen}
+        onClose={() => setAlertModal({ ...alertModal, isOpen: false })}
+        title={alertModal.title}
+        message={alertModal.message}
+        type={alertModal.type}
       />
     </section>
   );
