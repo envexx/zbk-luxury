@@ -62,7 +62,7 @@ export default function ContactPage() {
                       </svg>
                     ),
                     title: "Address",
-                    content: "123 Luxury Avenue, Premium District, City 12345"
+                    content: "Jurong West Street 65, ZBK Limo Tours & Transportation Services, Singapura 640635"
                   },
                   {
                     icon: (
@@ -245,7 +245,7 @@ export default function ContactPage() {
           
           <div className="bg-gray-700 rounded-lg overflow-hidden border border-gray-600">
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3966.521260322283!2d106.8195613507864!3d-6.194637395493371!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f5390917b759%3A0x6b45e67356080477!2sBunderan%20HI!5e0!3m2!1sen!2sid!4v1700000000000!5m2!1sen!2sid"
+              src="https://www.google.com/maps?q=Jurong+West+Street+65,+ZBK+Limo+Tours+%26+Transportation+Services,+Singapore+640635&output=embed"
               width="100%"
               height="400"
               style={{ border: 0 }}
@@ -253,6 +253,7 @@ export default function ContactPage() {
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               className="w-full h-96"
+              title="ZBK Limo Tours & Transportation Services - Jurong West Street 65, Singapore 640635"
             ></iframe>
           </div>
         </div>

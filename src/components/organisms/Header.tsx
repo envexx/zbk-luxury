@@ -48,7 +48,7 @@ const Header: React.FC = () => {
               <Link href="/" className="flex items-center">
                 <Image
                   src="/Logo.png"
-                  alt="ZBK Luxury Car Rental"
+                  alt="ZBK Limo Tours & Transportation Services"
                   width={120}
                   height={40}
                   className="h-10 w-auto"
@@ -174,7 +174,7 @@ const Header: React.FC = () => {
             <div className="flex items-center justify-between p-4 border-b border-white border-opacity-10">
               <Image
                 src="/Logo.png"
-                alt="ZBK Luxury Car Rental"
+                alt="ZBK Limo Tours & Transportation Services"
                 width={120}
                 height={40}
                 className="h-10 w-auto filter invert"

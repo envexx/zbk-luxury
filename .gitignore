@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Stripe sample code (optional - exclude if not needed)
+# accept-a-payment/
+# stripe-sample-code/

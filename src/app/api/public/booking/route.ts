@@ -84,17 +84,22 @@ export async function POST(request: NextRequest) {
 
     // Send email notifications
     try {
+      // Format date and time
+      const formattedDate = booking.startDate.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })
+      
       // Send confirmation email to customer
       const customerTemplate = emailTemplates.bookingConfirmation(
         booking.customerName,
         booking.id,
         booking.vehicle.name,
-        booking.startDate.toLocaleDateString('id-ID', {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        })
+        formattedDate,
+        booking.pickupLocation,
+        booking.startTime
       )
       
       await sendEmail({
@@ -103,27 +108,38 @@ export async function POST(request: NextRequest) {
         html: customerTemplate.html
       })
       
-      // Send notification to admin
+      // Send notification to admin (zbklimo@gmail.com)
       const adminTemplate = emailTemplates.adminNotification(
         booking.id,
         booking.customerName,
-        booking.vehicle.name
+        booking.customerEmail,
+        booking.customerPhone,
+        booking.vehicle.name,
+        booking.vehicle.model || '',
+        booking.service,
+        formattedDate,
+        booking.startTime,
+        booking.pickupLocation,
+        booking.dropoffLocation || '',
+        booking.duration,
+        booking.totalAmount,
+        booking.notes || undefined
       )
       
-      // Get admin emails from settings or use default
-      const adminEmails = process.env.ADMIN_EMAILS?.split(',') || ['admin@zbkluxury.com']
+      // Send to zbklimo@gmail.com (same email as sender)
+      const adminEmail = process.env.ADMIN_EMAIL || 'zbklimo@gmail.com'
       
-      for (const adminEmail of adminEmails) {
-        await sendEmail({
-          to: adminEmail.trim(),
-          subject: adminTemplate.subject,
-          html: adminTemplate.html
-        })
-      }
+      await sendEmail({
+        to: adminEmail,
+        subject: adminTemplate.subject,
+        html: adminTemplate.html
+      })
       
-      console.log('Booking notification emails sent successfully')
+      console.log('✅ Booking emails sent successfully')
+      console.log(`   - Customer email sent to: ${booking.customerEmail}`)
+      console.log(`   - Admin notification sent to: ${adminEmail}`)
     } catch (emailError) {
-      console.error('Failed to send booking emails:', emailError)
+      console.error('❌ Failed to send booking emails:', emailError)
       // Don't fail the booking creation if email fails
     }
 

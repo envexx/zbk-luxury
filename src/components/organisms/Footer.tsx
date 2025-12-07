@@ -77,7 +77,7 @@ const Footer: React.FC = () => {
             <div className="mb-6">
               <Image
                 src="/Logo.png"
-                alt="ZBK Luxury Car Rental"
+                alt="ZBK Limo Tours & Transportation Services"
                 width={120}
                 height={40}
                 className="h-10 w-auto filter invert"
@@ -85,9 +85,9 @@ const Footer: React.FC = () => {
             </div>
             
             <p className="text-sm text-gray-300 mb-6 leading-relaxed">
-              Experience luxury travel with our premium car rental service. 
-              We provide exceptional vehicles and outstanding customer service 
-              for all your transportation needs.
+              ZBK Limo Tours & Transportation Services - Premium luxury transportation 
+              in Singapore. Experience exceptional limousine and vehicle rental services 
+              for weddings, corporate events, airport transfers, and special occasions.
             </p>
             
             {/* Social Links */}

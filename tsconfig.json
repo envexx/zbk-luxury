@@ -24,11 +24,18 @@
   },
   "include": [
     "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
-    "**/*.mts"
+    "*.ts",
+    "*.mts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "accept-a-payment/**/*",
+    "stripe-sample-code/**/*",
+    "**/accept-a-payment/**",
+    "**/stripe-sample-code/**"
+  ]
 }

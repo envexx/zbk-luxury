@@ -9,9 +9,41 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "ZBK Luxury - Toyota Alphard & Hiace Premium Rental",
-  description: "Experience luxury travel with ZBK's premium Toyota rental service. Choose from our fleet featuring Toyota Alphard luxury MPV and Toyota Hiace group transportation.",
-  keywords: "toyota alphard rental, toyota hiace rental, luxury mpv rental, premium vehicle rental, group transportation, business travel, zbk luxury",
+  title: "ZBK Limo Tours - Premium Luxury Transportation Services",
+  description: "ZBK Limo Tours & Transportation Services - Premium luxury transportation in Singapore. Experience exceptional limousine and vehicle rental services for weddings, corporate events, airport transfers, and special occasions.",
+  keywords: "zbk limo tours, luxury transportation singapore, limousine rental, premium car rental, wedding transport, corporate event transport, airport transfer singapore, zbk luxury",
+  icons: {
+    icon: [
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+    shortcut: '/favicon-32x32.png',
+  },
+  openGraph: {
+    title: "ZBK Limo Tours - Premium Luxury Transportation Services",
+    description: "Premium luxury transportation in Singapore. Experience exceptional limousine and vehicle rental services.",
+    url: "https://zbklimo.com",
+    siteName: "ZBK Limo Tours",
+    images: [
+      {
+        url: "/Logo.png",
+        width: 1200,
+        height: 630,
+        alt: "ZBK Limo Tours Logo",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ZBK Limo Tours - Premium Luxury Transportation Services",
+    description: "Premium luxury transportation in Singapore. Experience exceptional limousine and vehicle rental services.",
+    images: ["/Logo.png"],
+  },
 };
 
 export default function RootLayout({

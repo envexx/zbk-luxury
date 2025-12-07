@@ -49,12 +49,14 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
 
   const selectedVehicle = availableVehicles.find(v => v.id === bookingData.selectedVehicleId);
   
-  // Calculate pricing
-  const hours = parseInt(bookingData.hours) || 1;
+  // Calculate pricing based on ZBK price list
+  // This is a simplified calculation - actual price will be calculated on server
+  const hours = parseInt(bookingData.hours) || 8;
   const hourlyRate = selectedVehicle?.price || 0;
   const subtotal = hourlyRate * hours;
   const tax = subtotal * 0.1; // 10% tax
   const total = subtotal + tax;
+  const depositAmount = total * 0.2; // 20% deposit
 
   const handleInputChange = (field: string, value: string) => {
     setCustomerInfo(prev => ({ ...prev, [field]: value }));
@@ -93,17 +95,25 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
     setIsSubmitting(true);
     
     try {
+      // Determine service type based on duration
+      let service = 'RENTAL';
+      const hours = parseInt(bookingData.hours) || 8;
+      if (bookingData.pickupLocation.toLowerCase().includes('airport') || 
+          bookingData.dropOffLocation.toLowerCase().includes('airport')) {
+        service = 'AIRPORT_TRANSFER';
+      }
+
       // Prepare booking data for API
       const bookingPayload = {
         customerName: customerInfo.name,
         customerEmail: customerInfo.email,
         customerPhone: customerInfo.phone,
         vehicleId: bookingData.selectedVehicleId,
-        service: 'RENTAL', // Default service type
+        service: service,
         startDate: bookingData.pickupDate,
         endDate: bookingData.returnDate || bookingData.pickupDate,
         startTime: bookingData.pickupTime,
-        duration: parseInt(bookingData.hours) || 8,
+        duration: `${hours} hours`,
         pickupLocation: bookingData.pickupLocation,
         dropoffLocation: bookingData.dropOffLocation,
         status: 'PENDING',
@@ -112,8 +122,8 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
 
       console.log('Sending booking data:', bookingPayload);
 
-      // Send to booking API
-      const response = await fetch('/api/bookings', {
+      // Step 1: Create booking
+      const bookingResponse = await fetch('/api/bookings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -121,29 +131,49 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         body: JSON.stringify(bookingPayload),
       });
 
-      const result = await response.json();
+      const bookingResult = await bookingResponse.json();
 
-      if (result.success) {
-        console.log('Booking created successfully:', result.data);
-        onComplete({ customerInfo });
-        
-        // Show success message
-        alert(`Booking confirmed! 
-        
-Booking ID: ${result.data.id}
-Email notifications have been sent to:
-- Customer: ${customerInfo.email}
-- Admin: Notification sent
+      if (!bookingResult.success) {
+        console.error('Booking failed:', bookingResult.error);
+        alert(`Booking failed: ${bookingResult.error}`);
+        setIsSubmitting(false);
+        return;
+      }
 
-You will receive a confirmation email shortly.`);
+      const bookingId = bookingResult.data.id;
+      console.log('Booking created successfully:', bookingId);
+
+      // Step 2: Create Stripe checkout session
+      const checkoutResponse = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ bookingId }),
+      });
+
+      // Check if response is ok
+      if (!checkoutResponse.ok) {
+        const errorData = await checkoutResponse.json().catch(() => ({ error: 'Failed to parse error response' }));
+        console.error('Checkout session HTTP error:', checkoutResponse.status, errorData);
+        alert(`Payment setup failed (${checkoutResponse.status}): ${errorData.error || 'Unknown error'}`);
+        setIsSubmitting(false);
+        return;
+      }
+
+      const checkoutResult = await checkoutResponse.json();
+
+      if (checkoutResult.success && checkoutResult.url) {
+        // Redirect to Stripe Checkout
+        window.location.href = checkoutResult.url;
       } else {
-        console.error('Booking failed:', result.error);
-        alert(`Booking failed: ${result.error}`);
+        console.error('Checkout session failed:', checkoutResult);
+        alert(`Payment setup failed: ${checkoutResult.error || 'Unknown error'}`);
+        setIsSubmitting(false);
       }
     } catch (error) {
       console.error('Error submitting booking:', error);
       alert('Network error. Please try again.');
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -269,9 +299,19 @@ You will receive a confirmation email shortly.`);
                 <span className="font-semibold text-deep-navy">${tax.toFixed(2)}</span>
               </div>
               <div className="pt-3 border-t border-light-gray">
-                <div className="flex justify-between">
-                  <span className="text-lg font-bold text-deep-navy">Total:</span>
-                  <span className="text-xl font-bold text-luxury-gold">${total.toFixed(2)}</span>
+                <div className="flex justify-between mb-2">
+                  <span className="text-lg font-bold text-deep-navy">Total Amount:</span>
+                  <span className="text-xl font-bold text-deep-navy">${total.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between pt-2 border-t border-light-gray">
+                  <span className="text-sm text-charcoal">Deposit Required (20%):</span>
+                  <span className="text-lg font-bold text-luxury-gold">${depositAmount.toFixed(2)}</span>
+                </div>
+                <div className="mt-3 p-3 bg-luxury-gold bg-opacity-10 rounded-compact">
+                  <p className="text-xs text-charcoal">
+                    <strong className="text-luxury-gold">Note:</strong> A 20% deposit is required to confirm your booking. 
+                    The remaining balance will be collected before your trip.
+                  </p>
                 </div>
               </div>
             </div>
@@ -352,7 +392,7 @@ You will receive a confirmation email shortly.`);
                   isLoading={isSubmitting}
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? 'Processing...' : `Confirm Booking - $${total.toFixed(2)}`}
+                  {isSubmitting ? 'Processing...' : `Pay Deposit (20%) - $${(total * 0.2).toFixed(2)}`}
                 </Button>
               </div>
             </form>

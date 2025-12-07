@@ -39,7 +39,15 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    return NextResponse.json(bookings)
+    // Transform to include payment status and deposit amount
+    const bookingsWithPayment = bookings.map(booking => ({
+      ...booking,
+      paymentStatus: (booking as any).paymentStatus || 'PENDING',
+      depositAmount: (booking as any).depositAmount || null,
+      stripeSessionId: (booking as any).stripeSessionId || null,
+    }))
+
+    return NextResponse.json(bookingsWithPayment)
   } catch (error) {
     console.error('Error fetching bookings:', error)
     return NextResponse.json(
@@ -112,12 +120,22 @@ export async function POST(request: NextRequest) {
       }
     })
 
+    // Format date
+    const formattedDate = new Date(startDate).toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
+
     // Send confirmation email to customer
     const customerEmailTemplate = emailTemplates.bookingConfirmation(
       customerName,
       booking.id,
       vehicle.name,
-      startDate
+      formattedDate,
+      pickupLocation,
+      startTime
     )
 
     await sendEmail({
@@ -126,15 +144,27 @@ export async function POST(request: NextRequest) {
       html: customerEmailTemplate.html
     })
 
-    // Send notification to admin
+    // Send notification to admin (zbklimo@gmail.com)
     const adminEmailTemplate = emailTemplates.adminNotification(
       booking.id,
       customerName,
-      vehicle.name
+      customerEmail,
+      customerPhone,
+      vehicle.name,
+      vehicle.model || '',
+      service,
+      formattedDate,
+      startTime,
+      pickupLocation,
+      dropoffLocation || '',
+      duration,
+      parseFloat(totalAmount.toString()),
+      notes || undefined
     )
 
+    // Send to zbklimo@gmail.com (same email as sender)
     await sendEmail({
-      to: process.env.ADMIN_EMAIL || 'admin@zbk.com',
+      to: process.env.ADMIN_EMAIL || 'zbklimo@gmail.com',
       subject: adminEmailTemplate.subject,
       html: adminEmailTemplate.html
     })

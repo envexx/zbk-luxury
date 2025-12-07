@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { sendEmail, emailTemplates } from '@/lib/email'
+import { calculateBookingPrice } from '@/utils/pricing'
 
 // GET /api/bookings - Get all bookings
 export async function GET() {
@@ -38,20 +38,43 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     
+    // Get vehicle details for price calculation
+    const vehicle = await prisma.vehicle.findUnique({
+      where: { id: body.vehicleId },
+      select: {
+        name: true,
+        model: true
+      }
+    })
+
+    if (!vehicle) {
+      return NextResponse.json({
+        success: false,
+        error: 'Vehicle not found'
+      }, { status: 404 })
+    }
+
+    // Calculate total amount using pricing utility
+    const totalAmount = calculateBookingPrice({
+      vehicleName: vehicle.name,
+      service: body.service || 'RENTAL',
+      duration: body.duration || '8 hours'
+    })
+    
     const booking = await prisma.booking.create({
       data: {
         customerName: body.customerName,
         customerEmail: body.customerEmail,
         customerPhone: body.customerPhone,
         vehicleId: body.vehicleId,
-        service: body.service,
+        service: body.service || 'RENTAL',
         startDate: new Date(body.startDate),
         endDate: new Date(body.endDate),
-        startTime: body.startTime,
-        duration: body.duration,
+        startTime: body.startTime || '09:00',
+        duration: body.duration || '8 hours',
         pickupLocation: body.pickupLocation,
         dropoffLocation: body.dropoffLocation,
-        totalAmount: 1500, // Updated booking total amount to USD
+        totalAmount: totalAmount,
         status: body.status || 'PENDING',
         notes: body.notes,
       },
@@ -66,48 +89,13 @@ export async function POST(request: NextRequest) {
       }
     })
     
-    // Send email notifications
-    try {
-      // Send confirmation email to customer
-      const customerTemplate = emailTemplates.bookingConfirmation(
-        booking.customerName,
-        booking.id,
-        booking.vehicle.name,
-        booking.startDate.toLocaleDateString()
-      )
-      
-      await sendEmail({
-        to: booking.customerEmail,
-        subject: customerTemplate.subject,
-        html: customerTemplate.html
-      })
-      
-      // Send notification to admin
-      const adminTemplate = emailTemplates.adminNotification(
-        booking.id,
-        booking.customerName,
-        booking.vehicle.name
-      )
-      
-      // Get admin email from settings or use default
-      const adminEmail = process.env.ADMIN_EMAIL || 'admin@zbkluxury.com'
-      
-      await sendEmail({
-        to: adminEmail,
-        subject: adminTemplate.subject,
-        html: adminTemplate.html
-      })
-      
-      console.log('Booking emails sent successfully')
-    } catch (emailError) {
-      console.error('Failed to send booking emails:', emailError)
-      // Don't fail the booking creation if email fails
-    }
+    // NOTE: Email notifications will be sent after payment confirmation via webhook
+    // This ensures emails are only sent when payment is successful
     
     return NextResponse.json({
       success: true,
       data: booking,
-      message: 'Booking created successfully and notifications sent'
+      message: 'Booking created successfully. Please proceed to payment.'
     }, { status: 201 })
   } catch (error) {
     console.error('Error creating booking:', error)

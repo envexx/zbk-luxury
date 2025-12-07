@@ -56,6 +56,18 @@ export async function PATCH(
       )
     }
 
+    // Payment condition: Cannot confirm booking without payment
+    if (status === 'CONFIRMED' && currentBooking.paymentStatus !== 'PAID') {
+      return NextResponse.json(
+        { 
+          error: 'Cannot confirm booking without payment. Payment status must be PAID before confirming.',
+          paymentStatus: currentBooking.paymentStatus,
+          requiredPaymentStatus: 'PAID'
+        },
+        { status: 400 }
+      )
+    }
+
     // Update booking
     const updatedBooking = await prisma.booking.update({
       where: { id },

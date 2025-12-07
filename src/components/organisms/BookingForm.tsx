@@ -43,18 +43,54 @@ const BookingForm: React.FC<BookingFormProps> = ({
   onSubmit,
   initialVehicleId,
 }) => {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [bookingData, setBookingData] = useState<BookingData>({
-    tripType: 'one-way',
-    pickupDate: '',
-    pickupTime: '',
-    returnDate: '',
-    returnTime: '',
-    pickupLocation: '',
-    dropOffLocation: '',
-    hours: '',
-    selectedVehicleId: initialVehicleId,
+  // Check sessionStorage for pre-filled data
+  const getInitialData = (): BookingData => {
+    if (typeof window !== 'undefined') {
+      const storedData = sessionStorage.getItem('bookingFormData');
+      const storedStep = sessionStorage.getItem('bookingStep');
+      
+      if (storedData) {
+        try {
+          const parsed = JSON.parse(storedData);
+          return {
+            tripType: parsed.tripType || 'one-way',
+            pickupDate: parsed.pickupDate || '',
+            pickupTime: parsed.pickupTime || '',
+            returnDate: parsed.returnDate || '',
+            returnTime: parsed.returnTime || '',
+            pickupLocation: parsed.pickupLocation || '',
+            dropOffLocation: parsed.dropOffLocation || '',
+            hours: parsed.hours || '',
+            selectedVehicleId: parsed.selectedVehicleId || initialVehicleId,
+          };
+        } catch (e) {
+          console.error('Error parsing stored booking data:', e);
+        }
+      }
+    }
+    
+    return {
+      tripType: 'one-way',
+      pickupDate: '',
+      pickupTime: '',
+      returnDate: '',
+      returnTime: '',
+      pickupLocation: '',
+      dropOffLocation: '',
+      hours: '',
+      selectedVehicleId: initialVehicleId,
+    };
+  };
+
+  const [currentStep, setCurrentStep] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const storedStep = sessionStorage.getItem('bookingStep');
+      return storedStep ? parseInt(storedStep) : 1;
+    }
+    return 1;
   });
+  
+  const [bookingData, setBookingData] = useState<BookingData>(getInitialData);
 
   const steps = [
     { number: 1, title: 'Enter Ride Details', description: 'Pickup, drop-off, and duration' },

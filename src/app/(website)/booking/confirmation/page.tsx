@@ -4,6 +4,8 @@ import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Button from '@/components/atoms/Button';
+import Input from '@/components/atoms/Input';
+import PhoneInput from '@/components/atoms/PhoneInput';
 import { cn } from '@/utils/cn';
 
 interface Vehicle {
@@ -37,6 +39,13 @@ function BookingConfirmationContent() {
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [loading, setLoading] = useState(true);
   const [bookingData, setBookingData] = useState<any>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [customerInfo, setCustomerInfo] = useState({
+    name: '',
+    email: '',
+    phone: '',
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     // Get data from URL params or sessionStorage
@@ -80,28 +89,115 @@ function BookingConfirmationContent() {
     }
   };
 
-  const handleContinueBooking = () => {
-    // Navigate to BookingForm with pre-filled data (step 3 - Order Summary)
-    if (vehicle && bookingData) {
-      // Store data in sessionStorage for BookingForm
-      const formData = {
-        tripType: bookingData.tripType === 'oneWay' ? 'one-way' : 'round-trip',
-        pickupDate: bookingData.pickupDate,
-        pickupTime: bookingData.pickupTime,
-        returnDate: bookingData.returnDate || '',
-        returnTime: bookingData.returnTime || '',
-        pickupLocation: bookingData.pickupLocation,
-        dropOffLocation: bookingData.dropOffLocation,
-        hours: '8', // Default hours
-        selectedVehicleId: vehicle.id,
-      };
-      
-      sessionStorage.setItem('bookingFormData', JSON.stringify(formData));
-      sessionStorage.setItem('bookingStep', '3'); // Go directly to step 3
-      
-      router.push('/booking');
-    } else {
-      router.push('/booking');
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!customerInfo.name.trim()) {
+      newErrors.name = 'Full name is required';
+    }
+    if (!customerInfo.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerInfo.email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+    if (!customerInfo.phone.trim()) {
+      newErrors.phone = 'Phone number is required';
+    } else if (!/^\+?[\d\s-()]+$/.test(customerInfo.phone)) {
+      newErrors.phone = 'Please enter a valid phone number';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleContinueBooking = async () => {
+    if (!validateForm()) {
+      return;
+    }
+
+    if (!vehicle || !bookingData) {
+      alert('Missing booking information. Please try again.');
+      return;
+    }
+
+    setIsProcessing(true);
+
+    try {
+      // Determine service type
+      let service = 'RENTAL';
+      const hours = 8; // Default hours
+      if (bookingData.pickupLocation?.toLowerCase().includes('airport') || 
+          bookingData.dropOffLocation?.toLowerCase().includes('airport')) {
+        service = 'AIRPORT_TRANSFER';
+      }
+
+      // Step 1: Create booking
+      const bookingResponse = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          customerName: customerInfo.name,
+          customerEmail: customerInfo.email,
+          customerPhone: customerInfo.phone,
+          vehicleId: vehicle.id,
+          service: service,
+          startDate: bookingData.pickupDate,
+          endDate: bookingData.returnDate || bookingData.pickupDate,
+          startTime: bookingData.pickupTime,
+          duration: `${hours} hours`,
+          pickupLocation: bookingData.pickupLocation,
+          dropoffLocation: bookingData.dropOffLocation,
+          status: 'PENDING',
+          notes: `Trip Type: ${bookingData.tripType}`
+        }),
+      });
+
+      const bookingResult = await bookingResponse.json();
+
+      if (!bookingResult.success) {
+        console.error('Booking failed:', bookingResult.error);
+        alert(`Booking failed: ${bookingResult.error}`);
+        setIsProcessing(false);
+        return;
+      }
+
+      const bookingId = bookingResult.data.id;
+      console.log('Booking created successfully:', bookingId);
+
+      // Step 2: Create Stripe checkout session
+      const checkoutResponse = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ bookingId }),
+      });
+
+      // Check if response is ok
+      if (!checkoutResponse.ok) {
+        const errorData = await checkoutResponse.json().catch(() => ({ error: 'Failed to parse error response' }));
+        console.error('Checkout session HTTP error:', checkoutResponse.status, errorData);
+        alert(`Payment setup failed (${checkoutResponse.status}): ${errorData.error || 'Unknown error'}`);
+        setIsProcessing(false);
+        return;
+      }
+
+      const checkoutResult = await checkoutResponse.json();
+
+      if (checkoutResult.success && checkoutResult.url) {
+        // Redirect to Stripe Checkout
+        window.location.href = checkoutResult.url;
+      } else {
+        console.error('Checkout session failed:', checkoutResult);
+        alert(`Payment setup failed: ${checkoutResult.error || 'Unknown error'}`);
+        setIsProcessing(false);
+      }
+    } catch (error) {
+      console.error('Error processing booking:', error);
+      alert('Network error. Please try again.');
+      setIsProcessing(false);
     }
   };
 
@@ -254,7 +350,7 @@ function BookingConfirmationContent() {
             </div>
           </div>
 
-          {/* Summary Card */}
+          {/* Summary Card with Customer Info */}
           <div className="lg:col-span-1">
             <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 sticky top-6">
               <h2 className="text-xl font-bold text-white mb-4">Booking Summary</h2>
@@ -269,11 +365,73 @@ function BookingConfirmationContent() {
                   <span className="text-white font-semibold">8 hrs</span>
                 </div>
                 <div className="pt-3 border-t border-white/20">
-                  <div className="flex justify-between">
-                    <span className="text-white font-semibold text-lg">Total</span>
-                    <span className="text-luxury-gold font-bold text-xl">
+                  <div className="flex justify-between mb-2">
+                    <span className="text-white font-semibold text-lg">Total Amount:</span>
+                    <span className="text-white font-semibold text-lg">
                       ${((vehicle.price || 0) * 8).toFixed(2)}
                     </span>
+                  </div>
+                  <div className="flex justify-between pt-2 border-t border-white/20">
+                    <span className="text-sm text-gray-300">Deposit Required (20%):</span>
+                    <span className="text-lg font-bold text-luxury-gold">
+                      ${(((vehicle.price || 0) * 8) * 0.2).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Customer Information Form */}
+              <div className="mb-6">
+                <h3 className="text-lg font-bold text-white mb-4">Customer Information</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Full Name <span className="text-red-400">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Enter your full name"
+                      value={customerInfo.name}
+                      onChange={(e) => {
+                        setCustomerInfo(prev => ({ ...prev, name: e.target.value }));
+                        if (errors.name) setErrors(prev => ({ ...prev, name: '' }));
+                      }}
+                      className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-luxury-gold focus:border-transparent"
+                    />
+                    {errors.name && <p className="text-red-400 text-sm mt-1">{errors.name}</p>}
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Email Address <span className="text-red-400">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      placeholder="Enter your email"
+                      value={customerInfo.email}
+                      onChange={(e) => {
+                        setCustomerInfo(prev => ({ ...prev, email: e.target.value }));
+                        if (errors.email) setErrors(prev => ({ ...prev, email: '' }));
+                      }}
+                      className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-luxury-gold focus:border-transparent"
+                    />
+                    {errors.email && <p className="text-red-400 text-sm mt-1">{errors.email}</p>}
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Phone Number <span className="text-red-400">*</span>
+                    </label>
+                    <PhoneInput
+                      placeholder="Enter your phone number"
+                      value={customerInfo.phone}
+                      onChange={(value) => {
+                        setCustomerInfo(prev => ({ ...prev, phone: value }));
+                        if (errors.phone) setErrors(prev => ({ ...prev, phone: '' }));
+                      }}
+                      error={errors.phone}
+                      isRequired
+                    />
                   </div>
                 </div>
               </div>
@@ -283,8 +441,10 @@ function BookingConfirmationContent() {
                 variant="primary"
                 size="large"
                 className="w-full mb-3 bg-luxury-gold hover:bg-luxury-gold/90"
+                disabled={isProcessing}
+                isLoading={isProcessing}
               >
-                Continue to Payment
+                {isProcessing ? 'Processing...' : `Pay Deposit (20%) - $${(((vehicle.price || 0) * 8) * 0.2).toFixed(2)}`}
               </Button>
               
               <Button
@@ -292,6 +452,7 @@ function BookingConfirmationContent() {
                 variant="ghost"
                 size="large"
                 className="w-full text-white hover:bg-white/10"
+                disabled={isProcessing}
               >
                 Back to Search
               </Button>

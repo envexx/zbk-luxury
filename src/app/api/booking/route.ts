@@ -79,12 +79,22 @@ export async function POST(request: NextRequest) {
       data: { status: 'RESERVED' }
     })
 
+    // Format date
+    const formattedDate = new Date(startDate).toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
+
     // Send confirmation email to customer
     const customerEmailTemplate = emailTemplates.bookingConfirmation(
       customerName,
       booking.id,
       availableVehicle.name,
-      startDate
+      formattedDate,
+      pickupLocation,
+      startTime || '09:00'
     )
 
     await sendEmail({
@@ -93,15 +103,27 @@ export async function POST(request: NextRequest) {
       html: customerEmailTemplate.html
     })
 
-    // Send notification to admin
+    // Send notification to admin (zbklimo@gmail.com)
     const adminEmailTemplate = emailTemplates.adminNotification(
       booking.id,
       customerName,
-      availableVehicle.name
+      customerEmail,
+      customerPhone,
+      availableVehicle.name,
+      availableVehicle.model || '',
+      service,
+      formattedDate,
+      startTime || '09:00',
+      pickupLocation,
+      dropoffLocation || '',
+      duration || '8 hours',
+      totalAmount,
+      notes || undefined
     )
 
+    // Send to zbklimo@gmail.com (same email as sender)
     await sendEmail({
-      to: process.env.ADMIN_EMAIL || 'admin@zbk.com',
+      to: process.env.ADMIN_EMAIL || 'zbklimo@gmail.com',
       subject: adminEmailTemplate.subject,
       html: adminEmailTemplate.html
     })
