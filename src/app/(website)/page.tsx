@@ -1,6 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import { useEffect } from 'react';
 import Hero from "@/components/organisms/Hero";
 import FleetSection from "@/components/organisms/FleetSection";
 import ServicesSection from "@/components/organisms/ServicesSection";
@@ -14,6 +15,41 @@ export default function Home() {
     // Navigate to fleet page
     window.location.href = '/fleet';
   };
+
+  useEffect(() => {
+    // Add Organization Schema Markup for Google Search Logo
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.zbktransportservices.com';
+    const organizationSchema = {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "url": baseUrl,
+      "logo": `${baseUrl}/logo-website.png`,
+      "name": "ZBK Limo Tours",
+      "description": "Premium luxury transportation in Singapore. Experience exceptional limousine and vehicle rental services.",
+      "sameAs": []
+    };
+
+    // Remove existing organization schema if any
+    const existingScript = document.querySelector('script[type="application/ld+json"][data-organization-schema]');
+    if (existingScript) {
+      existingScript.remove();
+    }
+
+    // Add new schema script
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.setAttribute('data-organization-schema', 'true');
+    script.text = JSON.stringify(organizationSchema);
+    document.head.appendChild(script);
+
+    return () => {
+      // Cleanup on unmount
+      const scriptToRemove = document.querySelector('script[type="application/ld+json"][data-organization-schema]');
+      if (scriptToRemove) {
+        scriptToRemove.remove();
+      }
+    };
+  }, []);
 
   return (
     <>

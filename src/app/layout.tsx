@@ -42,7 +42,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "ZBK Limo Tours - Premium Luxury Transportation Services",
     description: "Premium luxury transportation in Singapore. Experience exceptional limousine and vehicle rental services.",
-    url: "https://zbklimo.com",
+    url: "https://www.zbktransportservices.com",
     siteName: "ZBK Limo Tours",
     images: [
       {

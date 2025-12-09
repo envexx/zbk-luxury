@@ -28,7 +28,7 @@ export function generateSEOMetadata(config: SEOConfig): Metadata {
     tags = []
   } = config;
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://zbkluxury.com';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.zbktransportservices.com';
   const fullCanonicalUrl = canonicalUrl ? `${baseUrl}${canonicalUrl}` : undefined;
 
   return {
@@ -139,7 +139,7 @@ export function generateBlogListSEO(
 }
 
 export function generateStructuredData(post: BlogPost) {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://zbkluxury.com';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.zbktransportservices.com';
   
   return {
     '@context': 'https://schema.org',
