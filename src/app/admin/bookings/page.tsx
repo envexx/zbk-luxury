@@ -34,6 +34,8 @@ interface Booking {
 export default function BookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
+  const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [stats, setStats] = useState({
     total: 0,
     confirmed: 0,
@@ -187,8 +189,8 @@ export default function BookingsPage() {
             Recent Bookings
           </h2>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        <div className="overflow-x-auto overflow-y-visible" style={{ maxWidth: '100%' }}>
+          <table className="w-full min-w-[1200px]">
             <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -241,11 +243,11 @@ export default function BookingsPage() {
                       {booking.service}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-500 dark:text-gray-300">
+                  <td className="px-6 py-4">
+                    <div className="text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
                       {new Date(booking.startDate).toLocaleDateString()} at {booking.startTime}
                     </div>
-                    <div className="text-xs text-gray-400">
+                    <div className="text-xs text-gray-400 max-w-xs truncate" title={booking.pickupLocation}>
                       {booking.pickupLocation}
                     </div>
                   </td>
@@ -278,6 +280,10 @@ export default function BookingsPage() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
                       <button 
+                        onClick={() => {
+                          setSelectedBooking(booking)
+                          setShowDetailsModal(true)
+                        }}
                         className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 p-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20"
                         title="View Details"
                       >
@@ -309,6 +315,163 @@ export default function BookingsPage() {
           </table>
         </div>
       </div>
+
+      {/* Booking Details Modal */}
+      {showDetailsModal && selectedBooking && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                Booking Details
+              </h3>
+              <button
+                onClick={() => {
+                  setShowDetailsModal(false)
+                  setSelectedBooking(null)
+                }}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+              >
+                <XCircle className="h-6 w-6" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Booking ID</p>
+                  <p className="text-sm text-gray-900 dark:text-white font-mono">{selectedBooking.id}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Status</p>
+                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(selectedBooking.status)}`}>
+                    {selectedBooking.status}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Payment Status</p>
+                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                    selectedBooking.paymentStatus === 'PAID' 
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                      : selectedBooking.paymentStatus === 'FAILED'
+                      ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                      : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                  }`}>
+                    {selectedBooking.paymentStatus || 'PENDING'}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Service</p>
+                  <p className="text-sm text-gray-900 dark:text-white">{selectedBooking.service}</p>
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Customer Information</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Name</p>
+                    <p className="text-sm text-gray-900 dark:text-white">{selectedBooking.customerName}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Email</p>
+                    <p className="text-sm text-gray-900 dark:text-white break-all">{selectedBooking.customerEmail}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Phone</p>
+                    <p className="text-sm text-gray-900 dark:text-white">{selectedBooking.customerPhone}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Vehicle Information</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Vehicle</p>
+                    <p className="text-sm text-gray-900 dark:text-white">{selectedBooking.vehicle?.name || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Plate Number</p>
+                    <p className="text-sm text-gray-900 dark:text-white">{selectedBooking.vehicle?.plateNumber || 'N/A'}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Trip Details</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Date & Time</p>
+                    <p className="text-sm text-gray-900 dark:text-white">
+                      {new Date(selectedBooking.startDate).toLocaleDateString()} at {selectedBooking.startTime}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Duration</p>
+                    <p className="text-sm text-gray-900 dark:text-white">{selectedBooking.duration}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Pickup Location</p>
+                    <p className="text-sm text-gray-900 dark:text-white">{selectedBooking.pickupLocation}</p>
+                  </div>
+                  {selectedBooking.dropoffLocation && (
+                    <div className="col-span-2">
+                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Drop-off Location</p>
+                      <p className="text-sm text-gray-900 dark:text-white">{selectedBooking.dropoffLocation}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Payment Information</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Amount</p>
+                    <p className="text-sm text-gray-900 dark:text-white font-semibold">
+                      ${selectedBooking.totalAmount?.toFixed(2) || '0.00'}
+                    </p>
+                  </div>
+                  {selectedBooking.depositAmount && (
+                    <div>
+                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Deposit Amount</p>
+                      <p className="text-sm text-gray-900 dark:text-white font-semibold">
+                        ${selectedBooking.depositAmount.toFixed(2)}
+                      </p>
+                    </div>
+                  )}
+                  {selectedBooking.stripeSessionId && (
+                    <div className="col-span-2">
+                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Stripe Session ID</p>
+                      <p className="text-sm text-gray-900 dark:text-white font-mono text-xs break-all">
+                        {selectedBooking.stripeSessionId}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {selectedBooking.notes && (
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Notes</p>
+                  <p className="text-sm text-gray-900 dark:text-white">{selectedBooking.notes}</p>
+                </div>
+              )}
+
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex justify-end gap-2">
+                <button
+                  onClick={() => {
+                    setShowDetailsModal(false)
+                    setSelectedBooking(null)
+                  }}
+                  className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

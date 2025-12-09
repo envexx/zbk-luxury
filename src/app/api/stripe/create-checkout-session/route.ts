@@ -143,30 +143,35 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Calculate total amount if not already set
-    let totalAmount = booking.totalAmount
-    if (!totalAmount || totalAmount === 0) {
-      totalAmount = calculateBookingPrice({
-        vehicleName: booking.vehicle.name,
-        service: booking.service,
-        duration: booking.duration
-      })
-      
-      // Update booking with calculated amount
+    // Calculate total amount using the same logic as OrderSummary
+    // Extract hours from duration (e.g., "8 hours" -> 8)
+    const hoursMatch = booking.duration.match(/\d+/);
+    const hours = hoursMatch ? parseInt(hoursMatch[0]) : 8;
+    
+    // Get vehicle price from database
+    const vehicle = await prisma.vehicle.findUnique({
+      where: { id: booking.vehicleId },
+      select: { price: true }
+    });
+    
+    const hourlyRate = vehicle?.price || 0;
+    const subtotal = hourlyRate * hours;
+    const tax = subtotal * 0.1; // 10% tax
+    const calculatedTotal = subtotal + tax;
+    
+    // Use calculated total or booking totalAmount (prefer calculated for consistency)
+    const finalTotal = calculatedTotal > 0 ? calculatedTotal : (booking.totalAmount || 0);
+    
+    // Update booking with accurate total if different
+    if (Math.abs(finalTotal - (booking.totalAmount || 0)) > 0.01) {
       await prisma.booking.update({
         where: { id: bookingId },
-        data: { totalAmount }
-      })
+        data: { totalAmount: finalTotal }
+      });
     }
 
-    // Calculate 20% deposit
-    const depositAmount = calculateDeposit(totalAmount)
-
-    // Update booking with deposit amount
-    await prisma.booking.update({
-      where: { id: bookingId },
-      data: { depositAmount } as any
-    })
+    // Use 100% payment (full amount)
+    // No deposit needed - full payment required
 
     // Get the origin URL for redirect URLs
     // Try multiple methods to get the correct origin
@@ -198,7 +203,9 @@ export async function POST(request: NextRequest) {
     
     console.log('Stripe initialized successfully with key starting with:', validatedKey.substring(0, 10) + '...')
     
-    // Create Stripe Checkout Session
+    // Use the calculated values from above
+
+    // Create Stripe Checkout Session with detailed line items
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
@@ -206,14 +213,27 @@ export async function POST(request: NextRequest) {
           price_data: {
             currency: 'usd',
             product_data: {
-              name: `Booking Deposit - ${booking.vehicle.name}`,
-              description: `Booking ID: ${booking.id}\nService: ${booking.service}\nDuration: ${booking.duration}\nPickup: ${booking.pickupLocation}\nDate: ${new Date(booking.startDate).toLocaleDateString()}`,
+              name: `Vehicle Rental - ${booking.vehicle.name}`,
+              description: `${booking.duration} rental service`,
             },
-            unit_amount: Math.round(depositAmount * 100), // Convert to cents
+            unit_amount: Math.round(subtotal * 100), // Subtotal in cents
+          },
+          quantity: 1,
+        },
+        {
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: 'Tax (10%)',
+              description: 'Service tax',
+            },
+            unit_amount: Math.round(tax * 100), // Tax in cents
           },
           quantity: 1,
         },
       ],
+      // Ensure total matches what's displayed in OrderSummary
+      // Total = subtotal + tax (already calculated above)
       mode: 'payment',
       success_url: `${origin}/payment/success?session_id={CHECKOUT_SESSION_ID}&booking_id=${bookingId}`,
       cancel_url: `${origin}/payment/cancel?booking_id=${bookingId}`,
@@ -227,6 +247,16 @@ export async function POST(request: NextRequest) {
         bookingId: bookingId,
         customerEmail: booking.customerEmail,
         customerName: booking.customerName,
+        vehicleName: booking.vehicle.name,
+        service: booking.service,
+        duration: booking.duration,
+        pickupLocation: booking.pickupLocation,
+        dropoffLocation: booking.dropoffLocation || '',
+        startDate: booking.startDate.toISOString(),
+        startTime: booking.startTime,
+        subtotal: subtotal.toFixed(2),
+        tax: tax.toFixed(2),
+        total: finalTotal.toFixed(2),
       },
       customer_email: booking.customerEmail,
     })

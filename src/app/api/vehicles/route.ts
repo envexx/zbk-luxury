@@ -33,6 +33,15 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     
+    // Validate category
+    const validCategories = ['WEDDING_AFFAIRS', 'ALPHARD_PREMIUM', 'COMBI_TRANSPORT', 'CITY_TOUR'];
+    if (!validCategories.includes(body.category)) {
+      return NextResponse.json({
+        success: false,
+        error: `Invalid category "${body.category}". Must be one of: ${validCategories.join(', ')}`
+      }, { status: 400 });
+    }
+    
     const vehicle = await prisma.vehicle.create({
       data: {
         name: body.name,

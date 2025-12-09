@@ -29,7 +29,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
         {label && (
           <label 
             htmlFor={selectId}
-            className="block text-sm font-semibold text-white mb-1.5"
+            className="block text-sm font-semibold text-gray-900 mb-1.5"
           >
             {label}
             {isRequired && <span className="text-alert-red ml-1">*</span>}
@@ -71,7 +71,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
         )}
         
         {helperText && !error && (
-          <p className="text-xs text-charcoal mt-1">{helperText}</p>
+          <p className="text-xs text-gray-700 mt-1">{helperText}</p>
         )}
       </div>
     );

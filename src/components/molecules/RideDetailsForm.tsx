@@ -132,8 +132,8 @@ const RideDetailsForm: React.FC<RideDetailsFormProps> = ({
   return (
     <div className={cn('max-w-2xl mx-auto', className)}>
       <div className="mb-8 text-center">
-        <h3 className="text-xl font-bold text-white mb-2">Enter Ride Details</h3>
-        <p className="text-charcoal">Please provide your pickup and drop-off information</p>
+        <h3 className="text-xl font-bold text-gray-900 mb-2">Enter Ride Details</h3>
+        <p className="text-gray-600">Please provide your pickup and drop-off information</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -261,11 +261,11 @@ const RideDetailsForm: React.FC<RideDetailsFormProps> = ({
           </div>
           <div>
             <h4 className="text-sm font-semibold text-luxury-gold mb-1">Booking Information</h4>
-            <p className="text-xs text-charcoal mb-2">
+            <p className="text-xs text-gray-700 mb-2">
               <strong>One Way:</strong> Single journey from pickup to destination.<br/>
               <strong>Round Trip:</strong> Return journey back to pickup location.
             </p>
-            <p className="text-xs text-charcoal">
+            <p className="text-xs text-gray-700">
               Our premium vehicles are available 24/7. Minimum booking duration is 1 hour. 
               For bookings longer than 12 hours, please contact our support team.
             </p>

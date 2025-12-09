@@ -17,7 +17,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label 
             htmlFor={inputId}
-            className="block text-sm font-semibold text-white mb-1.5"
+            className="block text-sm font-semibold text-gray-900 mb-1.5"
           >
             {label}
             {isRequired && <span className="text-alert-red ml-1">*</span>}
@@ -46,7 +46,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         )}
         
         {helperText && !error && (
-          <p className="text-xs text-charcoal mt-1">{helperText}</p>
+          <p className="text-xs text-gray-700 mt-1">{helperText}</p>
         )}
       </div>
     );

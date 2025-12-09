@@ -8,22 +8,17 @@ import PhoneInput from '@/components/atoms/PhoneInput';
 import Badge from '@/components/atoms/Badge';
 import { BookingData } from '@/components/organisms/BookingForm';
 
-import { vehicleData } from '@/data/vehicleData';
-
-// Use updated vehicle data with correct pricing from extracted information
-const availableVehicles = vehicleData.map(vehicle => ({
-  id: vehicle.id,
-  name: vehicle.name,
-  image: vehicle.images[0],
-  price: vehicle.price, // Updated prices: Wedding Affairs $300, Alphard/Vellfire $140
-  category: vehicle.category,
-  seats: vehicle.capacity,
-  transmission: vehicle.transmission as 'Automatic',
-  year: vehicle.year,
-  rating: vehicle.rating || 4.8,
-  isLuxury: vehicle.isLuxury || false,
-  minimumHours: vehicle.minimumHours || 1,
-}));
+interface Vehicle {
+  id: string;
+  name: string;
+  model: string;
+  year: number;
+  category: string;
+  capacity: number;
+  price: number;
+  images: string[];
+  features: string[];
+}
 
 export interface OrderSummaryProps {
   className?: string;
@@ -46,17 +41,48 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+  const [loadingVehicle, setLoadingVehicle] = useState(true);
 
-  const selectedVehicle = availableVehicles.find(v => v.id === bookingData.selectedVehicleId);
+  // Fetch vehicle data from API
+  useEffect(() => {
+    const fetchVehicle = async () => {
+      if (!bookingData.selectedVehicleId) {
+        setLoadingVehicle(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/vehicles/${bookingData.selectedVehicleId}`);
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+          setSelectedVehicle(result.data);
+        }
+      } catch (error) {
+        console.error('Error fetching vehicle:', error);
+      } finally {
+        setLoadingVehicle(false);
+      }
+    };
+
+    fetchVehicle();
+  }, [bookingData.selectedVehicleId]);
   
-  // Calculate pricing based on ZBK price list
-  // This is a simplified calculation - actual price will be calculated on server
+  // Calculate pricing based on vehicle price from database
   const hours = parseInt(bookingData.hours) || 8;
   const hourlyRate = selectedVehicle?.price || 0;
   const subtotal = hourlyRate * hours;
   const tax = subtotal * 0.1; // 10% tax
   const total = subtotal + tax;
-  const depositAmount = total * 0.2; // 20% deposit
+
+  // Format category: replace underscores with spaces
+  const formatCategory = (category: string): string => {
+    return category
+      .split('_')
+      .map(word => word.charAt(0) + word.slice(1).toLowerCase())
+      .join(' ');
+  };
 
   const handleInputChange = (field: string, value: string) => {
     setCustomerInfo(prev => ({ ...prev, [field]: value }));
@@ -87,7 +113,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleContinueToPayment = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!validateForm()) return;
@@ -95,85 +121,18 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
     setIsSubmitting(true);
     
     try {
-      // Determine service type based on duration
-      let service = 'RENTAL';
-      const hours = parseInt(bookingData.hours) || 8;
-      if (bookingData.pickupLocation.toLowerCase().includes('airport') || 
-          bookingData.dropOffLocation.toLowerCase().includes('airport')) {
-        service = 'AIRPORT_TRANSFER';
-      }
-
-      // Prepare booking data for API
-      const bookingPayload = {
-        customerName: customerInfo.name,
-        customerEmail: customerInfo.email,
-        customerPhone: customerInfo.phone,
-        vehicleId: bookingData.selectedVehicleId,
-        service: service,
-        startDate: bookingData.pickupDate,
-        endDate: bookingData.returnDate || bookingData.pickupDate,
-        startTime: bookingData.pickupTime,
-        duration: `${hours} hours`,
-        pickupLocation: bookingData.pickupLocation,
-        dropoffLocation: bookingData.dropOffLocation,
-        status: 'PENDING',
-        notes: `Trip Type: ${bookingData.tripType}${bookingData.returnTime ? `, Return Time: ${bookingData.returnTime}` : ''}`
-      };
-
-      console.log('Sending booking data:', bookingPayload);
-
-      // Step 1: Create booking
-      const bookingResponse = await fetch('/api/bookings', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      // Pass customer info to parent component
+      // Payment calculation will be done in API using same logic
+      onComplete({
+        customerInfo: {
+          name: customerInfo.name,
+          email: customerInfo.email,
+          phone: customerInfo.phone,
         },
-        body: JSON.stringify(bookingPayload),
       });
-
-      const bookingResult = await bookingResponse.json();
-
-      if (!bookingResult.success) {
-        console.error('Booking failed:', bookingResult.error);
-        alert(`Booking failed: ${bookingResult.error}`);
-        setIsSubmitting(false);
-        return;
-      }
-
-      const bookingId = bookingResult.data.id;
-      console.log('Booking created successfully:', bookingId);
-
-      // Step 2: Create Stripe checkout session
-      const checkoutResponse = await fetch('/api/stripe/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ bookingId }),
-      });
-
-      // Check if response is ok
-      if (!checkoutResponse.ok) {
-        const errorData = await checkoutResponse.json().catch(() => ({ error: 'Failed to parse error response' }));
-        console.error('Checkout session HTTP error:', checkoutResponse.status, errorData);
-        alert(`Payment setup failed (${checkoutResponse.status}): ${errorData.error || 'Unknown error'}`);
-        setIsSubmitting(false);
-        return;
-      }
-
-      const checkoutResult = await checkoutResponse.json();
-
-      if (checkoutResult.success && checkoutResult.url) {
-        // Redirect to Stripe Checkout
-        window.location.href = checkoutResult.url;
-      } else {
-        console.error('Checkout session failed:', checkoutResult);
-        alert(`Payment setup failed: ${checkoutResult.error || 'Unknown error'}`);
-        setIsSubmitting(false);
-      }
     } catch (error) {
-      console.error('Error submitting booking:', error);
-      alert('Network error. Please try again.');
+      console.error('Error preparing payment:', error);
+      alert('Error preparing payment. Please try again.');
       setIsSubmitting(false);
     }
   };
@@ -196,6 +155,15 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
     return `${displayHour}:${minutes} ${ampm}`;
   };
 
+  if (loadingVehicle) {
+    return (
+      <div className="text-center py-8">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-luxury-gold mx-auto"></div>
+        <p className="text-gray-600 mt-4">Loading vehicle details...</p>
+      </div>
+    );
+  }
+
   if (!selectedVehicle) {
     return (
       <div className="text-center py-8">
@@ -208,109 +176,102 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   return (
     <div className={cn('max-w-4xl mx-auto', className)}>
       <div className="mb-8 text-center">
-        <h3 className="text-xl font-bold text-white mb-2">Place Order</h3>
-        <p className="text-charcoal">Review your booking details and complete your order</p>
+        <h3 className="text-xl font-bold text-gray-900 mb-2">Order Summary</h3>
+        <p className="text-gray-600">Review your booking details before proceeding to payment</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Order Summary */}
         <div className="space-y-6">
           {/* Booking Details */}
-          <div className="bg-off-white rounded-compact p-6">
-            <h4 className="text-lg font-bold text-deep-navy mb-4">Booking Details</h4>
+          <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
+            <h4 className="text-lg font-bold text-gray-900 mb-4">Booking Details</h4>
             
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-charcoal">Pickup Date:</span>
-                <span className="font-semibold text-deep-navy">{formatDate(bookingData.pickupDate)}</span>
+                <span className="text-gray-700">Pickup Date:</span>
+                <span className="font-semibold text-gray-900">{formatDate(bookingData.pickupDate)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-charcoal">Pickup Time:</span>
-                <span className="font-semibold text-deep-navy">{formatTime(bookingData.pickupTime)}</span>
+                <span className="text-gray-700">Pickup Time:</span>
+                <span className="font-semibold text-gray-900">{formatTime(bookingData.pickupTime)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-charcoal">Duration:</span>
-                <span className="font-semibold text-deep-navy">{hours} hour{hours > 1 ? 's' : ''}</span>
+                <span className="text-gray-700">Duration:</span>
+                <span className="font-semibold text-gray-900">{hours} hour{hours > 1 ? 's' : ''}</span>
               </div>
-              <div className="pt-2 border-t border-light-gray">
+              <div className="pt-2 border-t border-gray-200">
                 <div className="mb-2">
-                  <span className="text-charcoal">Pickup Location:</span>
+                  <span className="text-gray-700">Pickup Location:</span>
                 </div>
-                <p className="font-semibold text-deep-navy text-sm">{bookingData.pickupLocation}</p>
+                <p className="font-semibold text-gray-900 text-sm">{bookingData.pickupLocation}</p>
               </div>
               <div>
                 <div className="mb-2">
-                  <span className="text-charcoal">Drop-off Location:</span>
+                  <span className="text-gray-700">Drop-off Location:</span>
                 </div>
-                <p className="font-semibold text-deep-navy text-sm">{bookingData.dropOffLocation}</p>
+                <p className="font-semibold text-gray-900 text-sm">{bookingData.dropOffLocation}</p>
               </div>
             </div>
           </div>
 
           {/* Selected Vehicle */}
-          <div className="bg-off-white rounded-compact p-6">
-            <h4 className="text-lg font-bold text-deep-navy mb-4">Selected Vehicle</h4>
+          <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
+            <h4 className="text-lg font-bold text-gray-900 mb-4">Selected Vehicle</h4>
             
             <div className="flex gap-4">
               <img
-                src={selectedVehicle.image}
+                src={selectedVehicle.images?.[0] || '/4.-alphard-colors-black.png'}
                 alt={selectedVehicle.name}
                 className="w-24 h-16 object-contain rounded"
               />
               <div className="flex-1">
                 <div className="flex items-start justify-between mb-2">
-                  <h5 className="font-bold text-deep-navy">{selectedVehicle.name}</h5>
-                  {selectedVehicle.isLuxury && (
-                    <Badge variant="luxury" size="small">Luxury</Badge>
-                  )}
+                  <h5 className="font-bold text-gray-900">{selectedVehicle.name}</h5>
                 </div>
-                <div className="text-sm text-charcoal mb-2">
-                  {selectedVehicle.category} • {selectedVehicle.seats} seats • {selectedVehicle.year}
+                <div className="text-sm text-gray-700 mb-2">
+                  {formatCategory(selectedVehicle.category)} • {selectedVehicle.capacity} seats • {selectedVehicle.year}
                 </div>
                 <div className="flex items-center gap-1">
                   <svg className="w-4 h-4 text-luxury-gold" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                   </svg>
-                  <span className="text-sm text-charcoal">{selectedVehicle.rating} rating</span>
+                  <span className="text-sm text-gray-700">4.8 rating</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Price Breakdown */}
-          <div className="bg-off-white rounded-compact p-6">
-            <h4 className="text-lg font-bold text-deep-navy mb-4">Price Breakdown</h4>
+          <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
+            <h4 className="text-lg font-bold text-gray-900 mb-4">Price Breakdown</h4>
             
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-charcoal">Hourly Rate:</span>
-                <span className="font-semibold text-deep-navy">${hourlyRate}/hour</span>
+                <span className="text-gray-700">Hourly Rate:</span>
+                <span className="font-semibold text-gray-900">${hourlyRate}/hour</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-charcoal">Duration:</span>
-                <span className="font-semibold text-deep-navy">{hours} hour{hours > 1 ? 's' : ''}</span>
+                <span className="text-gray-700">Duration:</span>
+                <span className="font-semibold text-gray-900">{hours} hour{hours > 1 ? 's' : ''}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-charcoal">Subtotal:</span>
-                <span className="font-semibold text-deep-navy">${subtotal.toFixed(2)}</span>
+                <span className="text-gray-700">Subtotal:</span>
+                <span className="font-semibold text-gray-900">${subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-charcoal">Tax (10%):</span>
-                <span className="font-semibold text-deep-navy">${tax.toFixed(2)}</span>
+                <span className="text-gray-700">Tax (10%):</span>
+                <span className="font-semibold text-gray-900">${tax.toFixed(2)}</span>
               </div>
-              <div className="pt-3 border-t border-light-gray">
-                <div className="flex justify-between mb-2">
-                  <span className="text-lg font-bold text-deep-navy">Total Amount:</span>
-                  <span className="text-xl font-bold text-deep-navy">${total.toFixed(2)}</span>
+              <div className="pt-3 border-t border-gray-200">
+                <div className="flex justify-between">
+                  <span className="text-lg font-bold text-gray-900">Total Amount:</span>
+                  <span className="text-xl font-bold text-luxury-gold">${total.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between pt-2 border-t border-light-gray">
-                  <span className="text-sm text-charcoal">Deposit Required (20%):</span>
-                  <span className="text-lg font-bold text-luxury-gold">${depositAmount.toFixed(2)}</span>
-                </div>
-                <div className="mt-3 p-3 bg-luxury-gold bg-opacity-10 rounded-compact">
-                  <p className="text-xs text-charcoal">
-                    <strong className="text-luxury-gold">Note:</strong> A 20% deposit is required to confirm your booking. 
-                    The remaining balance will be collected before your trip.
+                <div className="mt-3 p-3 bg-luxury-gold bg-opacity-10 rounded-xl">
+                  <p className="text-xs text-gray-700">
+                    <strong className="text-luxury-gold">Note:</strong> Full payment is required to confirm your booking. 
+                    A confirmation email will be sent to your email address.
                   </p>
                 </div>
               </div>
@@ -320,10 +281,10 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
 
         {/* Customer Information Form */}
         <div>
-          <div className="bg-off-white rounded-compact p-6">
-            <h4 className="text-lg font-bold text-deep-navy mb-4">Customer Information</h4>
+          <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
+            <h4 className="text-lg font-bold text-gray-900 mb-4">Customer Information</h4>
             
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleContinueToPayment} className="space-y-4">
               <Input
                 type="text"
                 label="Full Name"
@@ -355,7 +316,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
 
               {/* Terms and Conditions */}
               <div className="pt-4">
-                <div className="flex items-start gap-3 p-4 bg-luxury-gold bg-opacity-10 border border-luxury-gold rounded-compact">
+                <div className="flex items-start gap-3 p-4 bg-luxury-gold bg-opacity-10 border border-luxury-gold rounded-xl">
                   <div className="flex-shrink-0 w-5 h-5 text-luxury-gold mt-0.5">
                     <svg fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
@@ -363,7 +324,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                   </div>
                   <div>
                     <h5 className="text-sm font-semibold text-luxury-gold mb-1">Important Information</h5>
-                    <p className="text-xs text-charcoal">
+                    <p className="text-xs text-gray-700">
                       By placing this order, you agree to our terms and conditions. 
                       A confirmation will be sent to your email. Our driver will contact you 15 minutes before pickup.
                     </p>
@@ -392,7 +353,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                   isLoading={isSubmitting}
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? 'Processing...' : `Pay Deposit (20%) - $${(total * 0.2).toFixed(2)}`}
+                  {isSubmitting ? 'Processing...' : `Continue to Payment - $${total.toFixed(2)}`}
                 </Button>
               </div>
             </form>

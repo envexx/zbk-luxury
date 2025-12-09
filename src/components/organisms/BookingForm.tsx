@@ -43,25 +43,55 @@ const BookingForm: React.FC<BookingFormProps> = ({
   onSubmit,
   initialVehicleId,
 }) => {
-  // Check sessionStorage for pre-filled data
+  // Check sessionStorage and URL params for pre-filled data
   const getInitialData = (): BookingData => {
     if (typeof window !== 'undefined') {
-      const storedData = sessionStorage.getItem('bookingFormData');
-      const storedStep = sessionStorage.getItem('bookingStep');
+      // First, try to get from URL query parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      const bookingDataParam = urlParams.get('bookingData');
       
-      if (storedData) {
+      if (bookingDataParam) {
         try {
-          const parsed = JSON.parse(storedData);
+          const parsed = JSON.parse(decodeURIComponent(bookingDataParam));
+          // Convert tripType format if needed
+          const tripType = parsed.tripType === 'oneWay' ? 'one-way' : 
+                          parsed.tripType === 'roundTrip' ? 'round-trip' : 
+                          parsed.tripType || 'one-way';
           return {
-            tripType: parsed.tripType || 'one-way',
+            tripType: tripType as 'one-way' | 'round-trip',
             pickupDate: parsed.pickupDate || '',
             pickupTime: parsed.pickupTime || '',
             returnDate: parsed.returnDate || '',
             returnTime: parsed.returnTime || '',
             pickupLocation: parsed.pickupLocation || '',
             dropOffLocation: parsed.dropOffLocation || '',
-            hours: parsed.hours || '',
-            selectedVehicleId: parsed.selectedVehicleId || initialVehicleId,
+            hours: parsed.hours || '8',
+            selectedVehicleId: parsed.vehicleId || parsed.selectedVehicleId || initialVehicleId,
+          };
+        } catch (e) {
+          console.error('Error parsing URL booking data:', e);
+        }
+      }
+      
+      // Fallback to sessionStorage
+      const storedData = sessionStorage.getItem('bookingData') || sessionStorage.getItem('bookingFormData');
+      
+      if (storedData) {
+        try {
+          const parsed = JSON.parse(storedData);
+          const tripType = parsed.tripType === 'oneWay' ? 'one-way' : 
+                          parsed.tripType === 'roundTrip' ? 'round-trip' : 
+                          parsed.tripType || 'one-way';
+          return {
+            tripType: tripType as 'one-way' | 'round-trip',
+            pickupDate: parsed.pickupDate || '',
+            pickupTime: parsed.pickupTime || '',
+            returnDate: parsed.returnDate || '',
+            returnTime: parsed.returnTime || '',
+            pickupLocation: parsed.pickupLocation || '',
+            dropOffLocation: parsed.dropOffLocation || '',
+            hours: parsed.hours || '8',
+            selectedVehicleId: parsed.vehicleId || parsed.selectedVehicleId || initialVehicleId,
           };
         } catch (e) {
           console.error('Error parsing stored booking data:', e);

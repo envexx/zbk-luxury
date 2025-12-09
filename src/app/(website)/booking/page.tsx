@@ -18,6 +18,28 @@ function BookingContent() {
       router.replace(`/payment/success?session_id=${sessionId}&booking_id=${bookingId}`);
       return;
     }
+
+    // Store booking data from URL to sessionStorage if present
+    const bookingDataParam = searchParams.get('bookingData');
+    if (bookingDataParam) {
+      try {
+        const bookingData = JSON.parse(decodeURIComponent(bookingDataParam));
+        sessionStorage.setItem('bookingData', JSON.stringify(bookingData));
+        // Also set for BookingForm compatibility
+        sessionStorage.setItem('bookingFormData', JSON.stringify({
+          tripType: bookingData.tripType === 'oneWay' ? 'one-way' : 'round-trip',
+          pickupDate: bookingData.pickupDate,
+          pickupTime: bookingData.pickupTime,
+          returnDate: bookingData.returnDate,
+          returnTime: bookingData.returnTime,
+          pickupLocation: bookingData.pickupLocation,
+          dropOffLocation: bookingData.dropOffLocation,
+          hours: bookingData.hours || '8',
+        }));
+      } catch (error) {
+        console.error('Error parsing booking data from URL:', error);
+      }
+    }
   }, [searchParams, router]);
 
   return (

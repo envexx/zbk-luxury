@@ -167,6 +167,7 @@ enum VehicleCategory {
   WEDDING_AFFAIRS
   ALPHARD_PREMIUM
   COMBI_TRANSPORT
+  CITY_TOUR
 }
 
 enum VehicleStatus {

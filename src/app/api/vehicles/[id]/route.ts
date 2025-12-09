@@ -55,6 +55,17 @@ export async function PUT(
     const { id } = await params
     const body = await request.json()
     
+    // Validate category if provided
+    if (body.category) {
+      const validCategories = ['WEDDING_AFFAIRS', 'ALPHARD_PREMIUM', 'COMBI_TRANSPORT', 'CITY_TOUR'];
+      if (!validCategories.includes(body.category)) {
+        return NextResponse.json({
+          success: false,
+          error: `Invalid category "${body.category}". Must be one of: ${validCategories.join(', ')}`
+        }, { status: 400 });
+      }
+    }
+    
     const vehicle = await prisma.vehicle.update({
       where: {
         id

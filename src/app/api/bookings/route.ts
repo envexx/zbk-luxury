@@ -43,7 +43,8 @@ export async function POST(request: NextRequest) {
       where: { id: body.vehicleId },
       select: {
         name: true,
-        model: true
+        model: true,
+        price: true // Get price from database
       }
     })
 
@@ -54,12 +55,15 @@ export async function POST(request: NextRequest) {
       }, { status: 404 })
     }
 
-    // Calculate total amount using pricing utility
-    const totalAmount = calculateBookingPrice({
-      vehicleName: vehicle.name,
-      service: body.service || 'RENTAL',
-      duration: body.duration || '8 hours'
-    })
+    // Calculate total amount using vehicle price from database
+    // Extract hours from duration (e.g., "8 hours" -> 8)
+    const hoursMatch = (body.duration || '8 hours').match(/\d+/);
+    const hours = hoursMatch ? parseInt(hoursMatch[0]) : 8;
+    
+    const hourlyRate = vehicle.price || 0;
+    const subtotal = hourlyRate * hours;
+    const tax = subtotal * 0.1; // 10% tax
+    const totalAmount = subtotal + tax;
     
     const booking = await prisma.booking.create({
       data: {

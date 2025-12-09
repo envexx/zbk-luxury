@@ -146,7 +146,7 @@ const LocationInput: React.FC<LocationInputProps> = ({
   return (
     <div className={cn('relative', className)}>
       {label && (
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label className="block text-sm font-medium text-gray-900 dark:text-gray-300 mb-2">
           {label}
           {isRequired && <span className="text-red-500 ml-1">*</span>}
         </label>

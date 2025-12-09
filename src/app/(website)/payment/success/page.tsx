@@ -50,7 +50,36 @@ function PaymentSuccessContent() {
     const bookingId = searchParams.get('booking_id');
 
     if (sessionId || bookingId) {
-      // Fetch receipt data
+      // First, confirm payment (fallback if webhook hasn't fired)
+      const confirmPayment = async () => {
+        try {
+          const confirmResponse = await fetch('/api/stripe/confirm-payment', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              sessionId: sessionId || undefined,
+              bookingId: bookingId || undefined,
+            }),
+          });
+
+          const confirmResult = await confirmResponse.json();
+          if (confirmResult.success) {
+            console.log('✅ Payment confirmed:', confirmResult.message);
+          } else {
+            console.log('ℹ️ Payment confirmation:', confirmResult.message);
+          }
+        } catch (error) {
+          console.error('Error confirming payment:', error);
+          // Continue anyway to fetch receipt
+        }
+      };
+
+      // Confirm payment first
+      confirmPayment();
+
+      // Then fetch receipt data
       const params = new URLSearchParams();
       if (sessionId) params.append('session_id', sessionId);
       if (bookingId) params.append('booking_id', bookingId);
