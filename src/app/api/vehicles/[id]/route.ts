@@ -66,31 +66,57 @@ export async function PUT(
       }
     }
     
+    // Build update data object conditionally
+    const updateData: any = {
+      name: body.name,
+      model: body.model,
+      year: parseInt(body.year) || body.year,
+      category: body.category,
+      status: body.status,
+      location: body.location,
+      plateNumber: body.plateNumber,
+      capacity: parseInt(body.capacity) || body.capacity,
+      color: body.color,
+      mileage: body.mileage,
+      features: body.features,
+      images: body.images,
+      description: body.description,
+    }
+
+    // Add optional fields only if they are provided
+    if (body.luggage !== undefined) {
+      updateData.luggage = body.luggage ? parseInt(body.luggage) : null
+    }
+    if (body.price !== undefined) {
+      updateData.price = parseFloat(body.price)
+    }
+    if (body.priceAirportTransfer !== undefined) {
+      updateData.priceAirportTransfer = parseFloat(body.priceAirportTransfer)
+    }
+    if (body.price6Hours !== undefined) {
+      updateData.price6Hours = parseFloat(body.price6Hours)
+    }
+    if (body.price12Hours !== undefined) {
+      updateData.price12Hours = parseFloat(body.price12Hours)
+    }
+    if (body.services !== undefined) {
+      updateData.services = body.services
+    }
+    if (body.minimumHours !== undefined) {
+      updateData.minimumHours = body.minimumHours ? parseInt(body.minimumHours) : null
+    }
+    if (body.lastMaintenance) {
+      updateData.lastMaintenance = new Date(body.lastMaintenance)
+    }
+    if (body.nextMaintenance) {
+      updateData.nextMaintenance = new Date(body.nextMaintenance)
+    }
+
     const vehicle = await prisma.vehicle.update({
       where: {
         id
       },
-      data: {
-        name: body.name,
-        model: body.model,
-        year: parseInt(body.year) || body.year,
-        category: body.category,
-        status: body.status,
-        location: body.location,
-        plateNumber: body.plateNumber,
-        capacity: parseInt(body.capacity) || body.capacity,
-        color: body.color,
-        price: body.price !== undefined ? parseFloat(body.price) : undefined,
-        minimumHours: body.minimumHours !== undefined ? (body.minimumHours ? parseInt(body.minimumHours) : null) : undefined,
-        purchaseDate: body.purchaseDate ? new Date(body.purchaseDate) : undefined,
-        purchasePrice: body.purchasePrice !== undefined ? parseFloat(body.purchasePrice) : undefined,
-        mileage: body.mileage,
-        features: body.features,
-        images: body.images,
-        description: body.description,
-        lastMaintenance: body.lastMaintenance ? new Date(body.lastMaintenance) : null,
-        nextMaintenance: body.nextMaintenance ? new Date(body.nextMaintenance) : null,
-      }
+      data: updateData
     })
     
     return NextResponse.json({

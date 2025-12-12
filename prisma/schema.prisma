@@ -23,32 +23,37 @@ model User {
 }
 
 model Vehicle {
-  id               String            @id @default(cuid())
-  name             String
-  model            String
-  year             Int
-  category         VehicleCategory
-  status           VehicleStatus     @default(AVAILABLE)
-  location         String
-  plateNumber      String            @unique
-  capacity         Int
-  color            String
-  price            Float             // Hourly rental price
-  minimumHours     Int?              // Minimum booking hours
-  lastMaintenance  DateTime?
-  nextMaintenance  DateTime?
-  purchaseDate     DateTime
-  purchasePrice    Float
-  mileage          String?
-  features         String[] // JSON array as string
-  images           String[] // JSON array as string
-  description      String?
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
+  id                    String            @id @default(cuid())
+  name                  String
+  model                 String
+  year                  Int
+  category              VehicleCategory
+  status                VehicleStatus     @default(AVAILABLE)
+  location              String
+  plateNumber           String            @unique
+  capacity              Int
+  luggage               Int?              // Luggage capacity
+  color                 String
+  price                 Float?            // Legacy hourly rental price (deprecated)
+  priceAirportTransfer  Float?            // Airport Transfer / Trip price
+  price6Hours           Float?            // 6 hours booking price
+  price12Hours          Float?            // 12 hours booking price
+  services              String[]          // Available services: ["TRIP", "RENT"]
+  minimumHours          Int?              // Minimum booking hours
+  lastMaintenance       DateTime?
+  nextMaintenance       DateTime?
+  purchaseDate          DateTime
+  purchasePrice         Float
+  mileage               String?
+  features              String[]          // JSON array as string
+  images                String[]          // JSON array as string
+  description           String?
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
   
   // Relations
-  bookings         Booking[]
-  maintenanceRecords MaintenanceRecord[]
+  bookings              Booking[]
+  maintenanceRecords    MaintenanceRecord[]
 
   @@map("vehicles")
 }

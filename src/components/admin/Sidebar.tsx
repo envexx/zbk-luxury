@@ -3,14 +3,13 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect } from 'react'
-import { Home, Car, Calendar, Users, FileText, BarChart3, Settings, X } from './Icons'
+import { Home, Car, Calendar, FileText, BarChart3, Settings, X } from './Icons'
 import { useSidebar } from '@/contexts/SidebarContext'
 
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: Home },
   { name: 'Vehicles', href: '/admin/vehicles', icon: Car },
   { name: 'Bookings', href: '/admin/bookings', icon: Calendar },
-  { name: 'Users', href: '/admin/users', icon: Users },
   { name: 'Blog', href: '/admin/blog', icon: FileText },
   { name: 'Analysis', href: '/admin/analysis', icon: BarChart3 },
   { name: 'Settings', href: '/admin/settings', icon: Settings },

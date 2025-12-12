@@ -13,9 +13,13 @@ interface Vehicle {
   location: string
   plateNumber: string
   capacity: number
+  luggage?: number
   color: string
-  purchaseDate: string
-  purchasePrice: number
+  price?: number
+  priceAirportTransfer?: number
+  price6Hours?: number
+  price12Hours?: number
+  services?: string[]
   mileage: string
   features: string[]
   images: string[]
@@ -40,9 +44,13 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
     location: 'Jakarta',
     plateNumber: '',
     capacity: 4,
+    luggage: 4,
     color: '',
-    purchaseDate: '',
-    purchasePrice: 0,
+    price: 0,
+    priceAirportTransfer: 0,
+    price6Hours: 0,
+    price12Hours: 0,
+    services: [],
     mileage: '',
     features: [],
     images: [],
@@ -58,9 +66,13 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
     if (vehicle && mode === 'edit') {
       setFormData({
         ...vehicle,
-        purchaseDate: vehicle.purchaseDate ? new Date(vehicle.purchaseDate).toISOString().split('T')[0] : '',
         features: Array.isArray(vehicle.features) ? vehicle.features : [],
-        images: Array.isArray(vehicle.images) ? vehicle.images : []
+        images: Array.isArray(vehicle.images) ? vehicle.images : [],
+        services: Array.isArray(vehicle.services) ? vehicle.services : [],
+        luggage: vehicle.luggage || 4,
+        priceAirportTransfer: vehicle.priceAirportTransfer || 0,
+        price6Hours: vehicle.price6Hours || 0,
+        price12Hours: vehicle.price12Hours || 0
       })
       setFeaturesInput(Array.isArray(vehicle.features) ? vehicle.features.join(', ') : '')
     } else {
@@ -74,9 +86,13 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
         location: 'Jakarta',
         plateNumber: '',
         capacity: 4,
+        luggage: 4,
         color: '',
-        purchaseDate: '',
-        purchasePrice: 0,
+        price: 0,
+        priceAirportTransfer: 0,
+        price6Hours: 0,
+        price12Hours: 0,
+        services: [],
         mileage: '',
         features: [],
         images: [],
@@ -98,6 +114,18 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
     // Validate required fields
     if (!formData.name || !formData.model || !formData.plateNumber) {
       alert('Please fill in all required fields (Name, Model, Plate Number)')
+      return
+    }
+    
+    // Validate pricing fields
+    if (!formData.priceAirportTransfer || !formData.price6Hours || !formData.price12Hours) {
+      alert('Please fill in all pricing fields (Airport Transfer, 6 Hours, 12 Hours)')
+      return
+    }
+    
+    // Validate services
+    if (!formData.services || formData.services.length === 0) {
+      alert('Please select at least one service type (Trip/Airport Transfer or Rent)')
       return
     }
     
@@ -123,10 +151,25 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
     const { name, value } = e.target
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'year' || name === 'capacity' || name === 'purchasePrice' 
+      [name]: name === 'year' || name === 'capacity' || name === 'luggage'
         ? parseInt(value) || 0 
+        : name === 'price' || name === 'priceAirportTransfer' || name === 'price6Hours' || name === 'price12Hours'
+        ? parseFloat(value) || 0
         : value
     }))
+  }
+
+  const handleServiceToggle = (service: string) => {
+    setFormData(prev => {
+      const currentServices = prev.services || []
+      const newServices = currentServices.includes(service)
+        ? currentServices.filter(s => s !== service)
+        : [...currentServices, service]
+      return {
+        ...prev,
+        services: newServices
+      }
+    })
   }
 
   const handleFileUpload = async (files: FileList) => {
@@ -428,39 +471,114 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
                   placeholder="5000 km"
                 />
               </div>
-            </div>
-          </div>
-
-          {/* Purchase Information */}
-          <div>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Purchase Information</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Purchase Date
-                </label>
-                <input
-                  type="date"
-                  name="purchaseDate"
-                  value={formData.purchaseDate}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 dark:bg-gray-700 dark:text-white bg-white text-gray-900"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Purchase Price ($)
+                  Luggage Capacity
                 </label>
                 <input
                   type="number"
-                  name="purchasePrice"
-                  value={formData.purchasePrice}
+                  name="luggage"
+                  value={formData.luggage || 4}
                   onChange={handleInputChange}
                   min="0"
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 dark:bg-gray-700 dark:text-white bg-white text-gray-900"
-                  placeholder="250000"
+                  placeholder="4"
                 />
               </div>
+            </div>
+          </div>
+
+          {/* Pricing Information */}
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Pricing Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Airport Transfer / Trip Price ($) *
+                </label>
+                <input
+                  type="number"
+                  name="priceAirportTransfer"
+                  value={formData.priceAirportTransfer || 0}
+                  onChange={handleInputChange}
+                  min="0"
+                  step="0.01"
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 dark:bg-gray-700 dark:text-white bg-white text-gray-900"
+                  placeholder="80"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  6 Hours Booking Price ($) *
+                </label>
+                <input
+                  type="number"
+                  name="price6Hours"
+                  value={formData.price6Hours || 0}
+                  onChange={handleInputChange}
+                  min="0"
+                  step="0.01"
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 dark:bg-gray-700 dark:text-white bg-white text-gray-900"
+                  placeholder="360"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  12 Hours Booking Price ($) *
+                </label>
+                <input
+                  type="number"
+                  name="price12Hours"
+                  value={formData.price12Hours || 0}
+                  onChange={handleInputChange}
+                  min="0"
+                  step="0.01"
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 dark:bg-gray-700 dark:text-white bg-white text-gray-900"
+                  placeholder="720"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Vehicle Services */}
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Vehicle Services</h3>
+            <div className="space-y-3">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                Select the services available for this vehicle:
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.services?.includes('TRIP') || false}
+                    onChange={() => handleServiceToggle('TRIP')}
+                    className="w-4 h-4 text-yellow-500 border-gray-300 rounded focus:ring-yellow-500 focus:ring-2"
+                  />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Trip / Airport Transfer
+                  </span>
+                </label>
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.services?.includes('RENT') || false}
+                    onChange={() => handleServiceToggle('RENT')}
+                    className="w-4 h-4 text-yellow-500 border-gray-300 rounded focus:ring-yellow-500 focus:ring-2"
+                  />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Rent
+                  </span>
+                </label>
+              </div>
+              {(!formData.services || formData.services.length === 0) && (
+                <p className="text-sm text-red-600 dark:text-red-400 mt-2">
+                  Please select at least one service type
+                </p>
+              )}
             </div>
           </div>
 

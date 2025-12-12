@@ -15,7 +15,12 @@ interface Vehicle {
   year: number;
   category: string;
   capacity: number;
-  price: number;
+  luggage?: number;
+  price?: number;
+  priceAirportTransfer?: number;
+  price6Hours?: number;
+  price12Hours?: number;
+  services?: string[];
   images: string[];
   features: string[];
 }
@@ -69,10 +74,29 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
     fetchVehicle();
   }, [bookingData.selectedVehicleId]);
   
-  // Calculate pricing based on vehicle price from database
+  // Calculate pricing based on service type and duration
   const hours = parseInt(bookingData.hours) || 8;
-  const hourlyRate = selectedVehicle?.price || 0;
-  const subtotal = hourlyRate * hours;
+  let subtotal = 0;
+  
+  // Determine service type - default to TRIP for airport transfer
+  // For now, we'll use duration to determine pricing:
+  // - If 6 hours: use price6Hours
+  // - If 12 hours: use price12Hours
+  // - Otherwise: use airport transfer price or hourly rate
+  
+  if (hours === 6 && selectedVehicle?.price6Hours) {
+    subtotal = selectedVehicle.price6Hours;
+  } else if (hours === 12 && selectedVehicle?.price12Hours) {
+    subtotal = selectedVehicle.price12Hours;
+  } else if (selectedVehicle?.priceAirportTransfer) {
+    // Use airport transfer price for trip services
+    subtotal = selectedVehicle.priceAirportTransfer;
+  } else {
+    // Fallback to hourly rate
+    const hourlyRate = selectedVehicle?.price || 0;
+    subtotal = hourlyRate * hours;
+  }
+  
   const tax = subtotal * 0.1; // 10% tax
   const total = subtotal + tax;
 
@@ -230,7 +254,9 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                   <h5 className="font-bold text-gray-900">{selectedVehicle.name}</h5>
                 </div>
                 <div className="text-sm text-gray-700 mb-2">
-                  {formatCategory(selectedVehicle.category)} • {selectedVehicle.capacity} seats • {selectedVehicle.year}
+                  {formatCategory(selectedVehicle.category)} • {selectedVehicle.capacity} pax
+                  {selectedVehicle.luggage && ` • ${selectedVehicle.luggage} luggage`}
+                  {` • ${selectedVehicle.year}`}
                 </div>
                 <div className="flex items-center gap-1">
                   <svg className="w-4 h-4 text-luxury-gold" fill="currentColor" viewBox="0 0 20 20">
@@ -247,14 +273,33 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
             <h4 className="text-lg font-bold text-gray-900 mb-4">Price Breakdown</h4>
             
             <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-gray-700">Hourly Rate:</span>
-                <span className="font-semibold text-gray-900">${hourlyRate}/hour</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-700">Duration:</span>
-                <span className="font-semibold text-gray-900">{hours} hour{hours > 1 ? 's' : ''}</span>
-              </div>
+              {hours === 6 && selectedVehicle?.price6Hours ? (
+                <div className="flex justify-between">
+                  <span className="text-gray-700">6 Hours Booking:</span>
+                  <span className="font-semibold text-gray-900">${selectedVehicle.price6Hours.toFixed(2)}</span>
+                </div>
+              ) : hours === 12 && selectedVehicle?.price12Hours ? (
+                <div className="flex justify-between">
+                  <span className="text-gray-700">12 Hours Booking:</span>
+                  <span className="font-semibold text-gray-900">${selectedVehicle.price12Hours.toFixed(2)}</span>
+                </div>
+              ) : selectedVehicle?.priceAirportTransfer ? (
+                <div className="flex justify-between">
+                  <span className="text-gray-700">Trip Price (Airport Transfer):</span>
+                  <span className="font-semibold text-gray-900">${selectedVehicle.priceAirportTransfer.toFixed(2)}</span>
+                </div>
+              ) : (
+                <>
+                  <div className="flex justify-between">
+                    <span className="text-gray-700">Trip Price:</span>
+                    <span className="font-semibold text-gray-900">${selectedVehicle?.price || 0}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-700">Duration:</span>
+                    <span className="font-semibold text-gray-900">{hours} hour{hours > 1 ? 's' : ''}</span>
+                  </div>
+                </>
+              )}
               <div className="flex justify-between">
                 <span className="text-gray-700">Subtotal:</span>
                 <span className="font-semibold text-gray-900">${subtotal.toFixed(2)}</span>

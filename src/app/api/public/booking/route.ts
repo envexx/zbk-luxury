@@ -35,7 +35,13 @@ export async function POST(request: NextRequest) {
         name: true,
         model: true,
         status: true,
-        plateNumber: true
+        plateNumber: true,
+        price: true,
+        priceAirportTransfer: true,
+        price6Hours: true,
+        price12Hours: true,
+        services: true,
+        minimumHours: true
       }
     })
 
@@ -53,6 +59,33 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
+    // Calculate total amount based on service type and duration
+    let totalAmount = body.totalAmount || 0
+    
+    // If totalAmount not provided, calculate from vehicle pricing
+    if (!totalAmount) {
+      const durationHours = parseInt((body.duration || '8 hours').replace(' hours', '').replace(' hour', '')) || 8
+      const serviceType = (body.service || '').toUpperCase()
+      const isTripService = serviceType.includes('TRIP') || serviceType.includes('AIRPORT')
+      
+      if (isTripService && vehicle.priceAirportTransfer) {
+        // Airport Transfer / Trip service
+        totalAmount = vehicle.priceAirportTransfer
+      } else {
+        // Rent service - use 6hrs or 12hrs pricing
+        if (durationHours >= 12 && vehicle.price12Hours) {
+          totalAmount = vehicle.price12Hours
+        } else if (durationHours >= 6 && vehicle.price6Hours) {
+          totalAmount = vehicle.price6Hours
+        } else {
+          // Fallback to hourly rate if available
+          const minimumHours = vehicle.minimumHours || 1
+          const actualHours = Math.max(durationHours, minimumHours)
+          totalAmount = (vehicle.price || 0) * actualHours
+        }
+      }
+    }
+
     // Create booking with PENDING status (admin needs to confirm)
     const booking = await prisma.booking.create({
       data: {
@@ -67,7 +100,7 @@ export async function POST(request: NextRequest) {
         duration: body.duration || '8 hours',
         pickupLocation: body.pickupLocation,
         dropoffLocation: body.dropoffLocation || body.pickupLocation,
-        totalAmount: body.totalAmount || 0,
+        totalAmount: totalAmount,
         status: 'PENDING', // Always start as PENDING for admin review
         notes: body.notes || ''
       },

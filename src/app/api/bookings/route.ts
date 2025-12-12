@@ -44,7 +44,12 @@ export async function POST(request: NextRequest) {
       select: {
         name: true,
         model: true,
-        price: true // Get price from database
+        price: true,
+        priceAirportTransfer: true,
+        price6Hours: true,
+        price12Hours: true,
+        services: true,
+        minimumHours: true
       }
     })
 
@@ -55,13 +60,32 @@ export async function POST(request: NextRequest) {
       }, { status: 404 })
     }
 
-    // Calculate total amount using vehicle price from database
+    // Calculate total amount based on service type and duration
     // Extract hours from duration (e.g., "8 hours" -> 8)
     const hoursMatch = (body.duration || '8 hours').match(/\d+/);
     const hours = hoursMatch ? parseInt(hoursMatch[0]) : 8;
     
-    const hourlyRate = vehicle.price || 0;
-    const subtotal = hourlyRate * hours;
+    let subtotal = 0;
+    const serviceType = (body.service || 'RENTAL').toUpperCase();
+    const isTripService = serviceType.includes('TRIP') || serviceType.includes('AIRPORT');
+    
+    if (isTripService && vehicle.priceAirportTransfer) {
+      // Airport Transfer / Trip service
+      subtotal = vehicle.priceAirportTransfer;
+    } else {
+      // Rent service - use 6hrs or 12hrs pricing
+      if (hours >= 12 && vehicle.price12Hours) {
+        subtotal = vehicle.price12Hours;
+      } else if (hours >= 6 && vehicle.price6Hours) {
+        subtotal = vehicle.price6Hours;
+      } else {
+        // Fallback to hourly rate if available
+        const minimumHours = vehicle.minimumHours || 1;
+        const actualHours = Math.max(hours, minimumHours);
+        subtotal = (vehicle.price || 0) * actualHours;
+      }
+    }
+    
     const tax = subtotal * 0.1; // 10% tax
     const totalAmount = subtotal + tax;
     

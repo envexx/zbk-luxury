@@ -21,20 +21,44 @@ export default function RealTimeStats() {
   })
 
   const [isLive, setIsLive] = useState(true)
+  const [loading, setLoading] = useState(false)
+
+  const fetchRealTimeStats = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch('/api/admin/realtime-stats')
+      const data = await response.json()
+      
+      if (data.success) {
+        setStats({
+          activeBookings: data.data.activeBookings || 0,
+          todayRevenue: data.data.todayRevenue || 0,
+          pendingApprovals: data.data.pendingApprovals || 0,
+          systemStatus: data.data.systemStatus || 'online',
+          lastUpdate: new Date().toISOString()
+        })
+      }
+    } catch (error) {
+      console.error('Error fetching real-time stats:', error)
+      setStats(prev => ({
+        ...prev,
+        systemStatus: 'offline'
+      }))
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    // Simulate real-time updates
+    // Fetch initial data
+    fetchRealTimeStats()
+
+    // Set up interval for real-time updates
     const interval = setInterval(() => {
       if (isLive) {
-        setStats(prev => ({
-          ...prev,
-          activeBookings: Math.floor(Math.random() * 10) + 15,
-          todayRevenue: Math.floor(Math.random() * 50000) + 25000,
-          pendingApprovals: Math.floor(Math.random() * 5) + 2,
-          lastUpdate: new Date().toISOString()
-        }))
+        fetchRealTimeStats()
       }
-    }, 5000) // Update every 5 seconds
+    }, 10000) // Update every 10 seconds
 
     return () => clearInterval(interval)
   }, [isLive])

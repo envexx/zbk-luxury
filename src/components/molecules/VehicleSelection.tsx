@@ -16,11 +16,16 @@ export interface Vehicle {
   location: string;
   plateNumber: string;
   capacity: number;
+  luggage?: number;
   color: string;
   features: string[];
   images: string[];
   description?: string;
-  price?: number; // Hourly rental price from database
+  price?: number; // Legacy hourly rental price
+  priceAirportTransfer?: number;
+  price6Hours?: number;
+  price12Hours?: number;
+  services?: string[];
   purchasePrice?: number;
 }
 
@@ -177,8 +182,16 @@ const VehicleSelection: React.FC<VehicleSelectionProps> = ({
                   <svg className="w-4 h-4 text-luxury-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
-                  {vehicle.capacity} seats
+                  {vehicle.capacity} pax
                 </span>
+                {vehicle.luggage && (
+                  <span className="flex items-center gap-1">
+                    <svg className="w-4 h-4 text-luxury-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                    {vehicle.luggage} luggage
+                  </span>
+                )}
                 <span className="flex items-center gap-1">
                   <svg className="w-4 h-4 text-luxury-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -208,8 +221,8 @@ const VehicleSelection: React.FC<VehicleSelectionProps> = ({
 
               <div className="flex items-center justify-between pt-4 border-t border-gray-200">
                 <div>
-                  <span className="text-2xl font-bold text-gray-900">${vehicle.price || 250}</span>
-                  <span className="text-sm text-gray-600 ml-1">/hour</span>
+                  <span className="text-2xl font-bold text-gray-900">${vehicle.priceAirportTransfer || vehicle.price || 0}</span>
+                  <span className="text-sm text-gray-600 ml-1">/trip</span>
                 </div>
                 <Button
                   variant={selectedVehicleId === vehicle.id ? 'primary' : 'secondary'}
@@ -250,12 +263,18 @@ const VehicleSelection: React.FC<VehicleSelectionProps> = ({
                   {formatCategory(selectedVehicle.category)}
                 </span>
                 <span>•</span>
-                <span>{selectedVehicle.capacity} seats</span>
+                <span>{selectedVehicle.capacity} pax</span>
+                {selectedVehicle.luggage && (
+                  <>
+                    <span>•</span>
+                    <span>{selectedVehicle.luggage} luggage</span>
+                  </>
+                )}
               </div>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-bold text-luxury-gold">${selectedVehicle.price || 250}</div>
-              <div className="text-sm text-gray-600">/hour</div>
+              <div className="text-2xl font-bold text-luxury-gold">${selectedVehicle.priceAirportTransfer || selectedVehicle.price || 250}</div>
+              <div className="text-sm text-gray-600">/trip</div>
             </div>
           </div>
         </div>

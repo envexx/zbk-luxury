@@ -35,6 +35,17 @@ export async function POST(request: NextRequest) {
       where: {
         category: vehicleCategory,
         status: 'AVAILABLE'
+      },
+      select: {
+        id: true,
+        name: true,
+        model: true,
+        price: true,
+        priceAirportTransfer: true,
+        price6Hours: true,
+        price12Hours: true,
+        services: true,
+        minimumHours: true
       }
     })
 
@@ -45,10 +56,30 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Calculate price based on service and duration
-    const basePrice = getServicePrice(service, vehicleCategory)
-    const durationHours = parseInt(duration.replace(' hours', '')) || 8
-    const totalAmount = basePrice * (durationHours / 8) // Base price is for 8 hours
+    // Calculate price based on service type and duration
+    const durationHours = parseInt(duration.replace(' hours', '').replace(' hour', '')) || 8
+    let totalAmount = 0
+    
+    // Determine service type from booking service field
+    const serviceType = service?.toUpperCase() || 'TRIP'
+    const isTripService = serviceType.includes('TRIP') || serviceType.includes('AIRPORT')
+    
+    if (isTripService && availableVehicle.priceAirportTransfer) {
+      // Airport Transfer / Trip service
+      totalAmount = availableVehicle.priceAirportTransfer
+    } else {
+      // Rent service - use 6hrs or 12hrs pricing
+      if (durationHours >= 12 && availableVehicle.price12Hours) {
+        totalAmount = availableVehicle.price12Hours
+      } else if (durationHours >= 6 && availableVehicle.price6Hours) {
+        totalAmount = availableVehicle.price6Hours
+      } else {
+        // Fallback to hourly rate if available
+        const minimumHours = availableVehicle.minimumHours || 1
+        const actualHours = Math.max(durationHours, minimumHours)
+        totalAmount = (availableVehicle.price || 0) * actualHours
+      }
+    }
 
     // Create booking
     const booking = await prisma.booking.create({
@@ -141,26 +172,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
-}
-
-// Helper function to calculate service price
-function getServicePrice(service: string, category: string): number {
-  const basePrices = {
-    'WEDDING_AFFAIRS': 2000,
-    'ALPHARD_PREMIUM': 1500,
-    'COMBI_TRANSPORT': 1000
-  }
-
-  const serviceMultipliers = {
-    'Wedding Transport': 1.5,
-    'Corporate Event': 1.2,
-    'City Tour': 1.0,
-    'Airport Transfer': 0.8,
-    'Hourly Rental': 1.0
-  }
-
-  const basePrice = basePrices[category as keyof typeof basePrices] || 1000
-  const multiplier = serviceMultipliers[service as keyof typeof serviceMultipliers] || 1.0
-
-  return basePrice * multiplier
 }

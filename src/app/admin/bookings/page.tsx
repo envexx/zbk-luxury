@@ -184,37 +184,37 @@ export default function BookingsPage() {
 
       {/* Bookings Table */}
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
             Recent Bookings
           </h2>
         </div>
         <div className="overflow-x-auto overflow-y-visible" style={{ maxWidth: '100%' }}>
-          <table className="w-full min-w-[1200px]">
+          <table className="w-full min-w-[1000px]">
             <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Customer
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Vehicle
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Service
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Date & Time
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Amount
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Payment
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -222,91 +222,73 @@ export default function BookingsPage() {
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               {Array.isArray(bookings) && bookings.length > 0 ? bookings.map((booking) => (
                 <tr key={booking.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900 dark:text-white">
+                  <td className="px-3 py-2">
+                    <div className="text-xs font-medium text-gray-900 dark:text-white truncate max-w-[120px]">
                       {booking.customerName}
                     </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                    <div className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[120px]">
                       {booking.customerEmail}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-500 dark:text-gray-300">
+                  <td className="px-3 py-2">
+                    <div className="text-xs text-gray-900 dark:text-white truncate max-w-[100px]">
                       {booking.vehicle?.name || 'N/A'}
                     </div>
                     <div className="text-xs text-gray-400">
                       {booking.vehicle?.plateNumber}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-500 dark:text-gray-300">
+                  <td className="px-3 py-2">
+                    <div className="text-xs text-gray-900 dark:text-white truncate max-w-[80px]">
                       {booking.service}
                     </div>
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
-                      {new Date(booking.startDate).toLocaleDateString()} at {booking.startTime}
+                  <td className="px-3 py-2">
+                    <div className="text-xs text-gray-900 dark:text-white whitespace-nowrap">
+                      {new Date(booking.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                     </div>
-                    <div className="text-xs text-gray-400 max-w-xs truncate" title={booking.pickupLocation}>
-                      {booking.pickupLocation}
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      {booking.startTime}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900 dark:text-white">
-                      ${booking.totalAmount?.toFixed(2) || '0.00'}
+                  <td className="px-3 py-2 whitespace-nowrap">
+                    <div className="text-xs font-semibold text-gray-900 dark:text-white">
+                      ${booking.totalAmount?.toFixed(0) || '0'}
                     </div>
-                    {booking.depositAmount && (
-                      <div className="text-xs text-gray-500">
-                        Deposit: ${booking.depositAmount.toFixed(2)}
-                      </div>
-                    )}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                  <td className="px-3 py-2 whitespace-nowrap">
+                    <span className={`inline-flex px-1.5 py-0.5 text-xs font-medium rounded ${
                       booking.paymentStatus === 'PAID' 
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                        ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200'
                         : booking.paymentStatus === 'FAILED'
-                        ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                        : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                        ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200'
+                        : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200'
                     }`}>
-                      {booking.paymentStatus || 'PENDING'}
+                      {booking.paymentStatus === 'PAID' ? '✓' : booking.paymentStatus === 'FAILED' ? '✗' : '⏳'}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(booking.status)}`}>
+                  <td className="px-3 py-2 whitespace-nowrap">
+                    <span className={`inline-flex px-1.5 py-0.5 text-xs font-medium rounded ${getStatusColor(booking.status)}`}>
                       {booking.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex space-x-2">
-                      <button 
-                        onClick={() => {
-                          setSelectedBooking(booking)
-                          setShowDetailsModal(true)
-                        }}
-                        className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 p-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                        title="View Details"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </button>
-                      <button 
-                        className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 p-1 rounded hover:bg-green-50 dark:hover:bg-green-900/20"
-                        title="Edit Booking"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      <button 
-                        className="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300 p-1 rounded hover:bg-yellow-50 dark:hover:bg-yellow-900/20"
-                        title="Send Email"
-                      >
-                        <Calendar className="h-4 w-4" />
-                      </button>
-                    </div>
+                  <td className="px-3 py-2 whitespace-nowrap">
+                    <button 
+                      onClick={() => {
+                        setSelectedBooking(booking)
+                        setShowDetailsModal(true)
+                      }}
+                      className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded transition-colors"
+                      title="View Details"
+                    >
+                      <Eye className="h-3 w-3" />
+                      <span>View</span>
+                    </button>
                   </td>
                 </tr>
               )) : (
                 <tr>
-                  <td colSpan={7} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                  <td colSpan={8} className="px-3 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
                     No bookings found. Bookings will appear here once customers make reservations.
                   </td>
                 </tr>

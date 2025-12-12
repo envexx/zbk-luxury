@@ -1,49 +1,107 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url)
+  const timeRange = searchParams.get('timeRange') || '6months'
   try {
-    // Try to get real data from database
+    // Get all bookings and vehicles for accurate calculations
+    const allBookings = await prisma.booking.findMany({
+      select: {
+        id: true,
+        totalAmount: true,
+        status: true,
+        paymentStatus: true,
+        createdAt: true,
+        vehicleId: true
+      }
+    })
+
+    const allVehicles = await prisma.vehicle.findMany({
+      select: {
+        id: true,
+        status: true
+      }
+    })
+
+    // Vehicle stats
     const vehicleStats = await prisma.vehicle.groupBy({
       by: ['status'],
       _count: { status: true }
     })
 
+    // Booking stats
     const bookingStats = await prisma.booking.groupBy({
       by: ['status'],
       _count: { status: true }
     })
 
-    // Monthly booking trends (last 6 months)
-    const sixMonthsAgo = new Date()
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6)
+    // Calculate revenue from PAID bookings (more accurate than just COMPLETED)
+    const paidBookings = allBookings.filter(b => b.paymentStatus === 'PAID')
+    const totalRevenue = paidBookings.reduce((sum, b) => sum + (b.totalAmount || 0), 0)
 
-    const monthlyBookings = await prisma.booking.groupBy({
-      by: ['createdAt'],
-      where: {
-        createdAt: {
-          gte: sixMonthsAgo
+    // Calculate date range based on timeRange parameter
+    const now = new Date()
+    
+    // Monthly revenue (current month)
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+    const monthlyPaidBookings = paidBookings.filter(b => 
+      new Date(b.createdAt) >= startOfMonth
+    )
+    const monthlyRevenue = monthlyPaidBookings.reduce((sum, b) => sum + (b.totalAmount || 0), 0)
+    let startDate = new Date()
+    let monthsBack = 6
+    
+    switch (timeRange) {
+      case '1month':
+        monthsBack = 1
+        break
+      case '3months':
+        monthsBack = 3
+        break
+      case '6months':
+        monthsBack = 6
+        break
+      case '1year':
+        monthsBack = 12
+        break
+      default:
+        monthsBack = 6
+    }
+    
+    startDate.setMonth(now.getMonth() - monthsBack)
+    startDate.setDate(1)
+    startDate.setHours(0, 0, 0, 0)
+
+    const monthlyTrendsMap = new Map<string, { bookings: number; revenue: number }>()
+    
+    // Initialize months based on timeRange
+    for (let i = monthsBack - 1; i >= 0; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1)
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+      monthlyTrendsMap.set(monthKey, { bookings: 0, revenue: 0 })
+    }
+
+    // Process bookings from selected time range
+    allBookings
+      .filter(b => new Date(b.createdAt) >= startDate)
+      .forEach(booking => {
+        const date = new Date(booking.createdAt)
+        const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+        const existing = monthlyTrendsMap.get(monthKey) || { bookings: 0, revenue: 0 }
+        existing.bookings += 1
+        // Only count revenue from paid bookings
+        if (booking.paymentStatus === 'PAID') {
+          existing.revenue += booking.totalAmount || 0
         }
-      },
-      _count: { id: true },
-      _sum: { totalAmount: true }
-    })
+        monthlyTrendsMap.set(monthKey, existing)
+      })
 
-    // Revenue analytics
-    const totalRevenue = await prisma.booking.aggregate({
-      _sum: { totalAmount: true },
-      where: { status: 'COMPLETED' }
-    })
-
-    const monthlyRevenue = await prisma.booking.aggregate({
-      _sum: { totalAmount: true },
-      where: {
-        status: 'COMPLETED',
-        createdAt: {
-          gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1)
-        }
-      }
-    })
+    const monthlyTrends = Array.from(monthlyTrendsMap.entries()).map(([month, data]) => ({
+      month,
+      bookings: data.bookings,
+      revenue: data.revenue
+    }))
 
     // Popular vehicles
     const popularVehicles = await prisma.booking.groupBy({
@@ -66,14 +124,31 @@ export async function GET() {
       })
     )
 
+    // Performance metrics
+    const totalBookingsCount = allBookings.length
+    const completedBookings = allBookings.filter(b => b.status === 'COMPLETED').length
+    const paidBookingsCount = paidBookings.length
+    const averageBookingValue = paidBookingsCount > 0 
+      ? totalRevenue / paidBookingsCount 
+      : 0
+    const completionRate = totalBookingsCount > 0
+      ? Math.round((completedBookings / totalBookingsCount) * 100)
+      : 0
+    
+    const totalVehiclesCount = allVehicles.length
+    const inUseVehicles = allVehicles.filter(v => v.status === 'IN_USE').length
+    const utilizationRate = totalVehiclesCount > 0
+      ? Math.round((inUseVehicles / totalVehiclesCount) * 100)
+      : 0
+
     return NextResponse.json({
       success: true,
       data: {
         overview: {
-          totalVehicles: await prisma.vehicle.count(),
-          totalBookings: await prisma.booking.count(),
-          totalRevenue: totalRevenue._sum.totalAmount || 0,
-          monthlyRevenue: monthlyRevenue._sum.totalAmount || 0
+          totalVehicles: totalVehiclesCount,
+          totalBookings: totalBookingsCount,
+          totalRevenue: totalRevenue,
+          monthlyRevenue: monthlyRevenue
         },
         vehicleStats: vehicleStats.map(stat => ({
           status: stat.status,
@@ -83,18 +158,12 @@ export async function GET() {
           status: stat.status,
           count: stat._count.status
         })),
-        monthlyTrends: monthlyBookings.map(item => ({
-          month: item.createdAt,
-          bookings: item._count.id,
-          revenue: item._sum.totalAmount || 0
-        })),
+        monthlyTrends: monthlyTrends,
         popularVehicles: vehicleDetails,
         performance: {
-          averageBookingValue: totalRevenue._sum.totalAmount && await prisma.booking.count() 
-            ? (totalRevenue._sum.totalAmount / await prisma.booking.count()) 
-            : 0,
-          completionRate: bookingStats.find(s => s.status === 'COMPLETED')?._count.status || 0,
-          utilizationRate: Math.round((vehicleStats.find(s => s.status === 'IN_USE')?._count.status || 0) / await prisma.vehicle.count() * 100)
+          averageBookingValue: averageBookingValue,
+          completionRate: completionRate,
+          utilizationRate: utilizationRate
         }
       }
     })

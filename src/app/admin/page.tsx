@@ -35,7 +35,7 @@ export default function AdminDashboard() {
   const fetchAnalytics = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/analytics')
+      const response = await fetch(`/api/analytics?timeRange=${timeRange}`)
       const data = await response.json()
       if (data.success) {
         setAnalytics(data.data)
@@ -142,28 +142,24 @@ export default function AdminDashboard() {
               value={analytics.overview.totalVehicles}
               icon={<Car className="h-6 w-6 text-white" />}
               color="blue"
-              change={8.2}
             />
             <MetricCard
               title="Total Bookings"
               value={analytics.overview.totalBookings}
               icon={<Calendar className="h-6 w-6 text-white" />}
               color="green"
-              change={12.5}
             />
             <MetricCard
               title="Monthly Revenue"
               value={formatCurrencyUSD(analytics.overview.monthlyRevenue)}
               icon={<DollarSign className="h-6 w-6 text-white" />}
               color="yellow"
-              change={-2.1}
             />
             <MetricCard
               title="Completion Rate"
               value={`${analytics.performance.completionRate}%`}
               icon={<CheckCircle className="h-6 w-6 text-white" />}
               color="purple"
-              change={5.3}
             />
           </div>
 
