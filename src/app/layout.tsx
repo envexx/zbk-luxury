@@ -11,8 +11,22 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "ZBK Limo Tours - Premium Luxury Transportation Services",
-  description: "ZBK Limo Tours & Transportation Services - Premium luxury transportation in Singapore. Experience exceptional limousine and vehicle rental services for weddings, corporate events, airport transfers, and special occasions.",
-  keywords: "zbk limo tours, luxury transportation singapore, limousine rental, premium car rental, wedding transport, corporate event transport, airport transfer singapore, zbk luxury",
+  description: "Premium Toyota Alphard & Hiace rental for Airport Transfers, City Tours, and Special Events. Experience luxury transportation tailored to your needs. Book Your Premium Ride Today!",
+  keywords: "zbk limo tours, zbk transport services, luxury transportation, toyota alphard rental, toyota hiace rental, airport transfer, city tour singapore, premium car rental, wedding transport, corporate transport, zbk limo",
+  authors: [{ name: "ZBK Limo Tours" }],
+  creator: "ZBK Limo Tours",
+  publisher: "ZBK Limo Tours",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
@@ -24,13 +38,13 @@ export const metadata: Metadata = {
     ],
     other: [
       {
-        rel: 'android-chrome-192x192',
+        rel: 'icon',
         url: '/android-chrome-192x192.png',
         sizes: '192x192',
         type: 'image/png',
       },
       {
-        rel: 'android-chrome-512x512',
+        rel: 'icon',
         url: '/android-chrome-512x512.png',
         sizes: '512x512',
         type: 'image/png',
@@ -39,17 +53,21 @@ export const metadata: Metadata = {
     shortcut: '/favicon.ico',
   },
   manifest: '/site.webmanifest',
+  metadataBase: new URL('https://www.zbktransportservices.com'),
+  alternates: {
+    canonical: 'https://www.zbktransportservices.com',
+  },
   openGraph: {
     title: "ZBK Limo Tours - Premium Luxury Transportation Services",
-    description: "Premium luxury transportation in Singapore. Experience exceptional limousine and vehicle rental services.",
+    description: "Premium Toyota Alphard & Hiace rental for Airport Transfers, City Tours, and Special Events.",
     url: "https://www.zbktransportservices.com",
     siteName: "ZBK Limo Tours",
     images: [
       {
-        url: "/Logo.png",
+        url: "/logo-website.png",
         width: 1200,
         height: 630,
-        alt: "ZBK Limo Tours Logo",
+        alt: "ZBK Limo Tours - Premium Luxury Transportation",
       },
     ],
     locale: "en_US",
@@ -58,8 +76,12 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "ZBK Limo Tours - Premium Luxury Transportation Services",
-    description: "Premium luxury transportation in Singapore. Experience exceptional limousine and vehicle rental services.",
-    images: ["/Logo.png"],
+    description: "Premium Toyota Alphard & Hiace rental for Airport Transfers, City Tours, and Special Events.",
+    images: ["/logo-website.png"],
+    creator: "@zbklimotours",
+  },
+  verification: {
+    google: "your-google-verification-code", // Add your Google Search Console verification code
   },
 };
 
