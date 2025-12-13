@@ -213,7 +213,7 @@ export const emailTemplates = {
       </body>
       </html>
     `
-  }
+    }
   },
 
   bookingStatusUpdate: (customerName: string, bookingId: string, status: string) => ({
@@ -400,5 +400,6 @@ export const emailTemplates = {
       </body>
       </html>
     `
+    }
   }
-  }
+}
