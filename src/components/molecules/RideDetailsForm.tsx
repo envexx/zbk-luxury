@@ -79,8 +79,10 @@ const RideDetailsForm: React.FC<RideDetailsFormProps> = ({
     if (!formData.dropOffLocation) {
       newErrors.dropOffLocation = 'Drop-off location is required';
     }
-    if (!formData.hours) {
-      newErrors.hours = 'Duration is required';
+    
+    // Hours only required for round-trip
+    if (formData.tripType === 'round-trip' && !formData.hours) {
+      newErrors.hours = 'Duration is required for round trip';
     }
 
     // Validate return date/time for round trip
@@ -224,19 +226,21 @@ const RideDetailsForm: React.FC<RideDetailsFormProps> = ({
           />
         </div>
 
-        {/* Duration Selection */}
-        <div>
-          <Select
-            label="Select Hours"
-            value={formData.hours}
-            onChange={(value) => handleInputChange('hours', value)}
-            options={hourOptions}
-            placeholder="Choose duration"
-            error={errors.hours}
-            isRequired
-            helperText="How long do you need the vehicle?"
-          />
-        </div>
+        {/* Duration Selection - Only for Round Trip */}
+        {formData.tripType === 'round-trip' && (
+          <div>
+            <Select
+              label="Select Hours"
+              value={formData.hours}
+              onChange={(value) => handleInputChange('hours', value)}
+              options={hourOptions}
+              placeholder="Choose duration"
+              error={errors.hours}
+              isRequired
+              helperText="How long do you need the vehicle?"
+            />
+          </div>
+        )}
 
         {/* Action Buttons */}
         <div className="flex justify-end pt-6">
@@ -262,11 +266,11 @@ const RideDetailsForm: React.FC<RideDetailsFormProps> = ({
           <div>
             <h4 className="text-sm font-semibold text-luxury-gold mb-1">Booking Information</h4>
             <p className="text-xs text-gray-700 mb-2">
-              <strong>One Way:</strong> Single journey from pickup to destination.<br/>
-              <strong>Round Trip:</strong> Return journey back to pickup location.
+              <strong>One Way:</strong> Single journey from pickup to destination. Flat rate per trip.<br/>
+              <strong>Round Trip:</strong> Return journey back to pickup location. Priced per hour.
             </p>
             <p className="text-xs text-gray-700">
-              Our premium vehicles are available 24/7. Minimum booking duration is 1 hour. 
+              Our premium vehicles are available 24/7. For round trip bookings, minimum duration is 6 hours. 
               For bookings longer than 12 hours, please contact our support team.
             </p>
           </div>

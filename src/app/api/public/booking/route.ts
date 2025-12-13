@@ -59,31 +59,37 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Calculate total amount based on service type and duration
+    // Calculate total amount based on trip type and duration
     let totalAmount = body.totalAmount || 0
     
     // If totalAmount not provided, calculate from vehicle pricing
     if (!totalAmount) {
-      const durationHours = parseInt((body.duration || '8 hours').replace(' hours', '').replace(' hour', '')) || 8
+      const durationHours = parseInt((body.duration || '6 hours').replace(' hours', '').replace(' hour', '')) || 6
       const serviceType = (body.service || '').toUpperCase()
-      const isTripService = serviceType.includes('TRIP') || serviceType.includes('AIRPORT')
       
-      if (isTripService && vehicle.priceAirportTransfer) {
-        // Airport Transfer / Trip service
-        totalAmount = vehicle.priceAirportTransfer
+      // Determine if it's one-way or round-trip
+      const isOneWay = serviceType.includes('ONE') || 
+                       serviceType.includes('ONE-WAY') || 
+                       serviceType.includes('TRIP') || 
+                       serviceType.includes('AIRPORT')
+      
+      if (isOneWay) {
+        // ONE WAY: Use flat rate (priceAirportTransfer)
+        totalAmount = vehicle.priceAirportTransfer || 80
       } else {
-        // Rent service - use 6hrs or 12hrs pricing
+        // ROUND TRIP: Calculate based on hours
         if (durationHours >= 12 && vehicle.price12Hours) {
           totalAmount = vehicle.price12Hours
         } else if (durationHours >= 6 && vehicle.price6Hours) {
           totalAmount = vehicle.price6Hours
         } else {
-          // Fallback to hourly rate if available
-          const minimumHours = vehicle.minimumHours || 1
-          const actualHours = Math.max(durationHours, minimumHours)
-          totalAmount = (vehicle.price || 0) * actualHours
+          // Default to 6-hour package
+          totalAmount = vehicle.price6Hours || 360
         }
       }
+      
+      // Add 10% tax
+      totalAmount = totalAmount * 1.1
     }
 
     // Create booking with PENDING status (admin needs to confirm)

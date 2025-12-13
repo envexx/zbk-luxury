@@ -23,9 +23,24 @@ export default function Home() {
       "@context": "https://schema.org",
       "@type": "Organization",
       "url": baseUrl,
-      "logo": `${baseUrl}/logo-website.png`,
+      "logo": `${baseUrl}/api/logo`,
       "name": "ZBK Limo Tours",
-      "description": "Premium luxury transportation in Singapore. Experience exceptional limousine and vehicle rental services.",
+      "alternateName": "ZBK Transport Services",
+      "description": "Premium luxury transportation in Singapore. Experience exceptional limousine and vehicle rental services for weddings, corporate events, airport transfers, and special occasions.",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Jurong West Street 65",
+        "addressLocality": "Singapore",
+        "postalCode": "640635",
+        "addressCountry": "SG"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+65-XXXX-XXXX",
+        "contactType": "customer service",
+        "email": "zbklimo@gmail.com",
+        "availableLanguage": ["English", "Indonesian"]
+      },
       "sameAs": []
     };
 

@@ -60,29 +60,32 @@ export async function POST(request: NextRequest) {
       }, { status: 404 })
     }
 
-    // Calculate total amount based on service type and duration
+    // Calculate total amount based on trip type and duration
     // Extract hours from duration (e.g., "8 hours" -> 8)
-    const hoursMatch = (body.duration || '8 hours').match(/\d+/);
-    const hours = hoursMatch ? parseInt(hoursMatch[0]) : 8;
+    const hoursMatch = (body.duration || '6 hours').match(/\d+/);
+    const hours = hoursMatch ? parseInt(hoursMatch[0]) : 6;
     
     let subtotal = 0;
     const serviceType = (body.service || 'RENTAL').toUpperCase();
-    const isTripService = serviceType.includes('TRIP') || serviceType.includes('AIRPORT');
     
-    if (isTripService && vehicle.priceAirportTransfer) {
-      // Airport Transfer / Trip service
-      subtotal = vehicle.priceAirportTransfer;
+    // Determine if it's one-way or round-trip
+    const isOneWay = serviceType.includes('ONE') || 
+                     serviceType.includes('ONE-WAY') || 
+                     serviceType.includes('TRIP') || 
+                     serviceType.includes('AIRPORT');
+    
+    if (isOneWay) {
+      // ONE WAY: Use flat rate (priceAirportTransfer)
+      subtotal = vehicle.priceAirportTransfer || 80;
     } else {
-      // Rent service - use 6hrs or 12hrs pricing
+      // ROUND TRIP: Calculate based on hours
       if (hours >= 12 && vehicle.price12Hours) {
         subtotal = vehicle.price12Hours;
       } else if (hours >= 6 && vehicle.price6Hours) {
         subtotal = vehicle.price6Hours;
       } else {
-        // Fallback to hourly rate if available
-        const minimumHours = vehicle.minimumHours || 1;
-        const actualHours = Math.max(hours, minimumHours);
-        subtotal = (vehicle.price || 0) * actualHours;
+        // Default to 6-hour package
+        subtotal = vehicle.price6Hours || 360;
       }
     }
     

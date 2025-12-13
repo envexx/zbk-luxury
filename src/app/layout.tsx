@@ -64,9 +64,9 @@ export const metadata: Metadata = {
     siteName: "ZBK Limo Tours",
     images: [
       {
-        url: "/logo-website.png",
-        width: 1200,
-        height: 630,
+        url: "/api/logo",
+        width: 800,
+        height: 600,
         alt: "ZBK Limo Tours - Premium Luxury Transportation",
       },
     ],
@@ -77,7 +77,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "ZBK Limo Tours - Premium Luxury Transportation Services",
     description: "Premium Toyota Alphard & Hiace rental for Airport Transfers, City Tours, and Special Events.",
-    images: ["/logo-website.png"],
+    images: ["/api/logo"],
     creator: "@zbklimotours",
   },
   verification: {

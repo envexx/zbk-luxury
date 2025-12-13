@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { prisma } from '@/lib/prisma'
+import { sendEmail, emailTemplates } from '@/lib/email'
 
 // Get and validate Stripe secret key
 const getStripeSecretKey = (): string => {
@@ -131,6 +132,64 @@ export async function POST(request: NextRequest) {
         })
 
         console.log('✅ Payment confirmed via fallback endpoint:', booking.id)
+
+        // Send confirmation emails (same as webhook)
+        try {
+          const formattedDate = updatedBooking.startDate.toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          })
+
+          // Send confirmation email to customer
+          const customerTemplate = emailTemplates.bookingConfirmation(
+            updatedBooking.customerName,
+            updatedBooking.id,
+            updatedBooking.vehicle.name,
+            formattedDate,
+            updatedBooking.pickupLocation,
+            updatedBooking.startTime
+          )
+
+          await sendEmail({
+            to: updatedBooking.customerEmail,
+            subject: customerTemplate.subject,
+            html: customerTemplate.html
+          })
+
+          // Send notification to admin (always zbklimo@gmail.com)
+          const adminTemplate = emailTemplates.adminNotification(
+            updatedBooking.id,
+            updatedBooking.customerName,
+            updatedBooking.customerEmail,
+            updatedBooking.customerPhone,
+            updatedBooking.vehicle.name,
+            updatedBooking.vehicle.model || '',
+            updatedBooking.service,
+            formattedDate,
+            updatedBooking.startTime,
+            updatedBooking.pickupLocation,
+            updatedBooking.dropoffLocation || '',
+            updatedBooking.duration,
+            updatedBooking.totalAmount,
+            updatedBooking.notes || undefined
+          )
+
+          const adminEmail = 'zbklimo@gmail.com'
+          await sendEmail({
+            to: adminEmail,
+            subject: adminTemplate.subject,
+            html: adminTemplate.html
+          })
+
+          console.log('✅ Confirmation emails sent')
+          console.log(`   - Customer email sent to: ${updatedBooking.customerEmail}`)
+          console.log(`   - Admin notification sent to: ${adminEmail}`)
+        } catch (emailError) {
+          console.error('❌ Failed to send confirmation emails:', emailError)
+          // Don't fail the payment confirmation if email fails
+        }
 
         return NextResponse.json({
           success: true,

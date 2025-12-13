@@ -1,5 +1,5 @@
 /**
- * Script untuk mengirim test email ke zbklimo@gmail.com
+ * Script untuk mengirim test email ke ompekp@gmail.com
  * 
  * Usage:
  * node scripts/send-test-email.js
@@ -7,7 +7,7 @@
  * Pastikan environment variables sudah di-set:
  * - SMTP_HOST=smtp.gmail.com
  * - SMTP_PORT=587
- * - SMTP_USER=ompekp@gmail.com
+ * - SMTP_USER=noreplayzbk@gmail.com
  * - SMTP_PASS=your-app-password
  */
 
@@ -20,7 +20,7 @@ const transporter = nodemailer.createTransport({
   port: parseInt(process.env.SMTP_PORT || '587'),
   secure: false,
   auth: {
-    user: process.env.SMTP_USER || 'zbklimo@gmail.com',
+    user: process.env.SMTP_USER || 'noreplayzbk@gmail.com',
     pass: process.env.SMTP_PASS,
   },
 });
@@ -28,25 +28,29 @@ const transporter = nodemailer.createTransport({
 // Test email HTML template
 const testEmailHTML = `
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ZBK Limo Tours - Test Email</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f4;">
-  <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f4f4f4;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f4f4f4;">
+  <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f4f4f4; padding: 20px 0;">
     <tr>
-      <td style="padding: 20px 0; text-align: center;">
-        <table role="presentation" style="width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-          <!-- Header -->
+      <td align="center">
+        <table role="presentation" style="max-width: 600px; width: 100%; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+          
+          <!-- Header with Logo -->
           <tr>
-            <td style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); padding: 40px 30px; text-align: center;">
-              <h1 style="color: #D4AF37; margin: 0; font-size: 32px; font-weight: bold; letter-spacing: 2px;">
+            <td style="background-color: #1a1a2e; padding: 40px 30px; text-align: center;">
+              <!-- Logo ZBK -->
+              <img src="${process.env.BASE_URL || 'http://localhost:3000'}/api/logo" alt="ZBK Limo Tours" style="width: 120px; height: auto; margin-bottom: 15px; display: block; margin-left: auto; margin-right: auto;" />
+              
+              <h1 style="color: #D4AF37; margin: 10px 0 5px 0; font-size: 24px; font-weight: 600; letter-spacing: 2px;">
                 ZBK LIMO TOURS
               </h1>
-              <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">
-                & Transportation Services
+              <p style="color: #ffffff; margin: 0; font-size: 14px; opacity: 0.9;">
+                Premium Transportation Services
               </p>
             </td>
           </tr>
@@ -54,93 +58,88 @@ const testEmailHTML = `
           <!-- Main Content -->
           <tr>
             <td style="padding: 40px 30px;">
-              <div style="text-align: center; margin-bottom: 30px;">
-                <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #D4AF37, #F7DC6F); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
-                  <span style="font-size: 40px; color: white;">✓</span>
-                </div>
-                <h2 style="color: #1a1a2e; margin: 0 0 15px 0; font-size: 28px; font-weight: 600;">
-                  Email Configuration Test
-                </h2>
-                <p style="color: #666666; margin: 0; font-size: 16px; line-height: 1.6;">
-                  This is a test email to verify that your SMTP configuration is working correctly.
-                </p>
+              
+              <!-- Title -->
+              <h2 style="color: #1a1a2e; margin: 0 0 10px 0; font-size: 22px; font-weight: 600; text-align: center;">
+                Test Konfigurasi Email
+              </h2>
+              <p style="color: #666666; margin: 0 0 30px 0; font-size: 15px; line-height: 1.6; text-align: center;">
+                Email ini dikirim untuk memverifikasi bahwa konfigurasi SMTP Anda berfungsi dengan baik.
+              </p>
+              
+              <!-- Status Badge -->
+              <div style="background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 6px; padding: 15px; margin-bottom: 30px; text-align: center;">
+                <span style="color: #155724; font-size: 16px; font-weight: 600;">✓ SMTP Berhasil Dikonfigurasi</span>
               </div>
               
-              <div style="background-color: #f8f9fa; border-left: 4px solid #D4AF37; padding: 20px; margin: 30px 0; border-radius: 5px;">
-                <h3 style="color: #1a1a2e; margin: 0 0 15px 0; font-size: 18px; font-weight: 600;">
-                  Test Details
+              <!-- Test Details -->
+              <div style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 25px; margin-bottom: 30px;">
+                <h3 style="color: #1a1a2e; margin: 0 0 20px 0; font-size: 16px; font-weight: 600;">
+                  Detail Pengiriman:
                 </h3>
                 <table style="width: 100%; border-collapse: collapse;">
                   <tr>
-                    <td style="padding: 8px 0; color: #666666; font-size: 14px; width: 40%;"><strong>From Email:</strong></td>
-                    <td style="padding: 8px 0; color: #1a1a2e; font-size: 14px;">ompekp@gmail.com</td>
+                    <td style="padding: 10px 0; color: #666666; font-size: 14px; width: 30%;">
+                      <strong>From:</strong>
+                    </td>
+                    <td style="padding: 10px 0; color: #1a1a2e; font-size: 14px;">
+                      noreplayzbk@gmail.com
+                    </td>
                   </tr>
                   <tr>
-                    <td style="padding: 8px 0; color: #666666; font-size: 14px;"><strong>To Email:</strong></td>
-                    <td style="padding: 8px 0; color: #1a1a2e; font-size: 14px;">zbklimo@gmail.com</td>
+                    <td style="padding: 10px 0; color: #666666; font-size: 14px; border-top: 1px solid #dee2e6;">
+                      <strong>To:</strong>
+                    </td>
+                    <td style="padding: 10px 0; color: #1a1a2e; font-size: 14px; border-top: 1px solid #dee2e6;">
+                      ompekp@gmail.com
+                    </td>
                   </tr>
                   <tr>
-                    <td style="padding: 8px 0; color: #666666; font-size: 14px;"><strong>Timestamp:</strong></td>
-                    <td style="padding: 8px 0; color: #1a1a2e; font-size: 14px;">${new Date().toLocaleString('en-US', { timeZone: 'Asia/Singapore', dateStyle: 'full', timeStyle: 'long' })}</td>
+                    <td style="padding: 10px 0; color: #666666; font-size: 14px; border-top: 1px solid #dee2e6;">
+                      <strong>Waktu:</strong>
+                    </td>
+                    <td style="padding: 10px 0; color: #1a1a2e; font-size: 14px; border-top: 1px solid #dee2e6;">
+                      ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Singapore', dateStyle: 'long', timeStyle: 'short' })}
+                    </td>
                   </tr>
                   <tr>
-                    <td style="padding: 8px 0; color: #666666; font-size: 14px;"><strong>Status:</strong></td>
-                    <td style="padding: 8px 0; color: #28a745; font-size: 14px; font-weight: 600;">✓ Successfully Sent</td>
+                    <td style="padding: 10px 0; color: #666666; font-size: 14px; border-top: 1px solid #dee2e6;">
+                      <strong>Status:</strong>
+                    </td>
+                    <td style="padding: 10px 0; color: #28a745; font-size: 14px; font-weight: 600; border-top: 1px solid #dee2e6;">
+                      Berhasil Terkirim
+                    </td>
                   </tr>
                 </table>
               </div>
               
-              <div style="background: linear-gradient(135deg, #f8f9fa, #e9ecef); padding: 25px; border-radius: 8px; margin: 30px 0; text-align: center;">
-                <p style="color: #1a1a2e; margin: 0; font-size: 16px; line-height: 1.8;">
-                  <strong style="color: #D4AF37;">Congratulations!</strong><br>
-                  If you are reading this email, it means your email configuration is working perfectly. 
-                  You can now send booking confirmations, notifications, and other important communications to your customers.
+              <!-- Info Message -->
+              <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 6px; padding: 20px; text-align: center;">
+                <p style="color: #856404; margin: 0; font-size: 14px; line-height: 1.6;">
+                  Jika Anda menerima email ini, berarti konfigurasi SMTP Anda sudah bekerja dengan baik dan siap digunakan untuk mengirim notifikasi booking dan komunikasi lainnya.
                 </p>
-              </div>
-              
-              <div style="margin-top: 30px; padding-top: 30px; border-top: 2px solid #e9ecef;">
-                <h3 style="color: #1a1a2e; margin: 0 0 15px 0; font-size: 18px; font-weight: 600;">
-                  About ZBK Limo Tours
-                </h3>
-                <p style="color: #666666; margin: 0 0 15px 0; font-size: 14px; line-height: 1.8;">
-                  ZBK Limo Tours & Transportation Services is a premium luxury transportation company 
-                  based in Singapore, providing exceptional limousine and vehicle rental services for 
-                  weddings, corporate events, airport transfers, and special occasions.
-                </p>
-                <div style="background-color: #ffffff; border: 1px solid #e9ecef; border-radius: 5px; padding: 15px; margin-top: 20px;">
-                  <p style="margin: 0; color: #1a1a2e; font-size: 14px; line-height: 1.8;">
-                    <strong style="color: #D4AF37;">📍 Address:</strong><br>
-                    Jurong West Street 65<br>
-                    ZBK Limo Tours & Transportation Services<br>
-                    Singapore 640635
-                  </p>
-                </div>
               </div>
             </td>
           </tr>
           
           <!-- Footer -->
           <tr>
-            <td style="background-color: #1a1a2e; padding: 30px; text-align: center;">
-              <p style="color: #ffffff; margin: 0 0 10px 0; font-size: 14px;">
-                <strong>ZBK Limo Tours & Transportation Services</strong>
+            <td style="background-color: #f8f9fa; padding: 25px 30px; text-align: center; border-top: 1px solid #dee2e6;">
+              <p style="color: #6c757d; margin: 0 0 10px 0; font-size: 14px; font-weight: 600;">
+                ZBK Limo Tours & Transportation Services
               </p>
-              <p style="color: #D4AF37; margin: 0 0 15px 0; font-size: 14px;">
-                Premium Luxury Transportation in Singapore
+              <p style="color: #6c757d; margin: 0 0 5px 0; font-size: 13px;">
+                📧 zbklimo@gmail.com
               </p>
-              <div style="margin: 20px 0;">
-                <p style="color: #999999; margin: 5px 0; font-size: 12px;">
-                  📧 Email: zbklimo@gmail.com
-                </p>
-                <p style="color: #999999; margin: 5px 0; font-size: 12px;">
-                  📍 Jurong West Street 65, Singapore 640635
-                </p>
-              </div>
-              <p style="color: #666666; margin: 20px 0 0 0; font-size: 11px; border-top: 1px solid #333; padding-top: 15px;">
-                This is an automated test email. Please do not reply to this message.
+              <p style="color: #6c757d; margin: 0 0 15px 0; font-size: 13px;">
+                📍 Jurong West Street 65, Singapore 640635
+              </p>
+              <p style="color: #adb5bd; margin: 0; font-size: 12px;">
+                Email otomatis dari sistem. Mohon tidak membalas email ini.
               </p>
             </td>
           </tr>
+          
         </table>
       </td>
     </tr>
@@ -152,15 +151,15 @@ const testEmailHTML = `
 async function sendTestEmail() {
   try {
     console.log('📧 Preparing to send test email...');
-    console.log('From: zbklimo@gmail.com');
-    console.log('To: zbklimo@gmail.com');
+    console.log('From: noreplayzbk@gmail.com');
+    console.log('To: ompekp@gmail.com');
     
     if (!process.env.SMTP_PASS) {
       console.error('❌ Error: SMTP_PASS is not set in environment variables');
       console.log('\nPlease set the following in your .env.local file:');
       console.log('SMTP_HOST=smtp.gmail.com');
       console.log('SMTP_PORT=587');
-      console.log('SMTP_USER=zbklimo@gmail.com');
+      console.log('SMTP_USER=noreplayzbk@gmail.com');
       console.log('SMTP_PASS=your-app-password');
       console.log('\nNote: For Gmail, you need to use an App Password, not your regular password.');
       console.log('Get it from: https://myaccount.google.com/apppasswords');
@@ -168,16 +167,16 @@ async function sendTestEmail() {
     }
 
     const info = await transporter.sendMail({
-      from: '"ZBK Limo Tours" <zbklimo@gmail.com>',
-      to: 'zbklimo@gmail.com',
-      subject: 'ZBK Limo Tours - Test Email Configuration',
+      from: '"ZBK Limo Tours" <noreplayzbk@gmail.com>',
+      to: 'ompekp@gmail.com',
+      subject: '✅ ZBK Limo Tours - Test Konfigurasi SMTP Berhasil!',
       html: testEmailHTML,
       text: `ZBK Limo Tours - Test Email\n\nThis is a test email to verify SMTP configuration.\n\nTimestamp: ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Singapore' })}\n\nIf you receive this email, your SMTP configuration is working correctly!`,
     });
 
     console.log('\n✅ Test email sent successfully!');
     console.log('📬 Message ID:', info.messageId);
-    console.log('📧 Check zbklimo@gmail.com inbox for the email.');
+    console.log('📧 Check ompekp@gmail.com inbox for the email.');
     console.log('\n✨ Email should arrive within a few seconds.');
     
   } catch (error) {

@@ -143,24 +143,39 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Calculate total amount using the same logic as OrderSummary
-    // Extract hours from duration (e.g., "8 hours" -> 8)
-    const hoursMatch = booking.duration.match(/\d+/);
-    const hours = hoursMatch ? parseInt(hoursMatch[0]) : 8;
+    // Calculate total amount based on trip type (one-way vs round-trip)
+    const hoursMatch = booking.duration?.match(/\d+/);
+    const hours = hoursMatch ? parseInt(hoursMatch[0]) : 0;
     
-    // Get vehicle price from database
-    const vehicle = await prisma.vehicle.findUnique({
-      where: { id: booking.vehicleId },
-      select: { price: true }
-    });
+    // Determine if it's one-way or round-trip
+    const serviceType = (booking.service || '').toUpperCase();
+    const isOneWay = serviceType.includes('ONE') || 
+                     serviceType.includes('ONE-WAY') || 
+                     serviceType.includes('TRIP') || 
+                     serviceType.includes('AIRPORT');
     
-    const hourlyRate = vehicle?.price || 0;
-    const subtotal = hourlyRate * hours;
+    let subtotal = 0;
+    
+    if (isOneWay) {
+      // ONE WAY: Use flat rate from priceAirportTransfer
+      subtotal = booking.vehicle.priceAirportTransfer || 80;
+    } else {
+      // ROUND TRIP: Calculate based on hours
+      if (hours >= 12 && booking.vehicle.price12Hours) {
+        subtotal = booking.vehicle.price12Hours;
+      } else if (hours >= 6 && booking.vehicle.price6Hours) {
+        subtotal = booking.vehicle.price6Hours;
+      } else {
+        // Default to 6-hour package for round trip
+        subtotal = booking.vehicle.price6Hours || 360;
+      }
+    }
+    
     const tax = subtotal * 0.1; // 10% tax
     const calculatedTotal = subtotal + tax;
     
-    // Use calculated total or booking totalAmount (prefer calculated for consistency)
-    const finalTotal = calculatedTotal > 0 ? calculatedTotal : (booking.totalAmount || 0);
+    // Use calculated total
+    const finalTotal = calculatedTotal;
     
     // Update booking with accurate total if different
     if (Math.abs(finalTotal - (booking.totalAmount || 0)) > 0.01) {
@@ -213,8 +228,8 @@ export async function POST(request: NextRequest) {
           price_data: {
             currency: 'usd',
             product_data: {
-              name: `Vehicle Rental - ${booking.vehicle.name}`,
-              description: `${booking.duration} rental service`,
+              name: `Vehicle ${isOneWay ? 'One Way' : 'Rental'} - ${booking.vehicle.name}`,
+              description: isOneWay ? 'One way trip' : `${booking.duration} rental service`,
             },
             unit_amount: Math.round(subtotal * 100), // Subtotal in cents
           },

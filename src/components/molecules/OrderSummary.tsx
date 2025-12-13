@@ -74,27 +74,24 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
     fetchVehicle();
   }, [bookingData.selectedVehicleId]);
   
-  // Calculate pricing based on service type and duration
-  const hours = parseInt(bookingData.hours) || 8;
+  // Calculate pricing based on trip type (one-way vs round-trip)
+  const hours = parseInt(bookingData.hours) || 0;
   let subtotal = 0;
+  const isOneWay = bookingData.tripType === 'one-way';
   
-  // Determine service type - default to TRIP for airport transfer
-  // For now, we'll use duration to determine pricing:
-  // - If 6 hours: use price6Hours
-  // - If 12 hours: use price12Hours
-  // - Otherwise: use airport transfer price or hourly rate
-  
-  if (hours === 6 && selectedVehicle?.price6Hours) {
-    subtotal = selectedVehicle.price6Hours;
-  } else if (hours === 12 && selectedVehicle?.price12Hours) {
-    subtotal = selectedVehicle.price12Hours;
-  } else if (selectedVehicle?.priceAirportTransfer) {
-    // Use airport transfer price for trip services
-    subtotal = selectedVehicle.priceAirportTransfer;
+  if (isOneWay) {
+    // ONE WAY: Flat rate per trip (use priceAirportTransfer)
+    subtotal = selectedVehicle?.priceAirportTransfer || 80;
   } else {
-    // Fallback to hourly rate
-    const hourlyRate = selectedVehicle?.price || 0;
-    subtotal = hourlyRate * hours;
+    // ROUND TRIP: Calculate based on hours (6hrs or 12hrs packages)
+    if (hours >= 12 && selectedVehicle?.price12Hours) {
+      subtotal = selectedVehicle.price12Hours;
+    } else if (hours >= 6 && selectedVehicle?.price6Hours) {
+      subtotal = selectedVehicle.price6Hours;
+    } else {
+      // Default to 6-hour package for round trip
+      subtotal = selectedVehicle?.price6Hours || 360;
+    }
   }
   
   const tax = subtotal * 0.1; // 10% tax
@@ -221,9 +218,15 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                 <span className="font-semibold text-gray-900">{formatTime(bookingData.pickupTime)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-700">Duration:</span>
-                <span className="font-semibold text-gray-900">{hours} hour{hours > 1 ? 's' : ''}</span>
+                <span className="text-gray-700">Trip Type:</span>
+                <span className="font-semibold text-gray-900">{bookingData.tripType === 'one-way' ? 'One Way' : 'Round Trip'}</span>
               </div>
+              {!isOneWay && hours > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-gray-700">Duration:</span>
+                  <span className="font-semibold text-gray-900">{hours} hour{hours > 1 ? 's' : ''}</span>
+                </div>
+              )}
               <div className="pt-2 border-t border-gray-200">
                 <div className="mb-2">
                   <span className="text-gray-700">Pickup Location:</span>
@@ -273,32 +276,26 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
             <h4 className="text-lg font-bold text-gray-900 mb-4">Price Breakdown</h4>
             
             <div className="space-y-3">
-              {hours === 6 && selectedVehicle?.price6Hours ? (
+              {isOneWay ? (
                 <div className="flex justify-between">
-                  <span className="text-gray-700">6 Hours Booking:</span>
-                  <span className="font-semibold text-gray-900">${selectedVehicle.price6Hours.toFixed(2)}</span>
+                  <span className="text-gray-700">One Way Trip:</span>
+                  <span className="font-semibold text-gray-900">${subtotal.toFixed(2)}</span>
                 </div>
-              ) : hours === 12 && selectedVehicle?.price12Hours ? (
+              ) : hours >= 12 && selectedVehicle?.price12Hours ? (
                 <div className="flex justify-between">
                   <span className="text-gray-700">12 Hours Booking:</span>
                   <span className="font-semibold text-gray-900">${selectedVehicle.price12Hours.toFixed(2)}</span>
                 </div>
-              ) : selectedVehicle?.priceAirportTransfer ? (
+              ) : hours >= 6 && selectedVehicle?.price6Hours ? (
                 <div className="flex justify-between">
-                  <span className="text-gray-700">Trip Price (Airport Transfer):</span>
-                  <span className="font-semibold text-gray-900">${selectedVehicle.priceAirportTransfer.toFixed(2)}</span>
+                  <span className="text-gray-700">6 Hours Booking:</span>
+                  <span className="font-semibold text-gray-900">${selectedVehicle.price6Hours.toFixed(2)}</span>
                 </div>
               ) : (
-                <>
-                  <div className="flex justify-between">
-                    <span className="text-gray-700">Trip Price:</span>
-                    <span className="font-semibold text-gray-900">${selectedVehicle?.price || 0}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-700">Duration:</span>
-                    <span className="font-semibold text-gray-900">{hours} hour{hours > 1 ? 's' : ''}</span>
-                  </div>
-                </>
+                <div className="flex justify-between">
+                  <span className="text-gray-700">Round Trip Price:</span>
+                  <span className="font-semibold text-gray-900">${subtotal.toFixed(2)}</span>
+                </div>
               )}
               <div className="flex justify-between">
                 <span className="text-gray-700">Subtotal:</span>

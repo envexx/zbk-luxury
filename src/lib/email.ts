@@ -1,5 +1,17 @@
 import nodemailer from 'nodemailer'
 
+// Helper function to format time to 12-hour format with AM/PM
+function formatTime12Hour(time24: string): string {
+  if (!time24) return '';
+  
+  const [hours, minutes] = time24.split(':');
+  const hour = parseInt(hours);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const hour12 = hour % 12 || 12;
+  
+  return `${hour12}:${minutes} ${ampm}`;
+}
+
 // Create transporter
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
@@ -42,7 +54,7 @@ export async function sendEmail({ to, subject, html, text, from }: EmailOptions 
 
 // Email templates
 export const emailTemplates = {
-  // Email untuk Customer - Konfirmasi booking sudah diterima
+  // Email untuk Customer - Setelah pembayaran berhasil (Payment Confirmation)
   bookingConfirmation: (
     customerName: string, 
     bookingId: string, 
@@ -50,8 +62,11 @@ export const emailTemplates = {
     date: string,
     pickupLocation?: string,
     pickupTime?: string
-  ) => ({
-    subject: `Booking Request Received - ${bookingId} | ZBK Limo Tours`,
+  ) => {
+    const formattedTime = pickupTime ? formatTime12Hour(pickupTime) : '';
+    
+    return {
+    subject: `Payment Confirmed - Booking ${bookingId} | ZBK Limo Tours`,
     html: `
       <!DOCTYPE html>
       <html lang="en">
@@ -59,19 +74,22 @@ export const emailTemplates = {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
       </head>
-      <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f4;">
-        <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f4f4f4;">
+      <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f4f4f4;">
+        <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f4f4f4; padding: 20px 0;">
           <tr>
-            <td style="padding: 20px 0; text-align: center;">
-              <table role="presentation" style="width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-                <!-- Header -->
+            <td align="center">
+              <table role="presentation" style="max-width: 600px; width: 100%; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+                
+                <!-- Header with Logo -->
                 <tr>
-                  <td style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); padding: 40px 30px; text-align: center;">
-                    <h1 style="color: #D4AF37; margin: 0; font-size: 32px; font-weight: bold; letter-spacing: 2px;">
+                  <td style="background-color: #1a1a2e; padding: 40px 30px; text-align: center;">
+                    <img src="${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.zbktransportservices.com'}/api/logo" alt="ZBK Limo Tours" style="width: 100px; height: auto; margin-bottom: 15px;" />
+                    
+                    <h1 style="color: #D4AF37; margin: 10px 0 5px 0; font-size: 24px; font-weight: 600; letter-spacing: 2px;">
                       ZBK LIMO TOURS
                     </h1>
-                    <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">
-                      & Transportation Services
+                    <p style="color: #ffffff; margin: 0; font-size: 14px; opacity: 0.9;">
+                      Premium Transportation Services
                     </p>
                   </td>
                 </tr>
@@ -79,108 +97,115 @@ export const emailTemplates = {
                 <!-- Main Content -->
                 <tr>
                   <td style="padding: 40px 30px;">
-                    <div style="text-align: center; margin-bottom: 30px;">
-                      <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #28a745, #20c997); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
-                        <span style="font-size: 40px; color: white;">✓</span>
-                      </div>
-                      <h2 style="color: #1a1a2e; margin: 0 0 15px 0; font-size: 28px; font-weight: 600;">
-                        Booking Request Received!
-                      </h2>
-                      <p style="color: #666666; margin: 0; font-size: 16px; line-height: 1.6;">
-                        Thank you for choosing ZBK Limo Tours
-                      </p>
+                    
+                    <!-- Success Badge -->
+                    <div style="background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 6px; padding: 15px; margin-bottom: 30px; text-align: center;">
+                      <span style="color: #155724; font-size: 16px; font-weight: 600;">✓ Payment Confirmed Successfully</span>
                     </div>
                     
-                    <div style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9); padding: 25px; border-radius: 8px; margin: 30px 0; border-left: 4px solid #28a745;">
-                      <p style="color: #1a1a2e; margin: 0; font-size: 16px; line-height: 1.8; text-align: center;">
-                        <strong style="color: #28a745; font-size: 18px;">Dear ${customerName},</strong><br><br>
-                        Your booking request has been successfully received! Our team at ZBK Limo Tours will review your request and contact you shortly to confirm the details.
-                      </p>
-                    </div>
+                    <h2 style="color: #1a1a2e; margin: 0 0 10px 0; font-size: 22px; font-weight: 600;">
+                      Dear ${customerName},
+                    </h2>
+                    <p style="color: #666666; margin: 0 0 30px 0; font-size: 15px; line-height: 1.6;">
+                      Thank you for your payment. Your booking has been confirmed and we're excited to serve you!
+                    </p>
                     
-                    <div style="background-color: #f8f9fa; border-left: 4px solid #D4AF37; padding: 20px; margin: 30px 0; border-radius: 5px;">
-                      <h3 style="color: #1a1a2e; margin: 0 0 15px 0; font-size: 18px; font-weight: 600;">
-                        Your Booking Details
+                    <!-- Booking Details -->
+                    <div style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 25px; margin-bottom: 30px;">
+                      <h3 style="color: #1a1a2e; margin: 0 0 20px 0; font-size: 16px; font-weight: 600;">
+                        Your Booking Details:
                       </h3>
                       <table style="width: 100%; border-collapse: collapse;">
                         <tr>
-                          <td style="padding: 8px 0; color: #666666; font-size: 14px; width: 40%;"><strong>Booking ID:</strong></td>
-                          <td style="padding: 8px 0; color: #1a1a2e; font-size: 14px; font-weight: 600;">${bookingId}</td>
+                          <td style="padding: 10px 0; color: #666666; font-size: 14px; width: 35%;">
+                            <strong>Booking ID:</strong>
+                          </td>
+                          <td style="padding: 10px 0; color: #1a1a2e; font-size: 14px; font-weight: 600;">
+                            ${bookingId}
+                          </td>
                         </tr>
                         <tr>
-                          <td style="padding: 8px 0; color: #666666; font-size: 14px;"><strong>Vehicle:</strong></td>
-                          <td style="padding: 8px 0; color: #1a1a2e; font-size: 14px;">${vehicleName}</td>
+                          <td style="padding: 10px 0; color: #666666; font-size: 14px; border-top: 1px solid #dee2e6;">
+                            <strong>Vehicle:</strong>
+                          </td>
+                          <td style="padding: 10px 0; color: #1a1a2e; font-size: 14px; border-top: 1px solid #dee2e6;">
+                            ${vehicleName}
+                          </td>
                         </tr>
                         <tr>
-                          <td style="padding: 8px 0; color: #666666; font-size: 14px;"><strong>Date:</strong></td>
-                          <td style="padding: 8px 0; color: #1a1a2e; font-size: 14px;">${date}</td>
+                          <td style="padding: 10px 0; color: #666666; font-size: 14px; border-top: 1px solid #dee2e6;">
+                            <strong>Date:</strong>
+                          </td>
+                          <td style="padding: 10px 0; color: #1a1a2e; font-size: 14px; border-top: 1px solid #dee2e6;">
+                            ${date}
+                          </td>
                         </tr>
                         ${pickupTime ? `
                         <tr>
-                          <td style="padding: 8px 0; color: #666666; font-size: 14px;"><strong>Pickup Time:</strong></td>
-                          <td style="padding: 8px 0; color: #1a1a2e; font-size: 14px;">${pickupTime}</td>
+                          <td style="padding: 10px 0; color: #666666; font-size: 14px; border-top: 1px solid #dee2e6;">
+                            <strong>Pickup Time:</strong>
+                          </td>
+                          <td style="padding: 10px 0; color: #1a1a2e; font-size: 14px; border-top: 1px solid #dee2e6;">
+                            ${formattedTime}
+                          </td>
                         </tr>
                         ` : ''}
                         ${pickupLocation ? `
                         <tr>
-                          <td style="padding: 8px 0; color: #666666; font-size: 14px;"><strong>Pickup Location:</strong></td>
-                          <td style="padding: 8px 0; color: #1a1a2e; font-size: 14px;">${pickupLocation}</td>
+                          <td style="padding: 10px 0; color: #666666; font-size: 14px; border-top: 1px solid #dee2e6;">
+                            <strong>Pickup Location:</strong>
+                          </td>
+                          <td style="padding: 10px 0; color: #1a1a2e; font-size: 14px; border-top: 1px solid #dee2e6;">
+                            ${pickupLocation}
+                          </td>
                         </tr>
                         ` : ''}
                       </table>
                     </div>
                     
-                    <div style="background: linear-gradient(135deg, #fff3cd, #ffeaa7); padding: 25px; border-radius: 8px; margin: 30px 0; border-left: 4px solid #D4AF37;">
-                      <h3 style="color: #1a1a2e; margin: 0 0 15px 0; font-size: 18px; font-weight: 600; text-align: center;">
-                        What Happens Next?
+                    <!-- What to Expect -->
+                    <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 6px; padding: 20px; margin-bottom: 30px;">
+                      <h3 style="color: #856404; margin: 0 0 12px 0; font-size: 16px; font-weight: 600;">
+                        What to Expect:
                       </h3>
-                      <div style="color: #1a1a2e; font-size: 14px; line-height: 1.8;">
-                        <p style="margin: 10px 0;">
-                          <strong style="color: #D4AF37;">1. Review Process</strong><br>
-                          Our team will review your booking request within 24 hours.
-                        </p>
-                        <p style="margin: 10px 0;">
-                          <strong style="color: #D4AF37;">2. Confirmation Call</strong><br>
-                          We will contact you via phone or email to confirm all details and answer any questions.
-                        </p>
-                        <p style="margin: 10px 0;">
-                          <strong style="color: #D4AF37;">3. Final Confirmation</strong><br>
-                          Once confirmed, you will receive a final confirmation email with all the details.
-                        </p>
-                      </div>
+                      <ul style="color: #856404; margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.8;">
+                        <li>Our driver will arrive 10 minutes before your scheduled pickup time</li>
+                        <li>You will receive the driver's contact details 24 hours before your trip</li>
+                        <li>Please have your Booking ID ready for verification</li>
+                      </ul>
                     </div>
                     
-                    <div style="text-align: center; margin-top: 30px; padding-top: 30px; border-top: 2px solid #e9ecef;">
-                      <p style="color: #666666; margin: 0; font-size: 14px; line-height: 1.8;">
-                        If you have any urgent questions or need to make changes to your booking,<br>
-                        please don't hesitate to contact us directly.
+                    <!-- Contact Info -->
+                    <div style="text-align: center; padding: 20px; border-top: 1px solid #dee2e6;">
+                      <p style="color: #666666; margin: 0 0 10px 0; font-size: 14px;">
+                        Need to make changes or have questions?
+                      </p>
+                      <p style="color: #1a1a2e; margin: 0; font-size: 14px; font-weight: 600;">
+                        Contact us at: <a href="mailto:zbklimo@gmail.com" style="color: #D4AF37; text-decoration: none;">zbklimo@gmail.com</a>
                       </p>
                     </div>
+                    
                   </td>
                 </tr>
                 
                 <!-- Footer -->
                 <tr>
-                  <td style="background-color: #1a1a2e; padding: 30px; text-align: center;">
-                    <p style="color: #ffffff; margin: 0 0 10px 0; font-size: 14px;">
-                      <strong>ZBK Limo Tours & Transportation Services</strong>
+                  <td style="background-color: #f8f9fa; padding: 25px 30px; text-align: center; border-top: 1px solid #dee2e6;">
+                    <p style="color: #6c757d; margin: 0 0 10px 0; font-size: 14px; font-weight: 600;">
+                      ZBK Limo Tours & Transportation Services
                     </p>
-                    <p style="color: #D4AF37; margin: 0 0 15px 0; font-size: 14px;">
-                      Premium Luxury Transportation in Singapore
+                    <p style="color: #6c757d; margin: 0 0 5px 0; font-size: 13px;">
+                      📧 zbklimo@gmail.com
                     </p>
-                    <div style="margin: 20px 0;">
-                      <p style="color: #999999; margin: 5px 0; font-size: 12px;">
-                        📧 Email: zbklimo@gmail.com
-                      </p>
-                      <p style="color: #999999; margin: 5px 0; font-size: 12px;">
-                        📍 Jurong West Street 65, Singapore 640635
-                      </p>
-                    </div>
-                    <p style="color: #666666; margin: 20px 0 0 0; font-size: 11px; border-top: 1px solid #333; padding-top: 15px;">
-                      Thank you for choosing ZBK Limo Tours. We look forward to serving you!
+                    <p style="color: #6c757d; margin: 0 0 15px 0; font-size: 13px;">
+                      📍 Jurong West Street 65, Singapore 640635
+                    </p>
+                    <p style="color: #adb5bd; margin: 0; font-size: 12px;">
+                      Thank you for choosing ZBK Limo Tours!
                     </p>
                   </td>
                 </tr>
+                
               </table>
             </td>
           </tr>
@@ -188,7 +213,8 @@ export const emailTemplates = {
       </body>
       </html>
     `
-  }),
+  }
+  },
 
   bookingStatusUpdate: (customerName: string, bookingId: string, status: string) => ({
     subject: `Booking Update - ${bookingId}`,
@@ -214,7 +240,7 @@ export const emailTemplates = {
     `
   }),
 
-  // Email untuk Admin (zbklimo@gmail.com) - Notifikasi ada booking baru
+  // Email untuk Admin (zbklimo@gmail.com) - Simple & Elegant
   adminNotification: (
     bookingId: string, 
     customerName: string, 
@@ -230,8 +256,14 @@ export const emailTemplates = {
     duration: string,
     totalAmount: number,
     notes?: string
-  ) => ({
-    subject: `🔔 New Booking Request - ${bookingId} | Action Required`,
+  ) => {
+    const formattedTime = formatTime12Hour(startTime);
+    const isOneWay = service.toUpperCase().includes('ONE') || 
+                     service.toUpperCase().includes('AIRPORT') || 
+                     service.toUpperCase().includes('TRANSFER');
+    
+    return {
+    subject: `New Booking ${bookingId} - ${customerName}`,
     html: `
       <!DOCTYPE html>
       <html lang="en">
@@ -239,153 +271,128 @@ export const emailTemplates = {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
       </head>
-      <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f4;">
-        <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f4f4f4;">
+      <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f5f5f5;">
+        <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f5f5f5; padding: 20px 0;">
           <tr>
-            <td style="padding: 20px 0; text-align: center;">
-              <table role="presentation" style="width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+            <td align="center">
+              <table role="presentation" style="max-width: 600px; width: 100%; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
+                
                 <!-- Header -->
                 <tr>
-                  <td style="background: linear-gradient(135deg, #dc3545 0%, #c82333 50%, #bd2130 100%); padding: 40px 30px; text-align: center;">
-                    <div style="width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center;">
-                      <span style="font-size: 30px; color: white;">🔔</span>
-                    </div>
-                    <h1 style="color: white; margin: 0; font-size: 28px; font-weight: bold;">
-                      NEW BOOKING REQUEST
+                  <td style="background-color: #1a1a2e; padding: 30px; text-align: center;">
+                    <h1 style="color: #D4AF37; margin: 0; font-size: 20px; font-weight: 600; letter-spacing: 1px;">
+                      NEW BOOKING CONFIRMED
                     </h1>
-                    <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 14px;">
-                      Action Required - Review & Confirm
+                    <p style="color: #ffffff; margin: 8px 0 0 0; font-size: 14px; opacity: 0.9;">
+                      Payment Received • ${bookingId}
                     </p>
                   </td>
                 </tr>
                 
-                <!-- Alert Banner -->
+                <!-- Customer Info -->
                 <tr>
-                  <td style="background: #fff3cd; padding: 15px 30px; border-left: 4px solid #ffc107;">
-                    <p style="margin: 0; color: #856404; font-size: 14px; font-weight: 600;">
-                      ⚠️ A new booking has been submitted and requires your immediate attention.
-                    </p>
-                  </td>
-                </tr>
-                
-                <!-- Main Content -->
-                <tr>
-                  <td style="padding: 40px 30px;">
-                    <div style="background-color: #f8f9fa; border-left: 4px solid #dc3545; padding: 20px; margin-bottom: 30px; border-radius: 5px;">
-                      <h3 style="color: #1a1a2e; margin: 0 0 15px 0; font-size: 18px; font-weight: 600;">
-                        Booking Information
-                      </h3>
-                      <table style="width: 100%; border-collapse: collapse;">
-                        <tr>
-                          <td style="padding: 8px 0; color: #666666; font-size: 14px; width: 35%;"><strong>Booking ID:</strong></td>
-                          <td style="padding: 8px 0; color: #1a1a2e; font-size: 14px; font-weight: 600;">${bookingId}</td>
-                        </tr>
-                        <tr>
-                          <td style="padding: 8px 0; color: #666666; font-size: 14px;"><strong>Service Type:</strong></td>
-                          <td style="padding: 8px 0; color: #1a1a2e; font-size: 14px;">${service}</td>
-                        </tr>
-                        <tr>
-                          <td style="padding: 8px 0; color: #666666; font-size: 14px;"><strong>Vehicle:</strong></td>
-                          <td style="padding: 8px 0; color: #1a1a2e; font-size: 14px;">${vehicleName} ${vehicleModel ? `(${vehicleModel})` : ''}</td>
-                        </tr>
-                        <tr>
-                          <td style="padding: 8px 0; color: #666666; font-size: 14px;"><strong>Date:</strong></td>
-                          <td style="padding: 8px 0; color: #1a1a2e; font-size: 14px;">${startDate}</td>
-                        </tr>
-                        <tr>
-                          <td style="padding: 8px 0; color: #666666; font-size: 14px;"><strong>Time:</strong></td>
-                          <td style="padding: 8px 0; color: #1a1a2e; font-size: 14px;">${startTime}</td>
-                        </tr>
-                        <tr>
-                          <td style="padding: 8px 0; color: #666666; font-size: 14px;"><strong>Duration:</strong></td>
-                          <td style="padding: 8px 0; color: #1a1a2e; font-size: 14px;">${duration}</td>
-                        </tr>
-                        <tr>
-                          <td style="padding: 8px 0; color: #666666; font-size: 14px;"><strong>Total Amount:</strong></td>
-                          <td style="padding: 8px 0; color: #28a745; font-size: 14px; font-weight: 600;">$${totalAmount.toFixed(2)}</td>
-                        </tr>
-                      </table>
-                    </div>
-                    
-                    <div style="background-color: #e7f3ff; border-left: 4px solid #007bff; padding: 20px; margin-bottom: 30px; border-radius: 5px;">
-                      <h3 style="color: #1a1a2e; margin: 0 0 15px 0; font-size: 18px; font-weight: 600;">
+                  <td style="padding: 30px;">
+                    <div style="background-color: #f8f9fa; border-left: 3px solid #D4AF37; padding: 20px; margin-bottom: 25px;">
+                      <h3 style="color: #1a1a2e; margin: 0 0 15px 0; font-size: 15px; font-weight: 600;">
                         Customer Information
                       </h3>
                       <table style="width: 100%; border-collapse: collapse;">
                         <tr>
-                          <td style="padding: 8px 0; color: #666666; font-size: 14px; width: 35%;"><strong>Name:</strong></td>
-                          <td style="padding: 8px 0; color: #1a1a2e; font-size: 14px; font-weight: 600;">${customerName}</td>
+                          <td style="padding: 6px 0; color: #666; font-size: 14px; width: 25%;">Name:</td>
+                          <td style="padding: 6px 0; color: #1a1a2e; font-size: 14px; font-weight: 500;">${customerName}</td>
                         </tr>
                         <tr>
-                          <td style="padding: 8px 0; color: #666666; font-size: 14px;"><strong>Email:</strong></td>
-                          <td style="padding: 8px 0; color: #007bff; font-size: 14px;">
-                            <a href="mailto:${customerEmail}" style="color: #007bff; text-decoration: none;">${customerEmail}</a>
-                          </td>
+                          <td style="padding: 6px 0; color: #666; font-size: 14px;">Email:</td>
+                          <td style="padding: 6px 0;"><a href="mailto:${customerEmail}" style="color: #D4AF37; text-decoration: none; font-size: 14px;">${customerEmail}</a></td>
                         </tr>
                         <tr>
-                          <td style="padding: 8px 0; color: #666666; font-size: 14px;"><strong>Phone:</strong></td>
-                          <td style="padding: 8px 0; color: #1a1a2e; font-size: 14px;">
-                            <a href="tel:${customerPhone}" style="color: #1a1a2e; text-decoration: none;">${customerPhone}</a>
-                          </td>
+                          <td style="padding: 6px 0; color: #666; font-size: 14px;">Phone:</td>
+                          <td style="padding: 6px 0;"><a href="tel:${customerPhone}" style="color: #1a1a2e; text-decoration: none; font-size: 14px; font-weight: 500;">${customerPhone}</a></td>
                         </tr>
                       </table>
                     </div>
                     
-                    <div style="background-color: #f8f9fa; border-left: 4px solid #6c757d; padding: 20px; margin-bottom: 30px; border-radius: 5px;">
-                      <h3 style="color: #1a1a2e; margin: 0 0 15px 0; font-size: 18px; font-weight: 600;">
-                        Location Details
+                    <!-- Booking Details -->
+                    <div style="background-color: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 20px; margin-bottom: 25px;">
+                      <h3 style="color: #1a1a2e; margin: 0 0 15px 0; font-size: 15px; font-weight: 600;">
+                        Booking Details
                       </h3>
                       <table style="width: 100%; border-collapse: collapse;">
                         <tr>
-                          <td style="padding: 8px 0; color: #666666; font-size: 14px; width: 35%; vertical-align: top;"><strong>Pickup:</strong></td>
-                          <td style="padding: 8px 0; color: #1a1a2e; font-size: 14px;">${pickupLocation}</td>
+                          <td style="padding: 6px 0; color: #666; font-size: 14px; width: 25%;">Vehicle:</td>
+                          <td style="padding: 6px 0; color: #1a1a2e; font-size: 14px; font-weight: 500;">${vehicleName}${vehicleModel ? ` ${vehicleModel}` : ''}</td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 6px 0; color: #666; font-size: 14px;">Service:</td>
+                          <td style="padding: 6px 0; color: #1a1a2e; font-size: 14px; font-weight: 500;">${isOneWay ? 'One Way' : 'Round Trip'}</td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 6px 0; color: #666; font-size: 14px;">Date:</td>
+                          <td style="padding: 6px 0; color: #1a1a2e; font-size: 14px; font-weight: 500;">${startDate}</td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 6px 0; color: #666; font-size: 14px;">Time:</td>
+                          <td style="padding: 6px 0; color: #1a1a2e; font-size: 14px; font-weight: 500;">${formattedTime}</td>
+                        </tr>
+                        ${!isOneWay ? `
+                        <tr>
+                          <td style="padding: 6px 0; color: #666; font-size: 14px;">Duration:</td>
+                          <td style="padding: 6px 0; color: #1a1a2e; font-size: 14px; font-weight: 500;">${duration}</td>
+                        </tr>
+                        ` : ''}
+                        <tr>
+                          <td style="padding: 6px 0; color: #666; font-size: 14px; padding-top: 12px; border-top: 1px solid #e0e0e0;">Amount:</td>
+                          <td style="padding: 6px 0; color: #28a745; font-size: 16px; font-weight: 700; padding-top: 12px; border-top: 1px solid #e0e0e0;">SGD $${totalAmount.toFixed(2)}</td>
+                        </tr>
+                      </table>
+                    </div>
+                    
+                    <!-- Location Details -->
+                    <div style="background-color: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 20px; margin-bottom: 25px;">
+                      <h3 style="color: #1a1a2e; margin: 0 0 15px 0; font-size: 15px; font-weight: 600;">
+                        Location
+                      </h3>
+                      <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                          <td style="padding: 6px 0; color: #666; font-size: 14px; width: 25%; vertical-align: top;">Pickup:</td>
+                          <td style="padding: 6px 0; color: #1a1a2e; font-size: 14px; line-height: 1.5;">${pickupLocation}</td>
                         </tr>
                         ${dropoffLocation ? `
                         <tr>
-                          <td style="padding: 8px 0; color: #666666; font-size: 14px; vertical-align: top;"><strong>Drop-off:</strong></td>
-                          <td style="padding: 8px 0; color: #1a1a2e; font-size: 14px;">${dropoffLocation}</td>
+                          <td style="padding: 6px 0; color: #666; font-size: 14px; vertical-align: top;">Drop-off:</td>
+                          <td style="padding: 6px 0; color: #1a1a2e; font-size: 14px; line-height: 1.5;">${dropoffLocation}</td>
                         </tr>
                         ` : ''}
                       </table>
                     </div>
                     
                     ${notes ? `
-                    <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; margin-bottom: 30px; border-radius: 5px;">
-                      <h3 style="color: #1a1a2e; margin: 0 0 15px 0; font-size: 18px; font-weight: 600;">
-                        Additional Notes
-                      </h3>
-                      <p style="color: #856404; margin: 0; font-size: 14px; line-height: 1.6;">
-                        ${notes}
-                      </p>
+                    <div style="background-color: #fffbf0; border-left: 3px solid #ffc107; padding: 15px; margin-bottom: 25px; border-radius: 4px;">
+                      <h4 style="color: #856404; margin: 0 0 8px 0; font-size: 14px; font-weight: 600;">Notes:</h4>
+                      <p style="color: #856404; margin: 0; font-size: 14px; line-height: 1.5;">${notes}</p>
                     </div>
                     ` : ''}
                     
-                    <div style="text-align: center; margin-top: 30px; padding-top: 30px; border-top: 2px solid #e9ecef;">
-                      <p style="color: #666666; margin: 0 0 20px 0; font-size: 14px; line-height: 1.8;">
-                        Please review this booking request and contact the customer to confirm all details.
-                      </p>
-                      <a href="${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/admin/bookings" 
-                         style="background: #D4AF37; color: #1a1a2e; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: 600; font-size: 14px;">
-                        View in Admin Dashboard
+                    <!-- Action Button -->
+                    <div style="text-align: center; padding: 20px 0;">
+                      <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.zbktransportservices.com'}/admin/bookings" 
+                         style="background-color: #D4AF37; color: #1a1a2e; padding: 12px 32px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 14px;">
+                        View in Dashboard
                       </a>
                     </div>
+                    
                   </td>
                 </tr>
                 
                 <!-- Footer -->
                 <tr>
-                  <td style="background-color: #1a1a2e; padding: 30px; text-align: center;">
-                    <p style="color: #ffffff; margin: 0 0 10px 0; font-size: 14px;">
-                      <strong>ZBK Limo Tours & Transportation Services</strong>
-                    </p>
-                    <p style="color: #D4AF37; margin: 0 0 15px 0; font-size: 14px;">
-                      Admin Notification System
-                    </p>
-                    <p style="color: #666666; margin: 20px 0 0 0; font-size: 11px; border-top: 1px solid #333; padding-top: 15px;">
-                      This is an automated notification. Please respond to the customer within 24 hours.
+                  <td style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #e0e0e0;">
+                    <p style="color: #6c757d; margin: 0; font-size: 13px;">
+                      ZBK Limo Tours • zbklimo@gmail.com
                     </p>
                   </td>
                 </tr>
+                
               </table>
             </td>
           </tr>
@@ -393,5 +400,5 @@ export const emailTemplates = {
       </body>
       </html>
     `
-  })
-}
+  }
+  }

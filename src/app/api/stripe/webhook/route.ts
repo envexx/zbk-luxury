@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
           html: customerTemplate.html
         })
 
-        // Send notification to admin
+        // Send notification to admin (always zbklimo@gmail.com)
         const adminTemplate = emailTemplates.adminNotification(
           booking.id,
           booking.customerName,
@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
           booking.notes || undefined
         )
 
-        const adminEmail = process.env.ADMIN_EMAIL || 'zbklimo@gmail.com'
+        const adminEmail = 'zbklimo@gmail.com' // Admin email is always zbklimo@gmail.com
         await sendEmail({
           to: adminEmail,
           subject: adminTemplate.subject,

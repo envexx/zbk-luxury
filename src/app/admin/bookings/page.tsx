@@ -387,10 +387,17 @@ export default function BookingsPage() {
                       {new Date(selectedBooking.startDate).toLocaleDateString()} at {selectedBooking.startTime}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Duration</p>
-                    <p className="text-sm text-gray-900 dark:text-white">{selectedBooking.duration}</p>
-                  </div>
+                  {(() => {
+                    const isOneWay = selectedBooking.service.toUpperCase().includes('ONE') || 
+                                     selectedBooking.service.toUpperCase().includes('AIRPORT') || 
+                                     selectedBooking.service.toUpperCase().includes('TRANSFER');
+                    return !isOneWay && (
+                      <div>
+                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Duration</p>
+                        <p className="text-sm text-gray-900 dark:text-white">{selectedBooking.duration}</p>
+                      </div>
+                    );
+                  })()}
                   <div className="col-span-2">
                     <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Pickup Location</p>
                     <p className="text-sm text-gray-900 dark:text-white">{selectedBooking.pickupLocation}</p>
