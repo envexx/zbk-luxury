@@ -5,7 +5,12 @@ import Header from '@/components/admin/Header'
 import { SidebarProvider } from '@/contexts/SidebarContext'
 import AuthGuard from '@/components/auth/AuthGuard'
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ 
+  subsets: ['latin'],
+  display: 'swap',
+  fallback: ['system-ui', 'arial'],
+  adjustFontFallback: false,
+})
 
 export const metadata: Metadata = {
   title: 'ZBK Admin Dashboard',

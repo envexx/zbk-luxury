@@ -11,8 +11,9 @@ export async function POST(request: NextRequest) {
       customerName,
       customerEmail,
       customerPhone,
-      vehicleCategory,
+      vehicleId,
       service,
+      serviceType,
       startDate,
       endDate,
       startTime,
@@ -23,17 +24,17 @@ export async function POST(request: NextRequest) {
     } = body
 
     // Validate required fields
-    if (!customerName || !customerEmail || !customerPhone || !vehicleCategory || !service || !startDate) {
+    if (!customerName || !customerEmail || !customerPhone || !vehicleId || !service || !startDate) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       )
     }
 
-    // Find available vehicle in the requested category
+    // Get the specified vehicle
     const availableVehicle = await prisma.vehicle.findFirst({
       where: {
-        category: vehicleCategory,
+        id: vehicleId,
         status: 'AVAILABLE'
       },
       select: {
@@ -42,6 +43,7 @@ export async function POST(request: NextRequest) {
         model: true,
         price: true,
         priceAirportTransfer: true,
+        priceTrip: true,
         price6Hours: true,
         price12Hours: true,
         services: true,
@@ -51,35 +53,58 @@ export async function POST(request: NextRequest) {
 
     if (!availableVehicle) {
       return NextResponse.json(
-        { error: 'No vehicles available in the selected category' },
+        { error: 'Vehicle not available' },
         { status: 400 }
       )
     }
 
     // Calculate price based on service type and duration
-    const durationHours = parseInt(duration.replace(' hours', '').replace(' hour', '')) || 8
-    let totalAmount = 0
+    const durationHours = parseInt((duration || '6 hours').replace(' hours', '').replace(' hour', '')) || 6
+    let subtotal = 0
     
-    // Determine service type from booking service field
-    const serviceType = service?.toUpperCase() || 'TRIP'
-    const isTripService = serviceType.includes('TRIP') || serviceType.includes('AIRPORT')
+    // Determine service type
+    let finalServiceType: 'AIRPORT_TRANSFER' | 'TRIP' | 'RENTAL' = serviceType || 'RENTAL'
     
-    if (isTripService && availableVehicle.priceAirportTransfer) {
-      // Airport Transfer / Trip service
-      totalAmount = availableVehicle.priceAirportTransfer
-    } else {
-      // Rent service - use 6hrs or 12hrs pricing
-      if (durationHours >= 12 && availableVehicle.price12Hours) {
-        totalAmount = availableVehicle.price12Hours
-      } else if (durationHours >= 6 && availableVehicle.price6Hours) {
-        totalAmount = availableVehicle.price6Hours
+    if (!serviceType) {
+      // Auto-detect from location
+      const pickupLower = (pickupLocation || '').toLowerCase()
+      const dropoffLower = (dropoffLocation || '').toLowerCase()
+      const isAirportRelated = pickupLower.includes('airport') || 
+                               pickupLower.includes('terminal') ||
+                               dropoffLower.includes('airport') || 
+                               dropoffLower.includes('terminal')
+      
+      const serviceStr = (service || '').toUpperCase()
+      const isOneWay = serviceStr.includes('ONE') || 
+                       serviceStr.includes('ONE-WAY') || 
+                       serviceStr.includes('TRIP') || 
+                       serviceStr.includes('AIRPORT')
+      
+      if (isOneWay) {
+        finalServiceType = isAirportRelated ? 'AIRPORT_TRANSFER' : 'TRIP'
       } else {
-        // Fallback to hourly rate if available
-        const minimumHours = availableVehicle.minimumHours || 1
-        const actualHours = Math.max(durationHours, minimumHours)
-        totalAmount = (availableVehicle.price || 0) * actualHours
+        finalServiceType = 'RENTAL'
       }
     }
+    
+    // Calculate price based on service type
+    if (finalServiceType === 'AIRPORT_TRANSFER') {
+      subtotal = availableVehicle.priceAirportTransfer || 100
+    } else if (finalServiceType === 'TRIP') {
+      subtotal = availableVehicle.priceTrip || 85
+    } else {
+      // RENTAL: Calculate based on hours
+      if (durationHours >= 12 && availableVehicle.price12Hours) {
+        subtotal = availableVehicle.price12Hours
+      } else if (durationHours >= 6 && availableVehicle.price6Hours) {
+        subtotal = availableVehicle.price6Hours
+      } else {
+        subtotal = availableVehicle.price6Hours || 360
+      }
+    }
+    
+    const tax = subtotal * 0.1 // 10% tax
+    const totalAmount = subtotal + tax
 
     // Create booking
     const booking = await prisma.booking.create({
@@ -89,10 +114,11 @@ export async function POST(request: NextRequest) {
         customerPhone,
         vehicleId: availableVehicle.id,
         service,
+        serviceType: finalServiceType,
         startDate: new Date(startDate),
         endDate: new Date(endDate || startDate),
         startTime: startTime || '09:00',
-        duration: duration || '8 hours',
+        duration: duration || '6 hours',
         pickupLocation,
         dropoffLocation,
         totalAmount,
@@ -147,9 +173,10 @@ export async function POST(request: NextRequest) {
       startTime || '09:00',
       pickupLocation,
       dropoffLocation || '',
-      duration || '8 hours',
+      duration || '6 hours',
       totalAmount,
-      notes || undefined
+      notes || undefined,
+      finalServiceType
     )
 
     // Send to zbklimo@gmail.com (same email as sender)

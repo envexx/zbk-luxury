@@ -11,7 +11,6 @@ export interface Vehicle {
   name: string;
   model: string;
   year: number;
-  category: string;
   status: string;
   location: string;
   plateNumber: string;
@@ -23,6 +22,7 @@ export interface Vehicle {
   description?: string;
   price?: number; // Legacy hourly rental price
   priceAirportTransfer?: number;
+  priceTrip?: number;
   price6Hours?: number;
   price12Hours?: number;
   services?: string[];
@@ -71,19 +71,16 @@ const VehicleSelection: React.FC<VehicleSelectionProps> = ({
     }
   }
 
-  // Format category: replace underscores with spaces and capitalize
-  const formatCategory = (category: string): string => {
-    return category
-      .split('_')
-      .map(word => word.charAt(0) + word.slice(1).toLowerCase())
-      .join(' ');
-  };
-
-  const categories = ['All', ...Array.from(new Set(vehicles.map(v => v.category)))]
+  // Filter by capacity
+  const capacityOptions = ['All', '6 Pax', '9 Pax']
   
   const filteredVehicles = filter === 'All' 
     ? vehicles 
-    : vehicles.filter(vehicle => vehicle.category === filter);
+    : filter === '6 Pax'
+      ? vehicles.filter(vehicle => vehicle.capacity <= 6)
+      : filter === '9 Pax'
+        ? vehicles.filter(vehicle => vehicle.capacity >= 9)
+        : vehicles;
 
   const selectedVehicle = vehicles.find(v => v.id === selectedVehicleId);
 
@@ -104,20 +101,20 @@ const VehicleSelection: React.FC<VehicleSelectionProps> = ({
         <p className="text-gray-600">Select from our premium fleet of luxury vehicles</p>
       </div>
 
-      {/* Category Filter */}
+      {/* Capacity Filter */}
       <div className="flex flex-wrap gap-2 mb-8 justify-center">
-        {categories.map((category) => (
+        {capacityOptions.map((option) => (
           <button
-            key={category}
-            onClick={() => setFilter(category)}
+            key={option}
+            onClick={() => setFilter(option)}
             className={cn(
               'px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300',
-              filter === category
+              filter === option
                 ? 'bg-luxury-gold text-gray-900 shadow-md'
                 : 'bg-white text-gray-700 hover:bg-luxury-gold/10 hover:text-luxury-gold border border-gray-200 hover:border-luxury-gold/50'
             )}
           >
-            {category === 'All' ? category : formatCategory(category)}
+            {option}
           </button>
         ))}
       </div>
@@ -199,7 +196,7 @@ const VehicleSelection: React.FC<VehicleSelectionProps> = ({
                   {vehicle.year}
                 </span>
                 <span className="px-2 py-1 bg-luxury-gold/10 text-luxury-gold rounded-full text-xs font-medium">
-                  {formatCategory(vehicle.category)}
+                  {vehicle.capacity} Pax
                 </span>
               </div>
 
@@ -260,10 +257,10 @@ const VehicleSelection: React.FC<VehicleSelectionProps> = ({
               <div className="font-bold text-gray-900 text-lg mb-1">{selectedVehicle.name}</div>
               <div className="text-sm text-gray-600 flex items-center gap-2">
                 <span className="px-2 py-0.5 bg-luxury-gold/10 text-luxury-gold rounded-full text-xs font-medium">
-                  {formatCategory(selectedVehicle.category)}
+                  {selectedVehicle.capacity} Pax
                 </span>
                 <span>•</span>
-                <span>{selectedVehicle.capacity} pax</span>
+                <span>{selectedVehicle.year}</span>
                 {selectedVehicle.luggage && (
                   <>
                     <span>•</span>

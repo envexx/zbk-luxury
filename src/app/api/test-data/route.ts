@@ -13,20 +13,25 @@ export async function POST() {
         name: 'Toyota Alphard Executive Test',
         model: 'Alphard',
         year: 2024,
-        category: 'WEDDING_AFFAIRS',
         status: 'AVAILABLE',
-        location: 'Jakarta Pusat',
-        plateNumber: 'B 1111 TEST',
-        capacity: 7,
+        location: 'Singapore',
+        plateNumber: 'SGX-TEST-001',
+        capacity: 6,
+        luggage: 4,
         color: 'Pearl White',
-        price: 300.00,
-        minimumHours: 5,
+        price: 60.00,
+        priceAirportTransfer: 80.00,
+        priceTrip: 60.00,
+        price6Hours: 360.00,
+        price12Hours: 720.00,
+        services: ['AIRPORT_TRANSFER', 'TRIP', 'RENTAL'],
+        minimumHours: 6,
         purchaseDate: new Date('2024-01-15'),
-        purchasePrice: 1500000000,
+        purchasePrice: 150000.00,
         mileage: '2500 km',
-        features: ['Leather Seats', 'Sunroof', 'Premium Audio', 'Captain Seats'],
-        images: ['/api/placeholder/800/600'],
-        description: 'Luxury Toyota Alphard perfect for weddings and special occasions. Test vehicle for system validation.'
+        features: ['Leather Seats', 'Premium Audio', 'Captain Seats', 'WiFi'],
+        images: ['/4.-alphard-colors-black.png'],
+        description: 'Luxury Toyota Alphard test vehicle for system validation. All services available.'
       }
     })
 
@@ -37,16 +42,17 @@ export async function POST() {
         customerEmail: 'test@zbkluxury.com',
         customerPhone: '+6281234567890',
         vehicleId: testVehicle.id,
-        service: 'Wedding Transport',
+        service: 'Rental - 12 Hours',
+        serviceType: 'RENTAL',
         startDate: new Date('2024-12-15'),
         endDate: new Date('2024-12-15'),
         startTime: '08:00',
         duration: '12 hours',
-        pickupLocation: 'Grand Indonesia Hotel',
-        dropoffLocation: 'Ritz Carlton Jakarta',
-        totalAmount: 3000000,
+        pickupLocation: 'Marina Bay Sands',
+        dropoffLocation: 'Marina Bay Sands',
+        totalAmount: 792.00, // $720 + 10% tax
         status: 'CONFIRMED',
-        notes: 'Test booking for system validation. VIP wedding package with decoration.'
+        notes: 'Test booking for system validation. 12 hours rental package.'
       }
     })
 

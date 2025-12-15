@@ -33,21 +33,11 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     
-    // Validate category
-    const validCategories = ['WEDDING_AFFAIRS', 'ALPHARD_PREMIUM', 'COMBI_TRANSPORT', 'CITY_TOUR'];
-    if (!validCategories.includes(body.category)) {
-      return NextResponse.json({
-        success: false,
-        error: `Invalid category "${body.category}". Must be one of: ${validCategories.join(', ')}`
-      }, { status: 400 });
-    }
-    
     const vehicle = await prisma.vehicle.create({
       data: {
         name: body.name,
         model: body.model,
         year: body.year,
-        category: body.category,
         status: body.status || 'AVAILABLE',
         location: body.location,
         plateNumber: body.plateNumber,
@@ -56,10 +46,11 @@ export async function POST(request: NextRequest) {
         color: body.color,
         price: body.price !== undefined ? body.price : null,
         priceAirportTransfer: body.priceAirportTransfer || null,
+        priceTrip: body.priceTrip || null,
         price6Hours: body.price6Hours || null,
         price12Hours: body.price12Hours || null,
         services: body.services || [],
-        minimumHours: body.minimumHours || 1,
+        minimumHours: body.minimumHours || 6,
         purchaseDate: new Date(), // Set to current date as default
         purchasePrice: 0, // Set to 0 as default
         mileage: body.mileage,

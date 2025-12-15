@@ -123,14 +123,6 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   const tax = subtotal * 0.1; // 10% tax
   const total = subtotal + tax;
 
-  // Format category: replace underscores with spaces
-  const formatCategory = (category: string): string => {
-    return category
-      .split('_')
-      .map(word => word.charAt(0) + word.slice(1).toLowerCase())
-      .join(' ');
-  };
-
   const handleInputChange = (field: string, value: string) => {
     setCustomerInfo(prev => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
@@ -284,7 +276,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                   <h5 className="font-bold text-gray-900">{selectedVehicle.name}</h5>
                 </div>
                 <div className="text-sm text-gray-700 mb-2">
-                  {formatCategory(selectedVehicle.category)} • {selectedVehicle.capacity} pax
+                  {selectedVehicle.capacity} pax
                   {selectedVehicle.luggage && ` • ${selectedVehicle.luggage} luggage`}
                   {` • ${selectedVehicle.year}`}
                 </div>

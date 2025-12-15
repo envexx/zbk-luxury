@@ -12,23 +12,28 @@ export async function GET() {
     if (vehicleCount === 0) {
       await prisma.vehicle.create({
         data: {
-          name: 'Mercedes S-Class',
-          model: 'S450',
+          name: 'TOYOTA ALPHARD',
+          model: 'ALPHARD',
           year: 2024,
-          category: 'WEDDING_AFFAIRS',
           status: 'AVAILABLE',
-          location: 'Jakarta',
-          plateNumber: 'B 1234 ZBK',
-          capacity: 4,
+          location: 'Singapore',
+          plateNumber: 'SGX-TEST-DB-001',
+          capacity: 6,
+          luggage: 4,
           color: 'Black',
-          price: 400.00,
-          minimumHours: 4,
+          price: 60.00,
+          priceAirportTransfer: 80.00,
+          priceTrip: 60.00,
+          price6Hours: 360.00,
+          price12Hours: 720.00,
+          services: ['AIRPORT_TRANSFER', 'TRIP', 'RENTAL'],
+          minimumHours: 6,
           purchaseDate: new Date('2024-01-01'),
-          purchasePrice: 2500000000,
+          purchasePrice: 150000.00,
           mileage: '5000 km',
-          features: ['Leather Seats', 'Sunroof', 'Premium Audio'],
-          images: ['/api/placeholder/800/600'],
-          description: 'Luxury sedan perfect for special occasions'
+          features: ['Leather Seats', 'Premium Audio', 'Captain Chairs'],
+          images: ['/4.-alphard-colors-black.png'],
+          description: 'Luxury Toyota Alphard test vehicle'
         }
       })
     }
@@ -42,16 +47,17 @@ export async function GET() {
           data: {
             customerName: 'John Doe',
             customerEmail: 'john@example.com',
-            customerPhone: '+62812345678',
+            customerPhone: '+6581234567',
             vehicleId: vehicle.id,
             service: 'Airport Transfer',
+            serviceType: 'AIRPORT_TRANSFER',
             startDate: new Date('2024-12-01'),
             endDate: new Date('2024-12-01'),
             startTime: '14:00',
-            duration: '3 hours',
-            pickupLocation: 'Soekarno-Hatta Airport',
-            dropoffLocation: 'Hotel Indonesia',
-            totalAmount: 1500000,
+            duration: 'One Way',
+            pickupLocation: 'Changi Airport',
+            dropoffLocation: 'Marina Bay Hotel',
+            totalAmount: 88.00, // $80 + 10% tax
             status: 'CONFIRMED'
           }
         })
