@@ -8,7 +8,6 @@ interface Vehicle {
   name: string
   model: string
   year: number
-  category: string
   status: string
   location: string
   plateNumber: string
@@ -17,6 +16,7 @@ interface Vehicle {
   color: string
   price?: number
   priceAirportTransfer?: number
+  priceTrip?: number
   price6Hours?: number
   price12Hours?: number
   services?: string[]
@@ -39,15 +39,15 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
     name: '',
     model: '',
     year: new Date().getFullYear(),
-    category: 'WEDDING_AFFAIRS',
     status: 'AVAILABLE',
-    location: 'Jakarta',
+    location: 'Singapore',
     plateNumber: '',
     capacity: 4,
     luggage: 4,
     color: '',
     price: 0,
     priceAirportTransfer: 0,
+    priceTrip: 0,
     price6Hours: 0,
     price12Hours: 0,
     services: [],
@@ -71,6 +71,7 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
         services: Array.isArray(vehicle.services) ? vehicle.services : [],
         luggage: vehicle.luggage || 4,
         priceAirportTransfer: vehicle.priceAirportTransfer || 0,
+        priceTrip: vehicle.priceTrip || 0,
         price6Hours: vehicle.price6Hours || 0,
         price12Hours: vehicle.price12Hours || 0
       })
@@ -81,15 +82,15 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
         name: '',
         model: '',
         year: new Date().getFullYear(),
-        category: 'WEDDING_AFFAIRS',
         status: 'AVAILABLE',
-        location: 'Jakarta',
+        location: 'Singapore',
         plateNumber: '',
         capacity: 4,
         luggage: 4,
         color: '',
         price: 0,
         priceAirportTransfer: 0,
+        priceTrip: 0,
         price6Hours: 0,
         price12Hours: 0,
         services: [],
@@ -118,8 +119,8 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
     }
     
     // Validate pricing fields
-    if (!formData.priceAirportTransfer || !formData.price6Hours || !formData.price12Hours) {
-      alert('Please fill in all pricing fields (Airport Transfer, 6 Hours, 12 Hours)')
+    if (!formData.priceAirportTransfer || !formData.priceTrip || !formData.price6Hours || !formData.price12Hours) {
+      alert('Please fill in all pricing fields (Airport Transfer, Trip, 6 Hours, 12 Hours)')
       return
     }
     
@@ -153,7 +154,7 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
       ...prev,
       [name]: name === 'year' || name === 'capacity' || name === 'luggage'
         ? parseInt(value) || 0 
-        : name === 'price' || name === 'priceAirportTransfer' || name === 'price6Hours' || name === 'price12Hours'
+        : name === 'price' || name === 'priceAirportTransfer' || name === 'priceTrip' || name === 'price6Hours' || name === 'price12Hours'
         ? parseFloat(value) || 0
         : value
     }))
@@ -361,24 +362,6 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Category *
-                </label>
-                <select
-                  name="category"
-                  value={formData.category}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 dark:bg-gray-700 dark:text-white bg-white text-gray-900"
-                >
-                  <option value="WEDDING_AFFAIRS">Wedding Affairs</option>
-                  <option value="AIRPORT_TRANSFER">Airport Transfer</option>
-                  <option value="CITY_TOUR">City Tour</option>
-                  <option value="BUSINESS_TRIP">Business Trip</option>
-                  <option value="SPECIAL_EVENT">Special Event</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Status *
                 </label>
                 <select
@@ -491,54 +474,89 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
           {/* Pricing Information */}
           <div>
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Pricing Information</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-4">
+              {/* One Way Pricing */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Airport Transfer / Trip Price ($) *
-                </label>
-                <input
-                  type="number"
-                  name="priceAirportTransfer"
-                  value={formData.priceAirportTransfer || 0}
-                  onChange={handleInputChange}
-                  min="0"
-                  step="0.01"
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 dark:bg-gray-700 dark:text-white bg-white text-gray-900"
-                  placeholder="80"
-                />
+                <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">One Way Services</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Airport Transfer Price ($) *
+                    </label>
+                    <input
+                      type="number"
+                      name="priceAirportTransfer"
+                      value={formData.priceAirportTransfer || 0}
+                      onChange={handleInputChange}
+                      min="0"
+                      step="0.01"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 dark:bg-gray-700 dark:text-white bg-white text-gray-900"
+                      placeholder="80"
+                    />
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      For airport-related locations
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Trip Price ($) *
+                    </label>
+                    <input
+                      type="number"
+                      name="priceTrip"
+                      value={formData.priceTrip || 0}
+                      onChange={handleInputChange}
+                      min="0"
+                      step="0.01"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 dark:bg-gray-700 dark:text-white bg-white text-gray-900"
+                      placeholder="60"
+                    />
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      For general trip locations
+                    </p>
+                  </div>
+                </div>
               </div>
+
+              {/* Rental Pricing */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  6 Hours Booking Price ($) *
-                </label>
-                <input
-                  type="number"
-                  name="price6Hours"
-                  value={formData.price6Hours || 0}
-                  onChange={handleInputChange}
-                  min="0"
-                  step="0.01"
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 dark:bg-gray-700 dark:text-white bg-white text-gray-900"
-                  placeholder="360"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  12 Hours Booking Price ($) *
-                </label>
-                <input
-                  type="number"
-                  name="price12Hours"
-                  value={formData.price12Hours || 0}
-                  onChange={handleInputChange}
-                  min="0"
-                  step="0.01"
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 dark:bg-gray-700 dark:text-white bg-white text-gray-900"
-                  placeholder="720"
-                />
+                <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Rental per Hours</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      6 Hours Booking Price ($) *
+                    </label>
+                    <input
+                      type="number"
+                      name="price6Hours"
+                      value={formData.price6Hours || 0}
+                      onChange={handleInputChange}
+                      min="0"
+                      step="0.01"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 dark:bg-gray-700 dark:text-white bg-white text-gray-900"
+                      placeholder="360"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      12 Hours Booking Price ($) *
+                    </label>
+                    <input
+                      type="number"
+                      name="price12Hours"
+                      value={formData.price12Hours || 0}
+                      onChange={handleInputChange}
+                      min="0"
+                      step="0.01"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 dark:bg-gray-700 dark:text-white bg-white text-gray-900"
+                      placeholder="720"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>

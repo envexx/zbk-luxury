@@ -55,23 +55,11 @@ export async function PUT(
     const { id } = await params
     const body = await request.json()
     
-    // Validate category if provided
-    if (body.category) {
-      const validCategories = ['WEDDING_AFFAIRS', 'ALPHARD_PREMIUM', 'COMBI_TRANSPORT', 'CITY_TOUR'];
-      if (!validCategories.includes(body.category)) {
-        return NextResponse.json({
-          success: false,
-          error: `Invalid category "${body.category}". Must be one of: ${validCategories.join(', ')}`
-        }, { status: 400 });
-      }
-    }
-    
     // Build update data object conditionally
     const updateData: any = {
       name: body.name,
       model: body.model,
       year: parseInt(body.year) || body.year,
-      category: body.category,
       status: body.status,
       location: body.location,
       plateNumber: body.plateNumber,
@@ -92,6 +80,9 @@ export async function PUT(
     }
     if (body.priceAirportTransfer !== undefined) {
       updateData.priceAirportTransfer = parseFloat(body.priceAirportTransfer)
+    }
+    if (body.priceTrip !== undefined) {
+      updateData.priceTrip = parseFloat(body.priceTrip)
     }
     if (body.price6Hours !== undefined) {
       updateData.price6Hours = parseFloat(body.price6Hours)

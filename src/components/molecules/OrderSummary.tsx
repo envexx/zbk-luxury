@@ -18,6 +18,7 @@ interface Vehicle {
   luggage?: number;
   price?: number;
   priceAirportTransfer?: number;
+  priceTrip?: number;
   price6Hours?: number;
   price12Hours?: number;
   services?: string[];
@@ -74,24 +75,49 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
     fetchVehicle();
   }, [bookingData.selectedVehicleId]);
   
-  // Calculate pricing based on trip type (one-way vs round-trip)
+  // Calculate pricing based on trip type (one-way vs round-trip) and service type
   const hours = parseInt(bookingData.hours) || 0;
   let subtotal = 0;
+  let serviceTypeLabel = '';
+  let serviceType: 'AIRPORT_TRANSFER' | 'TRIP' | 'RENTAL' = 'RENTAL';
+  
   const isOneWay = bookingData.tripType === 'one-way';
   
   if (isOneWay) {
-    // ONE WAY: Flat rate per trip (use priceAirportTransfer)
-    subtotal = selectedVehicle?.priceAirportTransfer || 80;
+    // ONE WAY: Determine if it's Airport Transfer or Trip
+    // Check if pickup or dropoff location contains airport keywords
+    const pickupLower = (bookingData.pickupLocation || '').toLowerCase();
+    const dropoffLower = (bookingData.dropOffLocation || '').toLowerCase();
+    const isAirportRelated = pickupLower.includes('airport') || 
+                             pickupLower.includes('terminal') ||
+                             dropoffLower.includes('airport') || 
+                             dropoffLower.includes('terminal');
+    
+    if (isAirportRelated) {
+      // AIRPORT TRANSFER
+      subtotal = selectedVehicle?.priceAirportTransfer || 100;
+      serviceTypeLabel = 'Airport Transfer (One Way)';
+      serviceType = 'AIRPORT_TRANSFER';
+    } else {
+      // GENERAL TRIP
+      subtotal = selectedVehicle?.priceTrip || 85;
+      serviceTypeLabel = 'Trip (One Way)';
+      serviceType = 'TRIP';
+    }
   } else {
-    // ROUND TRIP: Calculate based on hours (6hrs or 12hrs packages)
+    // ROUND TRIP / RENTAL: Calculate based on hours (6hrs or 12hrs packages)
     if (hours >= 12 && selectedVehicle?.price12Hours) {
       subtotal = selectedVehicle.price12Hours;
+      serviceTypeLabel = '12 Hours Rental';
     } else if (hours >= 6 && selectedVehicle?.price6Hours) {
       subtotal = selectedVehicle.price6Hours;
+      serviceTypeLabel = '6 Hours Rental';
     } else {
       // Default to 6-hour package for round trip
       subtotal = selectedVehicle?.price6Hours || 360;
+      serviceTypeLabel = '6 Hours Rental';
     }
+    serviceType = 'RENTAL';
   }
   
   const tax = subtotal * 0.1; // 10% tax
@@ -142,7 +168,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
     setIsSubmitting(true);
     
     try {
-      // Pass customer info to parent component
+      // Pass customer info and service type to parent component
       // Payment calculation will be done in API using same logic
       onComplete({
         customerInfo: {
@@ -150,6 +176,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
           email: customerInfo.email,
           phone: customerInfo.phone,
         },
+        serviceType: serviceType, // Pass the detected service type
       });
     } catch (error) {
       console.error('Error preparing payment:', error);
@@ -276,9 +303,13 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
             <h4 className="text-lg font-bold text-gray-900 mb-4">Price Breakdown</h4>
             
             <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-gray-700">Service Type:</span>
+                <span className="font-semibold text-luxury-gold">{serviceTypeLabel}</span>
+              </div>
               {isOneWay ? (
                 <div className="flex justify-between">
-                  <span className="text-gray-700">One Way Trip:</span>
+                  <span className="text-gray-700">{serviceTypeLabel}:</span>
                   <span className="font-semibold text-gray-900">${subtotal.toFixed(2)}</span>
                 </div>
               ) : hours >= 12 && selectedVehicle?.price12Hours ? (

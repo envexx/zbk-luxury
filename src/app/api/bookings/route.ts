@@ -46,6 +46,7 @@ export async function POST(request: NextRequest) {
         model: true,
         price: true,
         priceAirportTransfer: true,
+        priceTrip: true,
         price6Hours: true,
         price12Hours: true,
         services: true,
@@ -60,31 +61,51 @@ export async function POST(request: NextRequest) {
       }, { status: 404 })
     }
 
-    // Calculate total amount based on trip type and duration
-    // Extract hours from duration (e.g., "8 hours" -> 8)
+    // Calculate total amount based on service type and duration
     const hoursMatch = (body.duration || '6 hours').match(/\d+/);
     const hours = hoursMatch ? parseInt(hoursMatch[0]) : 6;
     
     let subtotal = 0;
-    const serviceType = (body.service || 'RENTAL').toUpperCase();
+    let serviceType: 'AIRPORT_TRANSFER' | 'TRIP' | 'RENTAL' = 'RENTAL';
     
-    // Determine if it's one-way or round-trip
-    const isOneWay = serviceType.includes('ONE') || 
-                     serviceType.includes('ONE-WAY') || 
-                     serviceType.includes('TRIP') || 
-                     serviceType.includes('AIRPORT');
-    
-    if (isOneWay) {
-      // ONE WAY: Use flat rate (priceAirportTransfer)
-      subtotal = vehicle.priceAirportTransfer || 80;
+    // Determine service type from body or from locations
+    if (body.serviceType) {
+      serviceType = body.serviceType;
     } else {
-      // ROUND TRIP: Calculate based on hours
+      // Fallback: detect from service field or locations
+      const serviceStr = (body.service || '').toUpperCase();
+      const pickupLower = (body.pickupLocation || '').toLowerCase();
+      const dropoffLower = (body.dropoffLocation || '').toLowerCase();
+      
+      const isOneWay = serviceStr.includes('ONE') || 
+                       serviceStr.includes('ONE-WAY') || 
+                       serviceStr.includes('TRIP') || 
+                       serviceStr.includes('AIRPORT');
+      
+      if (isOneWay) {
+        const isAirportRelated = pickupLower.includes('airport') || 
+                                 pickupLower.includes('terminal') ||
+                                 dropoffLower.includes('airport') || 
+                                 dropoffLower.includes('terminal');
+        
+        serviceType = isAirportRelated ? 'AIRPORT_TRANSFER' : 'TRIP';
+      } else {
+        serviceType = 'RENTAL';
+      }
+    }
+    
+    // Calculate price based on service type
+    if (serviceType === 'AIRPORT_TRANSFER') {
+      subtotal = vehicle.priceAirportTransfer || 100;
+    } else if (serviceType === 'TRIP') {
+      subtotal = vehicle.priceTrip || 85;
+    } else {
+      // RENTAL: Calculate based on hours
       if (hours >= 12 && vehicle.price12Hours) {
         subtotal = vehicle.price12Hours;
       } else if (hours >= 6 && vehicle.price6Hours) {
         subtotal = vehicle.price6Hours;
       } else {
-        // Default to 6-hour package
         subtotal = vehicle.price6Hours || 360;
       }
     }
@@ -98,7 +119,8 @@ export async function POST(request: NextRequest) {
         customerEmail: body.customerEmail,
         customerPhone: body.customerPhone,
         vehicleId: body.vehicleId,
-        service: body.service || 'RENTAL',
+        service: body.service || serviceType, // Keep legacy field
+        serviceType: serviceType, // New field
         startDate: new Date(body.startDate),
         endDate: new Date(body.endDate),
         startTime: body.startTime || '09:00',

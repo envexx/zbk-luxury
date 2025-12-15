@@ -9,12 +9,17 @@ interface Vehicle {
   name: string
   model: string
   year: number
-  category: string
   status: string
   location: string
   plateNumber: string
   capacity: number
+  luggage?: number
   color: string
+  priceAirportTransfer?: number
+  priceTrip?: number
+  price6Hours?: number
+  price12Hours?: number
+  services?: string[]
   purchaseDate: string
   purchasePrice: number
   mileage: string
@@ -411,12 +416,6 @@ export default function VehiclesPage() {
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Category</p>
-                  <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                    {previewVehicle.category.replace(/_/g, ' ')}
-                  </p>
-                </div>
-                <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Status</p>
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(previewVehicle.status)}`}>
                     {previewVehicle.status}
@@ -465,13 +464,57 @@ export default function VehiclesPage() {
               )}
 
               {previewVehicle.description && (
-                <div>
+                <div className="mb-6">
                   <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Description</p>
                   <p className="text-gray-700 dark:text-gray-300">
                     {previewVehicle.description}
                   </p>
                 </div>
               )}
+              
+              {/* Pricing Information */}
+              <div className="mb-6">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-3 font-semibold">Pricing Information</p>
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-3">
+                  {/* One Way Services */}
+                  <div>
+                    <p className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-2">One Way Services</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      {previewVehicle.priceAirportTransfer && (
+                        <div className="bg-white dark:bg-gray-800 rounded-md p-3 border border-gray-200 dark:border-gray-600">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Airport Transfer</p>
+                          <p className="text-lg font-bold text-luxury-gold">${previewVehicle.priceAirportTransfer.toFixed(2)}</p>
+                        </div>
+                      )}
+                      {previewVehicle.priceTrip && (
+                        <div className="bg-white dark:bg-gray-800 rounded-md p-3 border border-gray-200 dark:border-gray-600">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Trip</p>
+                          <p className="text-lg font-bold text-luxury-gold">${previewVehicle.priceTrip.toFixed(2)}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Rental per Hours */}
+                  <div>
+                    <p className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-2">Rental per Hours</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      {previewVehicle.price6Hours && (
+                        <div className="bg-white dark:bg-gray-800 rounded-md p-3 border border-gray-200 dark:border-gray-600">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">6 Hours Booking</p>
+                          <p className="text-lg font-bold text-luxury-gold">${previewVehicle.price6Hours.toFixed(2)}</p>
+                        </div>
+                      )}
+                      {previewVehicle.price12Hours && (
+                        <div className="bg-white dark:bg-gray-800 rounded-md p-3 border border-gray-200 dark:border-gray-600">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">12 Hours Booking</p>
+                          <p className="text-lg font-bold text-luxury-gold">${previewVehicle.price12Hours.toFixed(2)}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

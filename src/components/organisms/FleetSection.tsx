@@ -11,14 +11,18 @@ interface Vehicle {
   name: string
   model: string
   year: number
-  category: string
   status: string
   location: string
   plateNumber: string
   capacity: number
+  luggage?: number
   color: string
-  price: number
-  minimumHours: number
+  priceTrip?: number
+  priceAirportTransfer?: number
+  price6Hours?: number
+  price12Hours?: number
+  price?: number
+  minimumHours?: number
   features: string[]
   images: string[]
   description?: string
@@ -129,9 +133,8 @@ const FleetSection: React.FC<FleetSectionProps> = ({
                   id={vehicle.id}
                   name={vehicle.name}
                   image={vehicle.images?.[0] || '/4.-alphard-colors-black.png'}
-                  price={(vehicle as any).priceAirportTransfer || vehicle.price || 0}
+                  price={vehicle.priceTrip || vehicle.price || 0}
                   priceUnit="trip"
-                  category={vehicle.category}
                   seats={vehicle.capacity}
                   transmission="Automatic"
                   year={vehicle.year}

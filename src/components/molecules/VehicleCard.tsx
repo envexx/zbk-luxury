@@ -97,20 +97,6 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
           </div>
         )}
 
-        {/* Modern Category Badge */}
-        {category && (
-          <div className="absolute top-6 right-6">
-            <div className={cn(
-              "px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider backdrop-blur-md border",
-              isLuxury 
-                ? "bg-luxury-gold/20 text-luxury-gold border-luxury-gold/30" 
-                : "bg-white/20 text-white border-white/30"
-            )}>
-              {category}
-            </div>
-          </div>
-        )}
-
         {/* Luxury Crown Icon */}
         {isLuxury && (
           <div className="absolute bottom-4 right-4 opacity-20 group-hover:opacity-40 transition-opacity duration-500">

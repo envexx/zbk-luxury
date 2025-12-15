@@ -255,12 +255,26 @@ export const emailTemplates = {
     dropoffLocation: string,
     duration: string,
     totalAmount: number,
-    notes?: string
+    notes?: string,
+    serviceType?: 'AIRPORT_TRANSFER' | 'TRIP' | 'RENTAL'
   ) => {
     const formattedTime = formatTime12Hour(startTime);
-    const isOneWay = service.toUpperCase().includes('ONE') || 
-                     service.toUpperCase().includes('AIRPORT') || 
-                     service.toUpperCase().includes('TRANSFER');
+    
+    // Determine service label
+    let serviceLabel = 'Round Trip';
+    if (serviceType === 'AIRPORT_TRANSFER') {
+      serviceLabel = 'Airport Transfer (One Way)';
+    } else if (serviceType === 'TRIP') {
+      serviceLabel = 'Trip (One Way)';
+    } else if (serviceType === 'RENTAL') {
+      serviceLabel = 'Rental per Hours';
+    } else {
+      // Fallback: detect from service string
+      const isOneWay = service.toUpperCase().includes('ONE') || 
+                       service.toUpperCase().includes('AIRPORT') || 
+                       service.toUpperCase().includes('TRANSFER');
+      serviceLabel = isOneWay ? 'One Way' : 'Round Trip';
+    }
     
     return {
     subject: `New Booking ${bookingId} - ${customerName}`,
@@ -323,8 +337,8 @@ export const emailTemplates = {
                           <td style="padding: 6px 0; color: #1a1a2e; font-size: 14px; font-weight: 500;">${vehicleName}${vehicleModel ? ` ${vehicleModel}` : ''}</td>
                         </tr>
                         <tr>
-                          <td style="padding: 6px 0; color: #666; font-size: 14px;">Service:</td>
-                          <td style="padding: 6px 0; color: #1a1a2e; font-size: 14px; font-weight: 500;">${isOneWay ? 'One Way' : 'Round Trip'}</td>
+                          <td style="padding: 6px 0; color: #666; font-size: 14px;">Service Type:</td>
+                          <td style="padding: 6px 0; color: #D4AF37; font-size: 14px; font-weight: 600;">${serviceLabel}</td>
                         </tr>
                         <tr>
                           <td style="padding: 6px 0; color: #666; font-size: 14px;">Date:</td>
@@ -334,7 +348,7 @@ export const emailTemplates = {
                           <td style="padding: 6px 0; color: #666; font-size: 14px;">Time:</td>
                           <td style="padding: 6px 0; color: #1a1a2e; font-size: 14px; font-weight: 500;">${formattedTime}</td>
                         </tr>
-                        ${!isOneWay ? `
+                        ${serviceType === 'RENTAL' ? `
                         <tr>
                           <td style="padding: 6px 0; color: #666; font-size: 14px;">Duration:</td>
                           <td style="padding: 6px 0; color: #1a1a2e; font-size: 14px; font-weight: 500;">${duration}</td>

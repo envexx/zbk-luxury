@@ -28,6 +28,9 @@ export interface BookingData {
     email: string;
     phone: string;
   };
+  
+  // Service Type
+  serviceType?: 'AIRPORT_TRANSFER' | 'TRIP' | 'RENTAL';
 }
 
 export interface BookingFormProps {

@@ -27,7 +27,6 @@ model Vehicle {
   name                  String
   model                 String
   year                  Int
-  category              VehicleCategory
   status                VehicleStatus     @default(AVAILABLE)
   location              String
   plateNumber           String            @unique
@@ -35,10 +34,11 @@ model Vehicle {
   luggage               Int?              // Luggage capacity
   color                 String
   price                 Float?            // Legacy hourly rental price (deprecated)
-  priceAirportTransfer  Float?            // Airport Transfer / Trip price
-  price6Hours           Float?            // 6 hours booking price
-  price12Hours          Float?            // 12 hours booking price
-  services              String[]          // Available services: ["TRIP", "RENT"]
+  priceAirportTransfer  Float?            // Airport Transfer price (One Way - Airport service)
+  priceTrip             Float?            // Trip price (One Way - General trip service)
+  price6Hours           Float?            // 6 hours rental/booking price
+  price12Hours          Float?            // 12 hours rental/booking price
+  services              String[]          // Available services: ["AIRPORT_TRANSFER", "TRIP", "RENTAL"]
   minimumHours          Int?              // Minimum booking hours
   lastMaintenance       DateTime?
   nextMaintenance       DateTime?
@@ -64,7 +64,8 @@ model Booking {
   customerEmail     String
   customerPhone     String
   vehicleId         String
-  service           String
+  service           String        // Deprecated: Use serviceType instead
+  serviceType       ServiceType   @default(RENTAL) // AIRPORT_TRANSFER, TRIP, or RENTAL
   startDate         DateTime
   endDate           DateTime
   startTime         String
@@ -168,13 +169,6 @@ enum Role {
   MANAGER
 }
 
-enum VehicleCategory {
-  WEDDING_AFFAIRS
-  ALPHARD_PREMIUM
-  COMBI_TRANSPORT
-  CITY_TOUR
-}
-
 enum VehicleStatus {
   AVAILABLE
   IN_USE
@@ -212,3 +206,10 @@ enum MaintenanceStatus {
   COMPLETED
   CANCELLED
 }
+
+enum ServiceType {
+  AIRPORT_TRANSFER  // One Way - Airport Transfer (priceAirportTransfer)
+  TRIP              // One Way - General Trip (priceTrip)
+  RENTAL            // Round Trip - Hourly Rental (price6Hours / price12Hours)
+}
+

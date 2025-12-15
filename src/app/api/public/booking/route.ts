@@ -38,6 +38,7 @@ export async function POST(request: NextRequest) {
         plateNumber: true,
         price: true,
         priceAirportTransfer: true,
+        priceTrip: true,
         price6Hours: true,
         price12Hours: true,
         services: true,
@@ -65,26 +66,48 @@ export async function POST(request: NextRequest) {
     // If totalAmount not provided, calculate from vehicle pricing
     if (!totalAmount) {
       const durationHours = parseInt((body.duration || '6 hours').replace(' hours', '').replace(' hour', '')) || 6
-      const serviceType = (body.service || '').toUpperCase()
       
-      // Determine if it's one-way or round-trip
-      const isOneWay = serviceType.includes('ONE') || 
-                       serviceType.includes('ONE-WAY') || 
-                       serviceType.includes('TRIP') || 
-                       serviceType.includes('AIRPORT')
+      let serviceType: 'AIRPORT_TRANSFER' | 'TRIP' | 'RENTAL' = 'RENTAL';
       
-      if (isOneWay) {
-        // ONE WAY: Use flat rate (priceAirportTransfer)
-        totalAmount = vehicle.priceAirportTransfer || 80
+      // Determine service type from body or from locations
+      if (body.serviceType) {
+        serviceType = body.serviceType;
       } else {
-        // ROUND TRIP: Calculate based on hours
-        if (durationHours >= 12 && vehicle.price12Hours) {
-          totalAmount = vehicle.price12Hours
-        } else if (durationHours >= 6 && vehicle.price6Hours) {
-          totalAmount = vehicle.price6Hours
+        // Fallback: detect from service field or locations
+        const serviceStr = (body.service || '').toUpperCase();
+        const pickupLower = (body.pickupLocation || '').toLowerCase();
+        const dropoffLower = (body.dropoffLocation || '').toLowerCase();
+        
+        const isOneWay = serviceStr.includes('ONE') || 
+                         serviceStr.includes('ONE-WAY') || 
+                         serviceStr.includes('TRIP') || 
+                         serviceStr.includes('AIRPORT');
+        
+        if (isOneWay) {
+          const isAirportRelated = pickupLower.includes('airport') || 
+                                   pickupLower.includes('terminal') ||
+                                   dropoffLower.includes('airport') || 
+                                   dropoffLower.includes('terminal');
+          
+          serviceType = isAirportRelated ? 'AIRPORT_TRANSFER' : 'TRIP';
         } else {
-          // Default to 6-hour package
-          totalAmount = vehicle.price6Hours || 360
+          serviceType = 'RENTAL';
+        }
+      }
+      
+      // Calculate price based on service type
+      if (serviceType === 'AIRPORT_TRANSFER') {
+        totalAmount = vehicle.priceAirportTransfer || 100;
+      } else if (serviceType === 'TRIP') {
+        totalAmount = vehicle.priceTrip || 85;
+      } else {
+        // RENTAL: Calculate based on hours
+        if (durationHours >= 12 && vehicle.price12Hours) {
+          totalAmount = vehicle.price12Hours;
+        } else if (durationHours >= 6 && vehicle.price6Hours) {
+          totalAmount = vehicle.price6Hours;
+        } else {
+          totalAmount = vehicle.price6Hours || 360;
         }
       }
       
@@ -99,7 +122,8 @@ export async function POST(request: NextRequest) {
         customerEmail: body.customerEmail,
         customerPhone: body.customerPhone,
         vehicleId: body.vehicleId,
-        service: body.service,
+        service: body.service, // Legacy field
+        serviceType: body.serviceType || 'RENTAL', // New field
         startDate: new Date(body.startDate),
         endDate: body.endDate ? new Date(body.endDate) : new Date(body.startDate),
         startTime: body.startTime || '09:00',
@@ -130,6 +154,31 @@ export async function POST(request: NextRequest) {
         month: 'long',
         day: 'numeric'
       })
+      
+      // Determine service type from booking
+      let serviceType: 'AIRPORT_TRANSFER' | 'TRIP' | 'RENTAL' = 'RENTAL';
+      if (body.serviceType) {
+        serviceType = body.serviceType;
+      } else {
+        const pickupLower = (body.pickupLocation || '').toLowerCase();
+        const dropoffLower = (body.dropoffLocation || '').toLowerCase();
+        const isAirportRelated = pickupLower.includes('airport') || 
+                                 pickupLower.includes('terminal') ||
+                                 dropoffLower.includes('airport') || 
+                                 dropoffLower.includes('terminal');
+        
+        const serviceStr = (body.service || '').toUpperCase();
+        const isOneWay = serviceStr.includes('ONE') || 
+                         serviceStr.includes('ONE-WAY') || 
+                         serviceStr.includes('TRIP') || 
+                         serviceStr.includes('AIRPORT');
+        
+        if (isOneWay) {
+          serviceType = isAirportRelated ? 'AIRPORT_TRANSFER' : 'TRIP';
+        } else {
+          serviceType = 'RENTAL';
+        }
+      }
       
       // Send confirmation email to customer
       const customerTemplate = emailTemplates.bookingConfirmation(
@@ -162,7 +211,8 @@ export async function POST(request: NextRequest) {
         booking.dropoffLocation || '',
         booking.duration,
         booking.totalAmount,
-        booking.notes || undefined
+        booking.notes || undefined,
+        serviceType // Pass the detected service type
       )
       
       // Send to zbklimo@gmail.com (same email as sender)
