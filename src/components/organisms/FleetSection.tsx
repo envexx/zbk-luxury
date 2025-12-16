@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import VehicleCard from '@/components/molecules/VehicleCard';
 import Button from '@/components/atoms/Button';
-import BookingForm from '@/components/organisms/BookingForm';
+import VehicleSearchModal from '@/components/organisms/VehicleSearchModal';
 import { cn } from '@/utils/cn';
 
 interface Vehicle {
@@ -67,6 +67,25 @@ const FleetSection: React.FC<FleetSectionProps> = ({
   }
 
   const vehiclesToShow = showAll ? vehicles : vehicles.slice(0, 4);
+  const vehicleCount = vehiclesToShow.length;
+
+  // Determine grid layout based on vehicle count
+  const getGridClass = () => {
+    // For desktop (lg breakpoint and above)
+    if (vehicleCount === 4) {
+      // 4 vehicles: 2x2 grid
+      return "lg:grid-cols-2";
+    } else if (vehicleCount === 5) {
+      // 5 vehicles: 3 on top, 2 on bottom (centered)
+      return "lg:grid-cols-3";
+    } else if (vehicleCount === 2) {
+      // 2 vehicles: 2x1 grid
+      return "lg:grid-cols-2";
+    } else {
+      // Default: 3 columns for 1, 3, 6+ vehicles
+      return "lg:grid-cols-3";
+    }
+  };
 
   const handleBookNow = (vehicleId: string) => {
     setSelectedVehicleId(vehicleId);
@@ -76,13 +95,6 @@ const FleetSection: React.FC<FleetSectionProps> = ({
   const handleLearnMore = (vehicleId: string) => {
     console.log('Learn more about vehicle:', vehicleId);
     // Handle navigation to vehicle details
-  };
-
-  const handleBookingComplete = (bookingData: any) => {
-    console.log('Booking completed:', bookingData);
-    // Handle successful booking (e.g., redirect to confirmation page)
-    setShowBookingForm(false);
-    alert('Booking confirmed! You will receive a confirmation email shortly.');
   };
 
   const handleCloseBooking = () => {
@@ -109,52 +121,138 @@ const FleetSection: React.FC<FleetSectionProps> = ({
         )}
 
         {/* Vehicle Grid */}
-        <div className={cn(
-          "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12",
-          showAll && "mt-8" // Add top margin when no header is shown
-        )}>
-          {loading ? (
-            // Loading skeleton
-            Array.from({ length: showAll ? 6 : 3 }).map((_, index) => (
-              <div key={index} className="animate-pulse">
-                <div className="bg-gray-300 dark:bg-gray-700 h-64 rounded-lg mb-4"></div>
-                <div className="bg-gray-300 dark:bg-gray-700 h-4 rounded mb-2"></div>
-                <div className="bg-gray-300 dark:bg-gray-700 h-4 rounded w-3/4"></div>
-              </div>
-            ))
-          ) : vehiclesToShow.length > 0 ? (
-            vehiclesToShow.map((vehicle: Vehicle, index: number) => (
-              <div 
-                key={vehicle.id}
-                className="animate-fade-in-up"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <VehicleCard
-                  id={vehicle.id}
-                  name={vehicle.name}
-                  image={vehicle.images?.[0] || '/4.-alphard-colors-black.png'}
-                  price={vehicle.priceTrip || vehicle.price || 0}
-                  priceUnit="trip"
-                  seats={vehicle.capacity}
-                  transmission="Automatic"
-                  year={vehicle.year}
-                  rating={4.8}
-                  isLuxury={true}
-                  brand={vehicle.name.split(' ')[0]}
-                  model={vehicle.model}
-                  specialNote={vehicle.description}
-                  onBookNow={handleBookNow}
-                  onLearnMore={handleLearnMore}
-                />
-              </div>
-            ))
-          ) : (
-            <div className="col-span-full text-center py-12">
-              <p className="text-gray-300 text-lg">No vehicles available at the moment.</p>
-              <p className="text-gray-400 text-sm mt-2">Please check back later or contact us for assistance.</p>
+        {vehicleCount === 5 ? (
+          // Special layout for 5 vehicles: 3 on top, 2 on bottom (centered)
+          <div className={cn("mb-12", showAll && "mt-8")}>
+            {/* Top row: 3 vehicles */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+              {loading ? (
+                Array.from({ length: 3 }).map((_, index) => (
+                  <div key={index} className="animate-pulse">
+                    <div className="bg-gray-300 dark:bg-gray-700 h-64 rounded-lg mb-4"></div>
+                    <div className="bg-gray-300 dark:bg-gray-700 h-4 rounded mb-2"></div>
+                    <div className="bg-gray-300 dark:bg-gray-700 h-4 rounded w-3/4"></div>
+                  </div>
+                ))
+              ) : (
+                vehiclesToShow.slice(0, 3).map((vehicle: Vehicle, index: number) => (
+                  <div 
+                    key={vehicle.id}
+                    className="animate-fade-in-up"
+                    style={{ animationDelay: `${index * 100}ms` }}
+                  >
+                    <VehicleCard
+                      id={vehicle.id}
+                      name={vehicle.name}
+                      image={vehicle.images?.[0] || '/4.-alphard-colors-black.png'}
+                      price={vehicle.priceTrip || vehicle.price || 0}
+                      priceUnit="trip"
+                      seats={vehicle.capacity}
+                      transmission="Automatic"
+                      year={vehicle.year}
+                      rating={4.8}
+                      isLuxury={true}
+                      brand={vehicle.name.split(' ')[0]}
+                      model={vehicle.model}
+                      specialNote={vehicle.description}
+                      onBookNow={handleBookNow}
+                      onLearnMore={handleLearnMore}
+                    />
+                  </div>
+                ))
+              )}
             </div>
-          )}
-        </div>
+            {/* Bottom row: 2 vehicles (centered) */}
+            <div className="flex justify-center">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-[calc(66.666%+1rem)] lg:max-w-[calc(66.666%+1rem)]">
+                {loading ? (
+                  Array.from({ length: 2 }).map((_, index) => (
+                    <div key={index + 3} className="animate-pulse">
+                      <div className="bg-gray-300 dark:bg-gray-700 h-64 rounded-lg mb-4"></div>
+                      <div className="bg-gray-300 dark:bg-gray-700 h-4 rounded mb-2"></div>
+                      <div className="bg-gray-300 dark:bg-gray-700 h-4 rounded w-3/4"></div>
+                    </div>
+                  ))
+                ) : (
+                  vehiclesToShow.slice(3, 5).map((vehicle: Vehicle, index: number) => (
+                    <div 
+                      key={vehicle.id}
+                      className="animate-fade-in-up"
+                      style={{ animationDelay: `${(index + 3) * 100}ms` }}
+                    >
+                      <VehicleCard
+                        id={vehicle.id}
+                        name={vehicle.name}
+                        image={vehicle.images?.[0] || '/4.-alphard-colors-black.png'}
+                        price={vehicle.priceTrip || vehicle.price || 0}
+                        priceUnit="trip"
+                        seats={vehicle.capacity}
+                        transmission="Automatic"
+                        year={vehicle.year}
+                        rating={4.8}
+                        isLuxury={true}
+                        brand={vehicle.name.split(' ')[0]}
+                        model={vehicle.model}
+                        specialNote={vehicle.description}
+                        onBookNow={handleBookNow}
+                        onLearnMore={handleLearnMore}
+                      />
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        ) : (
+          // Standard grid layout for other vehicle counts
+          <div className={cn(
+            "grid grid-cols-1 md:grid-cols-2 gap-8 mb-12",
+            getGridClass(),
+            showAll && "mt-8"
+          )}>
+            {loading ? (
+              // Loading skeleton
+              Array.from({ length: showAll ? 6 : 3 }).map((_, index) => (
+                <div key={index} className="animate-pulse">
+                  <div className="bg-gray-300 dark:bg-gray-700 h-64 rounded-lg mb-4"></div>
+                  <div className="bg-gray-300 dark:bg-gray-700 h-4 rounded mb-2"></div>
+                  <div className="bg-gray-300 dark:bg-gray-700 h-4 rounded w-3/4"></div>
+                </div>
+              ))
+            ) : vehiclesToShow.length > 0 ? (
+              vehiclesToShow.map((vehicle: Vehicle, index: number) => (
+                <div 
+                  key={vehicle.id}
+                  className="animate-fade-in-up"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <VehicleCard
+                    id={vehicle.id}
+                    name={vehicle.name}
+                    image={vehicle.images?.[0] || '/4.-alphard-colors-black.png'}
+                    price={vehicle.priceTrip || vehicle.price || 0}
+                    priceUnit="trip"
+                    seats={vehicle.capacity}
+                    transmission="Automatic"
+                    year={vehicle.year}
+                    rating={4.8}
+                    isLuxury={true}
+                    brand={vehicle.name.split(' ')[0]}
+                    model={vehicle.model}
+                    specialNote={vehicle.description}
+                    onBookNow={handleBookNow}
+                    onLearnMore={handleLearnMore}
+                  />
+                </div>
+              ))
+            ) : (
+              <div className="col-span-full text-center py-12">
+                <p className="text-gray-300 text-lg">No vehicles available at the moment.</p>
+                <p className="text-gray-400 text-sm mt-2">Please check back later or contact us for assistance.</p>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* View All Button */}
         {!showAll && (
@@ -172,21 +270,12 @@ const FleetSection: React.FC<FleetSectionProps> = ({
 
       </div>
 
-      {/* Booking Form Modal */}
-      {showBookingForm && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="flex items-center justify-center min-h-screen px-4">
-            <div className="fixed inset-0 bg-black bg-opacity-50" onClick={handleCloseBooking}></div>
-            <div className="relative bg-deep-navy rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
-              <BookingForm
-                initialVehicleId={selectedVehicleId}
-                onClose={handleCloseBooking}
-                onSubmit={handleBookingComplete}
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Booking Modal - Menggunakan VehicleSearchModal yang sama seperti Hero */}
+      <VehicleSearchModal
+        isOpen={showBookingForm}
+        onClose={handleCloseBooking}
+        initialData={{ selectedVehicleId }}
+      />
     </section>
   );
 };

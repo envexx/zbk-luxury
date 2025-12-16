@@ -22,68 +22,107 @@ model User {
   @@map("users")
 }
 
-model Vehicle {
-  id                    String            @id @default(cuid())
-  name                  String
-  model                 String
-  year                  Int
-  status                VehicleStatus     @default(AVAILABLE)
-  location              String
-  plateNumber           String            @unique
-  capacity              Int
-  luggage               Int?              // Luggage capacity
-  color                 String
-  price                 Float?            // Legacy hourly rental price (deprecated)
-  priceAirportTransfer  Float?            // Airport Transfer price (One Way - Airport service)
-  priceTrip             Float?            // Trip price (One Way - General trip service)
-  price6Hours           Float?            // 6 hours rental/booking price
-  price12Hours          Float?            // 12 hours rental/booking price
-  services              String[]          // Available services: ["AIRPORT_TRANSFER", "TRIP", "RENTAL"]
-  minimumHours          Int?              // Minimum booking hours
-  lastMaintenance       DateTime?
-  nextMaintenance       DateTime?
-  purchaseDate          DateTime
-  purchasePrice         Float
-  mileage               String?
-  features              String[]          // JSON array as string
-  images                String[]          // JSON array as string
-  description           String?
-  createdAt             DateTime          @default(now())
-  updatedAt             DateTime          @updatedAt
-  
+model Customer {
+  id          String @id @default(cuid())
+  title       Title // Mr, Ms, Mrs
+  firstName   String
+  lastName    String
+  email       String @unique
+  phoneNumber String
+  password    String // Hashed password
+
+  // Social media accounts (optional)
+  facebookHandle  String?
+  instagramHandle String?
+  twitterHandle   String?
+  linkedinHandle  String?
+
+  // Password reset functionality
+  resetPasswordToken   String?   @unique
+  resetPasswordExpires DateTime?
+
+  // Email verification
+  isEmailVerified        Boolean @default(false)
+  emailVerificationToken String? @unique
+
+  // Account status
+  isActive    Boolean   @default(true)
+  lastLoginAt DateTime?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   // Relations
-  bookings              Booking[]
-  maintenanceRecords    MaintenanceRecord[]
+  bookings Booking[]
+
+  @@map("customers")
+}
+
+model Vehicle {
+  id                   String        @id @default(cuid())
+  name                 String
+  model                String
+  year                 Int
+  status               VehicleStatus @default(AVAILABLE)
+  location             String
+  plateNumber          String        @unique
+  capacity             Int
+  luggage              Int? // Luggage capacity
+  color                String
+  price                Float? // Legacy hourly rental price (deprecated)
+  priceAirportTransfer Float? // Airport Transfer price (One Way - Airport service)
+  priceTrip            Float? // Trip price (One Way - General trip service)
+  price6Hours          Float? // 6 hours rental/booking price
+  price12Hours         Float? // 12 hours rental/booking price
+  services             String[] // Available services: ["AIRPORT_TRANSFER", "TRIP", "RENTAL"]
+  minimumHours         Int? // Minimum booking hours
+  lastMaintenance      DateTime?
+  nextMaintenance      DateTime?
+  purchaseDate         DateTime
+  purchasePrice        Float
+  mileage              String?
+  features             String[] // JSON array as string
+  images               String[] // JSON array as string
+  description          String?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  // Relations
+  bookings           Booking[]
+  maintenanceRecords MaintenanceRecord[]
 
   @@map("vehicles")
 }
 
 model Booking {
-  id                String        @id @default(cuid())
-  customerName      String
-  customerEmail     String
-  customerPhone     String
-  vehicleId         String
-  service           String        // Deprecated: Use serviceType instead
-  serviceType       ServiceType   @default(RENTAL) // AIRPORT_TRANSFER, TRIP, or RENTAL
-  startDate         DateTime
-  endDate           DateTime
-  startTime         String
-  duration          String
-  pickupLocation    String
-  dropoffLocation   String?
-  totalAmount       Float
-  depositAmount     Float?        // 20% deposit amount
-  status            BookingStatus @default(PENDING)
-  paymentStatus     PaymentStatus @default(PENDING)
-  stripeSessionId  String?       @unique
-  stripePaymentId   String?       // Payment intent ID
-  notes             String?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-  
+  id              String        @id @default(cuid())
+  customerId      String? // Optional: Link to registered customer
+  customerName    String // For guest bookings or display name
+  customerEmail   String
+  customerPhone   String
+  vehicleId       String
+  service         String // Deprecated: Use serviceType instead
+  serviceType     ServiceType   @default(RENTAL) // AIRPORT_TRANSFER, TRIP, or RENTAL
+  startDate       DateTime
+  endDate         DateTime
+  startTime       String
+  duration        String
+  pickupLocation  String
+  dropoffLocation String?
+  totalAmount     Float
+  depositAmount   Float? // 20% deposit amount
+  status          BookingStatus @default(PENDING)
+  paymentStatus   PaymentStatus @default(PENDING)
+  stripeSessionId String?       @unique
+  stripePaymentId String? // Payment intent ID
+  notes           String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
   // Relations
-  vehicle           Vehicle       @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  vehicle  Vehicle   @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  customer Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
 
   @@map("bookings")
 }
@@ -102,9 +141,9 @@ model MaintenanceRecord {
   technician      String?
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
-  
+
   // Relations
-  vehicle         Vehicle           @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
 
   @@map("maintenance_records")
 }
@@ -125,18 +164,18 @@ model Service {
 }
 
 model BlogPost {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   title       String
-  slug        String   @unique
+  slug        String    @unique
   excerpt     String
   content     String
   image       String?
   author      String
   publishedAt DateTime?
-  isPublished Boolean  @default(false)
+  isPublished Boolean   @default(false)
   tags        String[] // JSON array as string
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   @@map("blog_posts")
 }
@@ -159,7 +198,7 @@ model Settings {
   id    String @id @default(cuid())
   key   String @unique
   value String
-  
+
   @@map("settings")
 }
 
@@ -167,6 +206,14 @@ model Settings {
 enum Role {
   ADMIN
   MANAGER
+}
+
+enum Title {
+  MR
+  MS
+  MRS
+  DR
+  PROF
 }
 
 enum VehicleStatus {
@@ -208,8 +255,7 @@ enum MaintenanceStatus {
 }
 
 enum ServiceType {
-  AIRPORT_TRANSFER  // One Way - Airport Transfer (priceAirportTransfer)
-  TRIP              // One Way - General Trip (priceTrip)
-  RENTAL            // Round Trip - Hourly Rental (price6Hours / price12Hours)
+  AIRPORT_TRANSFER // One Way - Airport Transfer (priceAirportTransfer)
+  TRIP // One Way - General Trip (priceTrip)
+  RENTAL // Round Trip - Hourly Rental (price6Hours / price12Hours)
 }
-

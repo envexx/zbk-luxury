@@ -233,3 +233,4 @@ export function getAirportInfo(location: string): {
   
   return { isAirport: false };
 }
+
