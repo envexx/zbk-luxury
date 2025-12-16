@@ -3,13 +3,10 @@
  * Type definitions for customer authentication and profile
  */
 
-export enum Title {
-  MR = 'MR',
-  MS = 'MS',
-  MRS = 'MRS',
-  DR = 'DR',
-  PROF = 'PROF',
-}
+import { Title } from '@prisma/client';
+
+// Re-export Title enum from Prisma for convenience
+export { Title };
 
 export interface Customer {
   id: string;
