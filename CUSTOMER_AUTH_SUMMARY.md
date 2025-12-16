@@ -148,9 +148,11 @@ Default password: `Password123`
 ### Step 2: Install Dependencies
 
 ```bash
-npm install bcrypt jsonwebtoken
-npm install -D @types/bcrypt @types/jsonwebtoken
+npm install bcryptjs jsonwebtoken
+npm install -D @types/bcryptjs @types/jsonwebtoken
 ```
+
+> **Note:** Menggunakan `bcryptjs` (pure JS) untuk compatibility dengan Vercel.
 
 ### Step 3: Update .env
 

@@ -5,9 +5,11 @@
 ### Step 1: Install Dependencies
 
 ```bash
-npm install bcrypt jsonwebtoken
-npm install -D @types/bcrypt @types/jsonwebtoken
+npm install bcryptjs jsonwebtoken
+npm install -D @types/bcryptjs @types/jsonwebtoken
 ```
+
+> **Note:** We use `bcryptjs` (pure JavaScript) instead of `bcrypt` for better compatibility with deployment platforms like Vercel.
 
 ### Step 2: Update .env
 
