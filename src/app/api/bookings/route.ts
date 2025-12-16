@@ -83,10 +83,21 @@ export async function POST(request: NextRequest) {
                        serviceStr.includes('AIRPORT');
       
       if (isOneWay) {
-        const isAirportRelated = pickupLower.includes('airport') || 
-                                 pickupLower.includes('terminal') ||
-                                 dropoffLower.includes('airport') || 
-                                 dropoffLower.includes('terminal');
+        // Airport keywords and names
+        const airportKeywords = ['airport', 'terminal', 'bandara', 'arrival', 'departure', 'flight', 'gate'];
+        const airportNames = [
+          'ngurah rai', 'denpasar', 'dps', 'changi', 'singapore airport', 'sin',
+          'soekarno-hatta', 'soekarno hatta', 'soetta', 'cengkareng', 'cgk',
+          'juanda', 'sub', 'halim', 'lombok airport', 'praya', 'lop',
+          'klia', 'kul', 'suvarnabhumi', 'bkk', 'don mueang', 'dmk', 'hkg', 'hkt'
+        ];
+        
+        const checkLocation = (location: string) => {
+          return airportKeywords.some(kw => location.includes(kw)) || 
+                 airportNames.some(name => location.includes(name));
+        };
+        
+        const isAirportRelated = checkLocation(pickupLower) || checkLocation(dropoffLower);
         
         serviceType = isAirportRelated ? 'AIRPORT_TRANSFER' : 'TRIP';
       } else {

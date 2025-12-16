@@ -64,6 +64,21 @@ const RideDetailsForm: React.FC<RideDetailsFormProps> = ({
     }
   };
 
+  // Calculate hours automatically for round-trip based on pickup and return datetime
+  const calculateHours = () => {
+    if (formData.tripType !== 'round-trip' || !formData.pickupDate || !formData.pickupTime || !formData.returnDate || !formData.returnTime) {
+      return '';
+    }
+
+    const pickupDateTime = new Date(`${formData.pickupDate}T${formData.pickupTime}`);
+    const returnDateTime = new Date(`${formData.returnDate}T${formData.returnTime}`);
+    
+    const diffMs = returnDateTime.getTime() - pickupDateTime.getTime();
+    const diffHours = Math.ceil(diffMs / (1000 * 60 * 60)); // Round up to nearest hour
+    
+    return diffHours > 0 ? diffHours.toString() : '';
+  };
+
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
@@ -79,11 +94,6 @@ const RideDetailsForm: React.FC<RideDetailsFormProps> = ({
     if (!formData.dropOffLocation) {
       newErrors.dropOffLocation = 'Drop-off location is required';
     }
-    
-    // Hours only required for round-trip
-    if (formData.tripType === 'round-trip' && !formData.hours) {
-      newErrors.hours = 'Duration is required for round trip';
-    }
 
     // Validate return date/time for round trip
     if (formData.tripType === 'round-trip') {
@@ -94,13 +104,13 @@ const RideDetailsForm: React.FC<RideDetailsFormProps> = ({
         newErrors.returnTime = 'Return time is required for round trip';
       }
       
-      // Validate return date is after pickup date
-      if (formData.pickupDate && formData.returnDate) {
-        const pickupDate = new Date(formData.pickupDate);
-        const returnDate = new Date(formData.returnDate);
+      // Validate return datetime is after pickup datetime
+      if (formData.pickupDate && formData.pickupTime && formData.returnDate && formData.returnTime) {
+        const pickupDateTime = new Date(`${formData.pickupDate}T${formData.pickupTime}`);
+        const returnDateTime = new Date(`${formData.returnDate}T${formData.returnTime}`);
         
-        if (returnDate < pickupDate) {
-          newErrors.returnDate = 'Return date must be after pickup date';
+        if (returnDateTime <= pickupDateTime) {
+          newErrors.returnDate = 'Return date & time must be after pickup date & time';
         }
       }
     }
@@ -124,7 +134,12 @@ const RideDetailsForm: React.FC<RideDetailsFormProps> = ({
     e.preventDefault();
     
     if (validateForm()) {
-      onComplete(formData);
+      // For round-trip, calculate hours automatically
+      const dataToSubmit = {
+        ...formData,
+        hours: formData.tripType === 'round-trip' ? calculateHours() : formData.hours
+      };
+      onComplete(dataToSubmit);
     }
   };
 
@@ -226,19 +241,20 @@ const RideDetailsForm: React.FC<RideDetailsFormProps> = ({
           />
         </div>
 
-        {/* Duration Selection - Only for Round Trip */}
-        {formData.tripType === 'round-trip' && (
-          <div>
-            <Select
-              label="Select Hours"
-              value={formData.hours}
-              onChange={(value) => handleInputChange('hours', value)}
-              options={hourOptions}
-              placeholder="Choose duration"
-              error={errors.hours}
-              isRequired
-              helperText="How long do you need the vehicle?"
-            />
+        {/* Auto-calculated Duration Display - Only for Round Trip */}
+        {formData.tripType === 'round-trip' && formData.pickupDate && formData.pickupTime && formData.returnDate && formData.returnTime && (
+          <div className="bg-luxury-gold/5 border border-luxury-gold/30 rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm font-semibold text-gray-900 mb-1">Duration (Auto-calculated)</div>
+                <div className="text-xs text-gray-600">Based on pickup and return time</div>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold text-luxury-gold">
+                  {calculateHours()} Hours
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
@@ -267,11 +283,11 @@ const RideDetailsForm: React.FC<RideDetailsFormProps> = ({
             <h4 className="text-sm font-semibold text-luxury-gold mb-1">Booking Information</h4>
             <p className="text-xs text-gray-700 mb-2">
               <strong>One Way:</strong> Single journey from pickup to destination. Flat rate per trip.<br/>
-              <strong>Round Trip:</strong> Return journey back to pickup location. Priced per hour.
+              <strong>Round Trip:</strong> Return journey with automatic duration calculation. Priced per hour.
             </p>
             <p className="text-xs text-gray-700">
-              Our premium vehicles are available 24/7. For round trip bookings, minimum duration is 6 hours. 
-              For bookings longer than 12 hours, please contact our support team.
+              Our premium vehicles are available 24/7. For round trip bookings, duration is automatically calculated 
+              based on your pickup and return time. Standard packages: 6 hours and 12 hours.
             </p>
           </div>
         </div>

@@ -79,43 +79,60 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   const hours = parseInt(bookingData.hours) || 0;
   let subtotal = 0;
   let serviceTypeLabel = '';
-  let serviceType: 'AIRPORT_TRANSFER' | 'TRIP' | 'RENTAL' = 'RENTAL';
+  
+  // Use service type from bookingData if available (set in VehicleSelection)
+  let serviceType: 'AIRPORT_TRANSFER' | 'TRIP' | 'RENTAL' = bookingData.serviceType || 'RENTAL';
   
   const isOneWay = bookingData.tripType === 'one-way';
   
   if (isOneWay) {
-    // ONE WAY: Determine if it's Airport Transfer or Trip
-    // Check if pickup or dropoff location contains airport keywords
-    const pickupLower = (bookingData.pickupLocation || '').toLowerCase();
-    const dropoffLower = (bookingData.dropOffLocation || '').toLowerCase();
-    const isAirportRelated = pickupLower.includes('airport') || 
-                             pickupLower.includes('terminal') ||
-                             dropoffLower.includes('airport') || 
-                             dropoffLower.includes('terminal');
+    // ONE WAY: Use service type determined in VehicleSelection step
+    // Fallback: Determine if it's Airport Transfer or Trip if not already set
+    if (!bookingData.serviceType) {
+      const pickupLower = (bookingData.pickupLocation || '').toLowerCase();
+      const dropoffLower = (bookingData.dropOffLocation || '').toLowerCase();
+      
+      // Airport keywords and names (must match VehicleSelection)
+      const airportKeywords = ['airport', 'terminal', 'bandara', 'changi', 'soekarno', 'hatta'];
+      const airportNames = [
+        'changi', 'suvarnabhumi', 'don mueang', 'noi bai', 'tan son nhat',
+        'ninoy aquino', 'soekarno-hatta', 'ngurah rai', 'kuala lumpur',
+        'klia', 'penang', 'phuket', 'incheon', 'narita', 'haneda',
+        'singapore changi', 'hong kong', 'macau', 'dubai', 'heathrow'
+      ];
+      
+      const checkLocation = (location: string) => {
+        return airportKeywords.some(kw => location.includes(kw)) || 
+               airportNames.some(name => location.includes(name));
+      };
+      
+      const isAirportRelated = checkLocation(pickupLower) || checkLocation(dropoffLower);
+      
+      serviceType = isAirportRelated ? 'AIRPORT_TRANSFER' : 'TRIP';
+    }
     
-    if (isAirportRelated) {
+    if (serviceType === 'AIRPORT_TRANSFER') {
       // AIRPORT TRANSFER
       subtotal = selectedVehicle?.priceAirportTransfer || 100;
       serviceTypeLabel = 'Airport Transfer (One Way)';
-      serviceType = 'AIRPORT_TRANSFER';
     } else {
       // GENERAL TRIP
       subtotal = selectedVehicle?.priceTrip || 85;
       serviceTypeLabel = 'Trip (One Way)';
-      serviceType = 'TRIP';
     }
   } else {
-    // ROUND TRIP / RENTAL: Calculate based on hours (6hrs or 12hrs packages)
-    if (hours >= 12 && selectedVehicle?.price12Hours) {
-      subtotal = selectedVehicle.price12Hours;
-      serviceTypeLabel = '12 Hours Rental';
-    } else if (hours >= 6 && selectedVehicle?.price6Hours) {
-      subtotal = selectedVehicle.price6Hours;
-      serviceTypeLabel = '6 Hours Rental';
-    } else {
-      // Default to 6-hour package for round trip
+    // ROUND TRIP / RENTAL: Calculate based on hours
+    if (hours <= 6) {
       subtotal = selectedVehicle?.price6Hours || 360;
-      serviceTypeLabel = '6 Hours Rental';
+      serviceTypeLabel = `${hours} Hours Rental`;
+    } else if (hours <= 12) {
+      subtotal = selectedVehicle?.price12Hours || 720;
+      serviceTypeLabel = `${hours} Hours Rental`;
+    } else {
+      // For > 12 hours, calculate hourly rate based on 12-hour price
+      const hourlyRate = (selectedVehicle?.price12Hours || 720) / 12;
+      subtotal = Math.round(hourlyRate * hours);
+      serviceTypeLabel = `${hours} Hours Rental (Extended)`;
     }
     serviceType = 'RENTAL';
   }

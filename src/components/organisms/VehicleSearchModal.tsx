@@ -51,7 +51,8 @@ const VehicleSearchModal: React.FC<VehicleSearchModalProps> = ({
   if (!isOpen) return null;
 
   const handleRideDetailsComplete = (data: Partial<BookingData>) => {
-    setBookingData({ ...bookingData, ...data });
+    const updatedData = { ...bookingData, ...data };
+    setBookingData(updatedData);
     setCurrentStep(2);
   };
 
@@ -245,6 +246,7 @@ const VehicleSearchModal: React.FC<VehicleSearchModalProps> = ({
             {currentStep === 2 && (
               <VehicleSelection
                 initialVehicleId={bookingData.selectedVehicleId}
+                bookingData={bookingData as BookingData}
                 onComplete={handleVehicleSelectComplete}
                 onBack={handleBack}
               />

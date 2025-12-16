@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { cn } from '@/utils/cn';
 import Button from '@/components/atoms/Button';
 import Badge from '@/components/atoms/Badge';
@@ -32,20 +32,67 @@ export interface Vehicle {
 export interface VehicleSelectionProps {
   className?: string;
   initialVehicleId?: string;
+  bookingData?: BookingData; // Pass booking data to determine service type
   onComplete: (data: Partial<BookingData>) => void;
   onBack: () => void;
 }
 
-const VehicleSelection: React.FC<VehicleSelectionProps> = ({
-  className,
-  initialVehicleId,
-  onComplete,
-  onBack,
-}) => {
+// Airport detection keywords and names
+const AIRPORT_KEYWORDS = ['airport', 'terminal', 'bandara', 'changi', 'soekarno', 'hatta'];
+const AIRPORT_NAMES = [
+  'changi', 'suvarnabhumi', 'don mueang', 'noi bai', 'tan son nhat',
+  'ninoy aquino', 'soekarno-hatta', 'ngurah rai', 'kuala lumpur',
+  'klia', 'penang', 'phuket', 'incheon', 'narita', 'haneda',
+  'singapore changi', 'hong kong', 'macau', 'dubai', 'heathrow'
+];
+
+const checkLocation = (location: string): boolean => {
+  if (!location) return false;
+  const lowerLocation = location.toLowerCase();
+  
+  // Check keywords
+  if (AIRPORT_KEYWORDS.some(keyword => lowerLocation.includes(keyword))) {
+    return true;
+  }
+  
+  // Check airport names
+  if (AIRPORT_NAMES.some(name => lowerLocation.includes(name))) {
+    return true;
+  }
+  
+  return false;
+};
+
+const VehicleSelection: React.FC<VehicleSelectionProps> = (props) => {
+  const {
+    className,
+    initialVehicleId,
+    bookingData,
+    onComplete,
+    onBack,
+  } = props;
+
   const [vehicles, setVehicles] = useState<Vehicle[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedVehicleId, setSelectedVehicleId] = useState<string>(initialVehicleId || '');
   const [filter, setFilter] = useState<string>('All');
+
+  // Check trip type
+  const isOneWay = bookingData?.tripType === 'one-way';
+  
+  // Auto-detect if this is an airport trip based on locations
+  const isAirportTrip = useMemo(() => {
+    if (!bookingData) return false;
+    const pickup = bookingData.pickupLocation || '';
+    const dropoff = bookingData.dropOffLocation || '';
+    return checkLocation(pickup) || checkLocation(dropoff);
+  }, [bookingData]);
+  
+  // Determine service type based on trip type and airport detection
+  const autoServiceType: 'AIRPORT_TRANSFER' | 'TRIP' | 'RENTAL' = useMemo(() => {
+    if (!isOneWay) return 'RENTAL';
+    return isAirportTrip ? 'AIRPORT_TRANSFER' : 'TRIP';
+  }, [isOneWay, isAirportTrip]);
 
   useEffect(() => {
     fetchVehicles()
@@ -90,15 +137,24 @@ const VehicleSelection: React.FC<VehicleSelectionProps> = ({
 
   const handleContinue = () => {
     if (selectedVehicleId) {
-      onComplete({ selectedVehicleId });
+      onComplete({ 
+        selectedVehicleId,
+        serviceType: autoServiceType
+      });
     }
   };
 
   return (
     <div className={cn('max-w-6xl mx-auto', className)}>
       <div className="mb-8 text-center">
-        <h3 className="text-xl font-bold text-gray-900 mb-2">Choose a Vehicle</h3>
-        <p className="text-gray-600">Select from our premium fleet of luxury vehicles</p>
+        <h3 className="text-xl font-bold text-gray-900 mb-2">Select Your Vehicle</h3>
+        <p className="text-gray-600">
+          {isOneWay 
+            ? (isAirportTrip 
+                ? 'Airport Transfer Service - To/From Airport' 
+                : 'Trip Service - City to City')
+            : 'Hourly Rental Packages'}
+        </p>
       </div>
 
       {/* Capacity Filter */}
@@ -216,23 +272,101 @@ const VehicleSelection: React.FC<VehicleSelectionProps> = ({
                 </div>
               )}
 
-              <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                <div>
-                  <span className="text-2xl font-bold text-gray-900">${vehicle.priceAirportTransfer || vehicle.price || 0}</span>
-                  <span className="text-sm text-gray-600 ml-1">/trip</span>
+              {/* Pricing */}
+              {isOneWay ? (
+                <div className="pt-4 border-t border-gray-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <div className="text-sm font-semibold text-gray-900">
+                        {isAirportTrip ? 'Airport Transfer' : 'Trip Service'}
+                      </div>
+                      <div className="text-xs text-gray-600">
+                        {isAirportTrip ? 'To/from airport' : 'City to city'}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-gray-900">
+                        ${isAirportTrip 
+                          ? (vehicle.priceAirportTransfer || 80)
+                          : (vehicle.priceTrip || 75)}
+                      </div>
+                      <div className="text-xs text-gray-600">/trip</div>
+                    </div>
+                  </div>
+                  <Button
+                    variant={selectedVehicleId === vehicle.id ? 'primary' : 'secondary'}
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleVehicleSelect(vehicle.id);
+                    }}
+                    className={cn(
+                      "w-full",
+                      selectedVehicleId === vehicle.id ? 'bg-luxury-gold hover:bg-luxury-gold/90' : ''
+                    )}
+                  >
+                    {selectedVehicleId === vehicle.id ? 'Selected' : 'Select Vehicle'}
+                  </Button>
                 </div>
-                <Button
-                  variant={selectedVehicleId === vehicle.id ? 'primary' : 'secondary'}
-                  size="small"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleVehicleSelect(vehicle.id);
-                  }}
-                  className={selectedVehicleId === vehicle.id ? 'bg-luxury-gold hover:bg-luxury-gold/90' : ''}
-                >
-                  {selectedVehicleId === vehicle.id ? 'Selected' : 'Select'}
-                </Button>
-              </div>
+              ) : (
+                /* Rental Pricing for Round Trip */
+                <div className="space-y-2 pt-4 border-t border-gray-200">
+                  {(() => {
+                    const hours = parseInt(bookingData?.hours || '0');
+                    let displayPrice = 0;
+                    let priceLabel = '';
+                    
+                    if (hours <= 6) {
+                      displayPrice = vehicle.price6Hours || 360;
+                      priceLabel = `${hours} Hours`;
+                    } else if (hours <= 12) {
+                      displayPrice = vehicle.price12Hours || 720;
+                      priceLabel = `${hours} Hours`;
+                    } else {
+                      // For > 12 hours, calculate hourly rate based on 12-hour price
+                      const hourlyRate = (vehicle.price12Hours || 720) / 12;
+                      displayPrice = Math.round(hourlyRate * hours);
+                      priceLabel = `${hours} Hours (Custom)`;
+                    }
+                    
+                    return (
+                      <>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="text-sm font-semibold text-gray-900">{priceLabel}</div>
+                            <div className="text-xs text-gray-600">
+                              {hours <= 6 ? '6-hour package' : hours <= 12 ? '12-hour package' : 'Extended rental'}
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-2xl font-bold text-gray-900">${displayPrice}</div>
+                            <div className="text-xs text-gray-600">/rental</div>
+                          </div>
+                        </div>
+                        {hours > 0 && (
+                          <div className="text-xs text-gray-500 italic mt-2">
+                            Duration: {hours} hour{hours > 1 ? 's' : ''}
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
+                  <Button
+                    variant={selectedVehicleId === vehicle.id ? 'primary' : 'secondary'}
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleVehicleSelect(vehicle.id);
+                    }}
+                    className={cn(
+                      "w-full mt-2",
+                      selectedVehicleId === vehicle.id ? 'bg-luxury-gold hover:bg-luxury-gold/90' : ''
+                    )}
+                  >
+                    {selectedVehicleId === vehicle.id ? 'Selected' : 'Select Vehicle'}
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         ))}
@@ -243,7 +377,7 @@ const VehicleSelection: React.FC<VehicleSelectionProps> = ({
         <div className="bg-white border-2 border-luxury-gold rounded-2xl p-5 mb-8 shadow-lg">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-2 h-2 bg-luxury-gold rounded-full"></div>
-            <h4 className="text-lg font-bold text-gray-900">Selected Vehicle</h4>
+            <h4 className="text-lg font-bold text-gray-900">Selected</h4>
           </div>
           <div className="flex items-center gap-4">
             <div className="relative w-20 h-16 rounded-lg overflow-hidden bg-gray-100">
@@ -255,10 +389,18 @@ const VehicleSelection: React.FC<VehicleSelectionProps> = ({
             </div>
             <div className="flex-1">
               <div className="font-bold text-gray-900 text-lg mb-1">{selectedVehicle.name}</div>
-              <div className="text-sm text-gray-600 flex items-center gap-2">
+              <div className="text-sm text-gray-600 flex items-center gap-2 flex-wrap">
                 <span className="px-2 py-0.5 bg-luxury-gold/10 text-luxury-gold rounded-full text-xs font-medium">
                   {selectedVehicle.capacity} Pax
                 </span>
+                {isOneWay && (
+                  <>
+                    <span>•</span>
+                    <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                      {isAirportTrip ? 'Airport Transfer' : 'Trip'}
+                    </span>
+                  </>
+                )}
                 <span>•</span>
                 <span>{selectedVehicle.year}</span>
                 {selectedVehicle.luggage && (
@@ -270,8 +412,28 @@ const VehicleSelection: React.FC<VehicleSelectionProps> = ({
               </div>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-bold text-luxury-gold">${selectedVehicle.priceAirportTransfer || selectedVehicle.price || 250}</div>
-              <div className="text-sm text-gray-600">/trip</div>
+              <div className="text-2xl font-bold text-luxury-gold">
+                ${(() => {
+                  if (isOneWay) {
+                    return isAirportTrip
+                      ? (selectedVehicle.priceAirportTransfer || 80)
+                      : (selectedVehicle.priceTrip || 75);
+                  } else {
+                    // Round-trip: calculate based on hours
+                    const hours = parseInt(bookingData?.hours || '0');
+                    if (hours <= 6) return selectedVehicle.price6Hours || 360;
+                    if (hours <= 12) return selectedVehicle.price12Hours || 720;
+                    // For > 12 hours
+                    const hourlyRate = (selectedVehicle.price12Hours || 720) / 12;
+                    return Math.round(hourlyRate * hours);
+                  }
+                })()}
+              </div>
+              <div className="text-sm text-gray-600">
+                {isOneWay 
+                  ? '/trip' 
+                  : `/${bookingData?.hours || '0'}hrs`}
+              </div>
             </div>
           </div>
         </div>

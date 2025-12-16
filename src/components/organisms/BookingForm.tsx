@@ -162,6 +162,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
         return (
           <VehicleSelection
             initialVehicleId={bookingData.selectedVehicleId}
+            bookingData={bookingData}
             onComplete={handleStepComplete}
             onBack={handlePrevStep}
           />
@@ -183,7 +184,9 @@ const BookingForm: React.FC<BookingFormProps> = ({
     <div className={cn('bg-deep-navy text-white', className)}>
       {/* Header */}
       <div className="flex items-center justify-between p-6 border-b border-light-gray">
-        <h2 className="text-2xl font-bold">Book Your Ride</h2>
+        <div>
+          <h2 className="text-2xl font-bold">Book Your Ride</h2>
+        </div>
         {onClose && (
           <button
             onClick={onClose}

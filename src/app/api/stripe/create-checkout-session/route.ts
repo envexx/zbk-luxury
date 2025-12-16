@@ -143,31 +143,84 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Calculate total amount based on trip type (one-way vs round-trip)
+    // Calculate total amount based on service type
     const hoursMatch = booking.duration?.match(/\d+/);
     const hours = hoursMatch ? parseInt(hoursMatch[0]) : 0;
     
-    // Determine if it's one-way or round-trip
-    const serviceType = (booking.service || '').toUpperCase();
-    const isOneWay = serviceType.includes('ONE') || 
-                     serviceType.includes('ONE-WAY') || 
-                     serviceType.includes('TRIP') || 
-                     serviceType.includes('AIRPORT');
+    // Get service type from booking (should be set from frontend)
+    const serviceTypeFromBooking = (booking as any).serviceType as string | undefined;
     
     let subtotal = 0;
+    let serviceLabel = '';
     
-    if (isOneWay) {
-      // ONE WAY: Use flat rate from priceAirportTransfer
-      subtotal = booking.vehicle.priceAirportTransfer || 80;
-    } else {
-      // ROUND TRIP: Calculate based on hours
+    // Determine service type
+    if (serviceTypeFromBooking === 'AIRPORT_TRANSFER') {
+      // AIRPORT TRANSFER
+      subtotal = booking.vehicle.priceAirportTransfer || 100;
+      serviceLabel = 'Airport Transfer';
+    } else if (serviceTypeFromBooking === 'TRIP') {
+      // GENERAL TRIP
+      subtotal = booking.vehicle.priceTrip || 85;
+      serviceLabel = 'Trip';
+    } else if (serviceTypeFromBooking === 'RENTAL') {
+      // RENTAL: Calculate based on hours
       if (hours >= 12 && booking.vehicle.price12Hours) {
         subtotal = booking.vehicle.price12Hours;
+        serviceLabel = '12 Hours Rental';
       } else if (hours >= 6 && booking.vehicle.price6Hours) {
         subtotal = booking.vehicle.price6Hours;
+        serviceLabel = '6 Hours Rental';
       } else {
-        // Default to 6-hour package for round trip
         subtotal = booking.vehicle.price6Hours || 360;
+        serviceLabel = '6 Hours Rental';
+      }
+    } else {
+      // Fallback: Detect from service field (legacy support)
+      const serviceStr = (booking.service || '').toUpperCase();
+      const pickupLower = (booking.pickupLocation || '').toLowerCase();
+      const dropoffLower = (booking.dropoffLocation || '').toLowerCase();
+      
+      const isOneWay = serviceStr.includes('ONE') || 
+                       serviceStr.includes('ONE-WAY') || 
+                       serviceStr.includes('TRIP') || 
+                       serviceStr.includes('AIRPORT');
+      
+      if (isOneWay) {
+        // Airport keywords and names
+        const airportKeywords = ['airport', 'terminal', 'bandara', 'arrival', 'departure', 'flight', 'gate'];
+        const airportNames = [
+          'ngurah rai', 'denpasar', 'dps', 'changi', 'singapore airport', 'sin',
+          'soekarno-hatta', 'soekarno hatta', 'soetta', 'cengkareng', 'cgk',
+          'juanda', 'sub', 'halim', 'lombok airport', 'praya', 'lop',
+          'klia', 'kul', 'suvarnabhumi', 'bkk', 'don mueang', 'dmk', 'hkg', 'hkt'
+        ];
+        
+        const checkLocation = (location: string) => {
+          return airportKeywords.some(kw => location.includes(kw)) || 
+                 airportNames.some(name => location.includes(name));
+        };
+        
+        const isAirportRelated = checkLocation(pickupLower) || checkLocation(dropoffLower);
+        
+        if (isAirportRelated) {
+          subtotal = booking.vehicle.priceAirportTransfer || 100;
+          serviceLabel = 'Airport Transfer';
+        } else {
+          subtotal = booking.vehicle.priceTrip || 85;
+          serviceLabel = 'Trip';
+        }
+      } else {
+        // RENTAL
+        if (hours >= 12 && booking.vehicle.price12Hours) {
+          subtotal = booking.vehicle.price12Hours;
+          serviceLabel = '12 Hours Rental';
+        } else if (hours >= 6 && booking.vehicle.price6Hours) {
+          subtotal = booking.vehicle.price6Hours;
+          serviceLabel = '6 Hours Rental';
+        } else {
+          subtotal = booking.vehicle.price6Hours || 360;
+          serviceLabel = '6 Hours Rental';
+        }
       }
     }
     
@@ -228,8 +281,8 @@ export async function POST(request: NextRequest) {
           price_data: {
             currency: 'usd',
             product_data: {
-              name: `Vehicle ${isOneWay ? 'One Way' : 'Rental'} - ${booking.vehicle.name}`,
-              description: isOneWay ? 'One way trip' : `${booking.duration} rental service`,
+              name: `${booking.vehicle.name} - ${serviceLabel || booking.service}`,
+              description: `${serviceLabel || booking.service} • ${booking.pickupLocation} → ${booking.dropoffLocation}`,
             },
             unit_amount: Math.round(subtotal * 100), // Subtotal in cents
           },
@@ -264,6 +317,8 @@ export async function POST(request: NextRequest) {
         customerName: booking.customerName,
         vehicleName: booking.vehicle.name,
         service: booking.service,
+        serviceType: serviceTypeFromBooking || 'RENTAL',
+        serviceLabel: serviceLabel || booking.service,
         duration: booking.duration,
         pickupLocation: booking.pickupLocation,
         dropoffLocation: booking.dropoffLocation || '',
