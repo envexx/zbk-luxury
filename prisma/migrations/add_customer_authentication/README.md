@@ -80,3 +80,4 @@ node scripts/seed-test-customers.js
 - Existing bookings will have `customerId = NULL` (guest bookings)
 - New bookings can link to customer accounts
 - Backward compatibility maintained
+
