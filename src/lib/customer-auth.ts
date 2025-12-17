@@ -3,7 +3,7 @@
  * Helper functions for customer authentication, JWT, password management
  */
 
-import jwt from 'jsonwebtoken';
+import jwt, { Secret } from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 
@@ -40,9 +40,9 @@ export async function comparePassword(
  * Generate JWT token for customer
  */
 export function generateCustomerToken(payload: CustomerJWTPayload): string {
-  return jwt.sign(payload, JWT_SECRET, {
-    expiresIn: JWT_EXPIRES_IN,
-  });
+  const secret: Secret = JWT_SECRET;
+  const options = { expiresIn: JWT_EXPIRES_IN };
+  return jwt.sign(payload, secret, options);
 }
 
 /**
