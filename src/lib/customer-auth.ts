@@ -3,13 +3,13 @@
  * Helper functions for customer authentication, JWT, password management
  */
 
-import jwt, { Secret } from 'jsonwebtoken';
+import jwt, { Secret, SignOptions } from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 
 // Ensure secrets are always strings
 const JWT_SECRET: string = (process.env.JWT_SECRET || 'your-secret-key-change-in-production') as string;
-const JWT_EXPIRES_IN: string = (process.env.JWT_EXPIRES_IN || '24h') as string;
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '24h';
 const SALT_ROUNDS = 10;
 
 // JWT Token Interfaces
@@ -41,7 +41,9 @@ export async function comparePassword(
  */
 export function generateCustomerToken(payload: CustomerJWTPayload): string {
   const secret: Secret = JWT_SECRET;
-  const options = { expiresIn: JWT_EXPIRES_IN };
+  const options: SignOptions = { 
+    expiresIn: JWT_EXPIRES_IN 
+  };
   return jwt.sign(payload, secret, options);
 }
 
