@@ -7,8 +7,9 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '24h';
+// Ensure secrets are always strings
+const JWT_SECRET: string = (process.env.JWT_SECRET || 'your-secret-key-change-in-production') as string;
+const JWT_EXPIRES_IN: string = (process.env.JWT_EXPIRES_IN || '24h') as string;
 const SALT_ROUNDS = 10;
 
 // JWT Token Interfaces
@@ -39,7 +40,7 @@ export async function comparePassword(
  * Generate JWT token for customer
  */
 export function generateCustomerToken(payload: CustomerJWTPayload): string {
-  return jwt.sign(payload, JWT_SECRET as string, {
+  return jwt.sign(payload, JWT_SECRET, {
     expiresIn: JWT_EXPIRES_IN,
   });
 }
