@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useCustomerAuth } from '@/contexts/CustomerAuthContext';
 import Button from '@/components/atoms/Button';
 import PhoneInput from '@/components/atoms/PhoneInput';
 import PasswordInput from '@/components/atoms/PasswordInput';
 import { CustomerLoginData, CustomerRegistrationData, Title } from '@/types/customer';
-import { User } from 'lucide-react';
+import { User, Shield } from 'lucide-react';
 
 interface CustomerAuthModalProps {
   isOpen: boolean;
@@ -21,8 +22,12 @@ const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({
   initialMode = 'login',
   onSuccess 
 }) => {
+  const router = useRouter();
   const { login, register, isLoading, error, clearError, isAuthenticated } = useCustomerAuth();
   const [mode, setMode] = useState<'login' | 'register'>(initialMode);
+  const [isAdminMode, setIsAdminMode] = useState(false);
+  const [adminLoginLoading, setAdminLoginLoading] = useState(false);
+  const [adminError, setAdminError] = useState<string>('');
   const [loginData, setLoginData] = useState<CustomerLoginData>({
     email: '',
     password: '',
@@ -41,6 +46,8 @@ const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       setMode(initialMode);
+      setIsAdminMode(false);
+      setAdminError('');
       clearError();
     } else {
       setLoginData({ email: '', password: '' });
@@ -53,6 +60,8 @@ const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({
         password: '',
         confirmPassword: '',
       });
+      setIsAdminMode(false);
+      setAdminError('');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, initialMode]);
@@ -68,11 +77,60 @@ const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      await login(loginData);
-    } catch (error) {
-      // Error is handled by context
-      console.error('Login error:', error);
+    setAdminError('');
+    clearError();
+    
+    // If admin mode is enabled, use the admin login API
+    if (isAdminMode) {
+      setAdminLoginLoading(true);
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify(loginData),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Store admin data
+          localStorage.setItem('admin-user', JSON.stringify(data.data.user));
+          localStorage.setItem('auth-token', data.data.token);
+          
+          // Check if user is admin or manager, then redirect to /admin
+          if (data.data.user.role === 'ADMIN' || data.data.user.role === 'MANAGER') {
+            onClose();
+            router.push('/admin');
+            return;
+          } else {
+            // If not admin, show error
+            setAdminError('This account does not have admin privileges');
+            setAdminLoginLoading(false);
+            return;
+          }
+        } else {
+          // Handle error
+          setAdminError(data.message || 'Login failed. Please check your credentials.');
+          setAdminLoginLoading(false);
+          return;
+        }
+      } catch (error) {
+        console.error('Admin login error:', error);
+        setAdminError('Network error. Please try again.');
+        setAdminLoginLoading(false);
+        return;
+      }
+    } else {
+      // Normal customer login
+      try {
+        await login(loginData);
+      } catch (error) {
+        // Error is handled by context
+        console.error('Login error:', error);
+      }
     }
   };
 
@@ -91,6 +149,8 @@ const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({
       ...loginData,
       [e.target.name]: e.target.value,
     });
+    // Clear errors when user types
+    if (adminError) setAdminError('');
     if (error) clearError();
   };
 
@@ -129,15 +189,42 @@ const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({
           </div>
 
           {/* Error Message */}
-          {error && (
+          {(error || adminError) && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-compact">
-              <p className="text-red-600 text-sm">{error}</p>
+              <p className="text-red-600 text-sm">{adminError || error}</p>
             </div>
           )}
 
           {/* Login Form */}
           {mode === 'login' && (
             <form onSubmit={handleLoginSubmit} className="space-y-4">
+              {/* Admin Mode Toggle */}
+              <div className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-compact">
+                <div className="flex items-center space-x-2">
+                  <Shield className={`h-4 w-4 ${isAdminMode ? 'text-luxury-gold' : 'text-gray-600'}`} />
+                  <label htmlFor="admin-mode" className={`text-sm font-medium ${isAdminMode ? 'text-luxury-gold' : 'text-gray-700'}`}>
+                    Admin Login
+                  </label>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsAdminMode(!isAdminMode);
+                    setAdminError('');
+                    clearError();
+                  }}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    isAdminMode ? 'bg-luxury-gold' : 'bg-gray-300'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      isAdminMode ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                   Email Address
@@ -150,7 +237,7 @@ const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({
                   value={loginData.email}
                   onChange={handleLoginChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-compact focus:ring-2 focus:ring-luxury-gold focus:border-luxury-gold text-gray-900 placeholder-gray-500 bg-white"
-                  placeholder="Enter your email"
+                  placeholder={isAdminMode ? "admin@zbkluxury.com" : "Enter your email"}
                 />
               </div>
 
@@ -172,10 +259,26 @@ const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({
                 variant="primary"
                 size="large"
                 className="w-full"
-                disabled={isLoading}
+                disabled={isLoading || adminLoginLoading}
               >
-                {isLoading ? 'Signing In...' : 'Sign In'}
+                {(isLoading || adminLoginLoading) ? 'Signing In...' : 'Sign In'}
               </Button>
+
+              {/* Demo Credentials */}
+              {!isAdminMode && (
+                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-compact">
+                  <p className="text-blue-800 text-sm font-medium mb-1">Demo Customer Account:</p>
+                  <p className="text-blue-600 text-xs">Email: john.doe@example.com</p>
+                  <p className="text-blue-600 text-xs">Password: Password123</p>
+                </div>
+              )}
+              
+              {isAdminMode && (
+                <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-compact">
+                  <p className="text-amber-800 text-sm font-medium mb-1">Admin Access</p>
+                  <p className="text-amber-600 text-xs">Use your admin credentials to access the admin panel</p>
+                </div>
+              )}
             </form>
           )}
 
