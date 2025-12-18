@@ -7,6 +7,7 @@ import Button from '@/components/atoms/Button';
 import CustomerAuthModal from '@/components/organisms/CustomerAuthModal';
 import { useCustomerAuth } from '@/contexts/CustomerAuthContext';
 import { cn } from '@/utils/cn';
+import { Calendar, History, LogOut, ChevronDown } from 'lucide-react';
 
 const Header: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -87,38 +88,43 @@ const Header: React.FC = () => {
                     <span className="text-sm font-medium">
                       {customer?.firstName} {customer?.lastName}
                     </span>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
+                    <ChevronDown className="w-4 h-4" />
                   </button>
 
                   {/* User Dropdown Menu */}
                   {showUserMenu && (
-                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-2 z-50">
-                      <div className="px-4 py-2 border-b border-gray-200">
-                        <p className="text-sm font-medium text-gray-900">{customer?.firstName} {customer?.lastName}</p>
-                        <p className="text-xs text-gray-500">{customer?.email}</p>
+                    <div className="absolute right-0 mt-2 w-52 bg-white rounded-lg shadow-xl border border-gray-100 py-1 z-50">
+                      <div className="px-4 py-3 border-b border-gray-100">
+                        <p className="text-sm font-semibold text-gray-900">{customer?.firstName} {customer?.lastName}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">{customer?.email}</p>
                       </div>
-                      <Link
-                        href="/booking"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => setShowUserMenu(false)}
-                      >
-                        📅 New Booking
-                      </Link>
-                      <Link
-                        href="/my-bookings"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => setShowUserMenu(false)}
-                      >
-                        📋 Booking History
-                      </Link>
-                      <button
-                        onClick={handleLogout}
-                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                      >
-                        🚪 Sign Out
-                      </button>
+                      <div className="py-1">
+                        <Link
+                          href="/booking"
+                          className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                          onClick={() => setShowUserMenu(false)}
+                        >
+                          <Calendar className="w-4 h-4 text-gray-400" />
+                          <span>New Booking</span>
+                        </Link>
+                        <Link
+                          href="/my-bookings"
+                          className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                          onClick={() => setShowUserMenu(false)}
+                        >
+                          <History className="w-4 h-4 text-gray-400" />
+                          <span>Booking History</span>
+                        </Link>
+                      </div>
+                      <div className="border-t border-gray-100 py-1">
+                        <button
+                          onClick={handleLogout}
+                          className="flex items-center space-x-3 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          <span>Sign Out</span>
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -221,26 +227,29 @@ const Header: React.FC = () => {
                     </div>
                     <Link
                       href="/booking"
-                      className="block px-4 py-2 text-white hover:bg-luxury-gold hover:bg-opacity-20 rounded"
+                      className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-luxury-gold hover:bg-opacity-20 rounded"
                       onClick={toggleMobileMenu}
                     >
-                      📅 New Booking
+                      <Calendar className="w-4 h-4" />
+                      <span>New Booking</span>
                     </Link>
                     <Link
                       href="/my-bookings"
-                      className="block px-4 py-2 text-white hover:bg-luxury-gold hover:bg-opacity-20 rounded"
+                      className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-luxury-gold hover:bg-opacity-20 rounded"
                       onClick={toggleMobileMenu}
                     >
-                      📋 Booking History
+                      <History className="w-4 h-4" />
+                      <span>Booking History</span>
                     </Link>
                     <button
                       onClick={() => {
                         handleLogout();
                         toggleMobileMenu();
                       }}
-                      className="block w-full text-left px-4 py-2 text-red-400 hover:bg-red-500 hover:bg-opacity-20 rounded"
+                      className="flex items-center space-x-3 w-full text-left px-4 py-2 text-red-400 hover:bg-red-500 hover:bg-opacity-20 rounded"
                     >
-                      Sign Out
+                      <LogOut className="w-4 h-4" />
+                      <span>Sign Out</span>
                     </button>
                   </div>
                 ) : (
