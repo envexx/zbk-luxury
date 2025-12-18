@@ -696,3 +696,4 @@ Private project. All rights reserved.
 
 *Built with ❤️ using Next.js, React, TypeScript, and Prisma*
 
+

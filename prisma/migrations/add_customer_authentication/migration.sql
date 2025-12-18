@@ -41,3 +41,4 @@ CREATE UNIQUE INDEX "customers_emailVerificationToken_key" ON "customers"("email
 -- AddForeignKey
 ALTER TABLE "bookings" ADD CONSTRAINT "bookings_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "customers"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
+

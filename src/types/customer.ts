@@ -182,3 +182,4 @@ export function validatePhoneNumber(phone: string): boolean {
   return phoneRegex.test(phone) && phone.replace(/\D/g, '').length >= 10;
 }
 
+

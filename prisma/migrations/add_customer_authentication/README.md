@@ -81,3 +81,4 @@ node scripts/seed-test-customers.js
 - New bookings can link to customer accounts
 - Backward compatibility maintained
 
+
