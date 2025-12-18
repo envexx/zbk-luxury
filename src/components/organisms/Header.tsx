@@ -4,16 +4,16 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Button from '@/components/atoms/Button';
-import AuthModal from '@/components/organisms/AuthModal';
-import { useAuth } from '@/contexts/AuthContext';
+import CustomerAuthModal from '@/components/organisms/CustomerAuthModal';
+import { useCustomerAuth } from '@/contexts/CustomerAuthContext';
 import { cn } from '@/utils/cn';
 
 const Header: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const { user, isAuthenticated, logout } = useAuth();
+  const { customer, isAuthenticated, logout } = useCustomerAuth();
 
   const navigation = [
     { name: 'Home', href: '/' },
@@ -28,7 +28,7 @@ const Header: React.FC = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  const handleAuthClick = (mode: 'login' | 'signup') => {
+  const handleAuthClick = (mode: 'login' | 'register') => {
     setAuthMode(mode);
     setShowAuthModal(true);
   };
@@ -81,11 +81,11 @@ const Header: React.FC = () => {
                   >
                     <div className="w-8 h-8 bg-luxury-gold rounded-full flex items-center justify-center">
                       <span className="text-deep-navy font-semibold text-sm">
-                        {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
+                        {customer?.firstName?.charAt(0)}{customer?.lastName?.charAt(0)}
                       </span>
                     </div>
                     <span className="text-sm font-medium">
-                      {user?.firstName} {user?.lastName}
+                      {customer?.firstName} {customer?.lastName}
                     </span>
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -94,30 +94,30 @@ const Header: React.FC = () => {
 
                   {/* User Dropdown Menu */}
                   {showUserMenu && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
+                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-2 z-50">
                       <div className="px-4 py-2 border-b border-gray-200">
-                        <p className="text-sm font-medium text-gray-900">{user?.firstName} {user?.lastName}</p>
-                        <p className="text-xs text-gray-500">{user?.email}</p>
+                        <p className="text-sm font-medium text-gray-900">{customer?.firstName} {customer?.lastName}</p>
+                        <p className="text-xs text-gray-500">{customer?.email}</p>
                       </div>
                       <Link
-                        href="/profile"
+                        href="/booking"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         onClick={() => setShowUserMenu(false)}
                       >
-                        My Profile
+                        📅 New Booking
                       </Link>
                       <Link
-                        href="/bookings"
+                        href="/my-bookings"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         onClick={() => setShowUserMenu(false)}
                       >
-                        My Bookings
+                        📋 Booking History
                       </Link>
                       <button
                         onClick={handleLogout}
                         className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
                       >
-                        Sign Out
+                        🚪 Sign Out
                       </button>
                     </div>
                   )}
@@ -133,7 +133,7 @@ const Header: React.FC = () => {
                   <Button 
                     variant="primary" 
                     size="medium"
-                    onClick={() => handleAuthClick('signup')}
+                    onClick={() => handleAuthClick('register')}
                   >
                     Sign Up
                   </Button>
@@ -211,27 +211,27 @@ const Header: React.FC = () => {
                     <div className="flex items-center space-x-3 px-4 py-3 bg-luxury-gold bg-opacity-10 rounded-lg">
                       <div className="w-10 h-10 bg-luxury-gold rounded-full flex items-center justify-center">
                         <span className="text-deep-navy font-semibold">
-                          {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
+                          {customer?.firstName?.charAt(0)}{customer?.lastName?.charAt(0)}
                         </span>
                       </div>
                       <div>
-                        <p className="text-white font-medium">{user?.firstName} {user?.lastName}</p>
-                        <p className="text-gray-300 text-sm">{user?.email}</p>
+                        <p className="text-white font-medium">{customer?.firstName} {customer?.lastName}</p>
+                        <p className="text-gray-300 text-sm">{customer?.email}</p>
                       </div>
                     </div>
                     <Link
-                      href="/profile"
+                      href="/booking"
                       className="block px-4 py-2 text-white hover:bg-luxury-gold hover:bg-opacity-20 rounded"
                       onClick={toggleMobileMenu}
                     >
-                      My Profile
+                      📅 New Booking
                     </Link>
                     <Link
-                      href="/bookings"
+                      href="/my-bookings"
                       className="block px-4 py-2 text-white hover:bg-luxury-gold hover:bg-opacity-20 rounded"
                       onClick={toggleMobileMenu}
                     >
-                      My Bookings
+                      📋 Booking History
                     </Link>
                     <button
                       onClick={() => {
@@ -259,7 +259,7 @@ const Header: React.FC = () => {
                       size="medium" 
                       className="w-full"
                       onClick={() => {
-                        handleAuthClick('signup');
+                        handleAuthClick('register');
                         toggleMobileMenu();
                       }}
                     >
@@ -273,8 +273,8 @@ const Header: React.FC = () => {
         </div>
       )}
 
-      {/* Auth Modal */}
-      <AuthModal
+      {/* Customer Auth Modal */}
+      <CustomerAuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
         initialMode={authMode}

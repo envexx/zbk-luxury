@@ -1,11 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendEmail, emailTemplates } from '@/lib/email'
+import { verifyCustomerToken } from '@/lib/customer-auth'
 
 // POST /api/public/booking - Create booking from website (public endpoint)
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
+    
+    // Check if customer is authenticated (optional)
+    let customerId: string | null = null;
+    const authHeader = request.headers.get('authorization');
+    const token = authHeader?.replace('Bearer ', '');
+    
+    if (token) {
+      try {
+        const decoded = verifyCustomerToken(token);
+        if (decoded && decoded.type === 'customer') {
+          customerId = decoded.id;
+        }
+      } catch (error) {
+        // Token is invalid or expired, but booking can still proceed
+        console.log('Invalid customer token, proceeding without customer association');
+      }
+    }
     
     // Validate required fields
     const requiredFields = ['customerName', 'customerEmail', 'customerPhone', 'vehicleId', 'service', 'startDate', 'pickupLocation']
@@ -122,6 +140,7 @@ export async function POST(request: NextRequest) {
         customerEmail: body.customerEmail,
         customerPhone: body.customerPhone,
         vehicleId: body.vehicleId,
+        customerId: customerId, // Associate with customer if logged in
         service: body.service, // Legacy field
         serviceType: body.serviceType || 'RENTAL', // New field
         startDate: new Date(body.startDate),

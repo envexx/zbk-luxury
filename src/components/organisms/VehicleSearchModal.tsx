@@ -8,6 +8,7 @@ import VehicleSelection from '@/components/molecules/VehicleSelection';
 import OrderSummary from '@/components/molecules/OrderSummary';
 import { BookingData } from '@/components/organisms/BookingForm';
 import BookingForm from '@/components/organisms/BookingForm';
+import { useCustomerAuth } from '@/contexts/CustomerAuthContext';
 
 export interface VehicleSearchModalProps {
   isOpen: boolean;
@@ -20,6 +21,7 @@ const VehicleSearchModal: React.FC<VehicleSearchModalProps> = ({
   onClose,
   initialData,
 }) => {
+  const { token } = useCustomerAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [bookingData, setBookingData] = useState<Partial<BookingData>>(initialData || {});
 
@@ -94,11 +96,18 @@ const VehicleSearchModal: React.FC<VehicleSearchModalProps> = ({
       };
 
       // Step 1: Create booking
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      
+      // Add customer token if available
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
       const bookingResponse = await fetch('/api/bookings', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(bookingPayload),
       });
 

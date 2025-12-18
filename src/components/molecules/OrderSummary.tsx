@@ -7,6 +7,7 @@ import Input from '@/components/atoms/Input';
 import PhoneInput from '@/components/atoms/PhoneInput';
 import Badge from '@/components/atoms/Badge';
 import { BookingData } from '@/components/organisms/BookingForm';
+import { useCustomerAuth } from '@/contexts/CustomerAuthContext';
 
 interface Vehicle {
   id: string;
@@ -39,16 +40,41 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   onComplete,
   onBack,
 }) => {
-  const [customerInfo, setCustomerInfo] = useState({
-    name: bookingData.customerInfo?.name || '',
-    email: bookingData.customerInfo?.email || '',
-    phone: bookingData.customerInfo?.phone || '',
-  });
+  const { customer, isAuthenticated } = useCustomerAuth();
+
+  // Auto-fill customer info if logged in
+  const getInitialCustomerInfo = () => {
+    if (isAuthenticated && customer) {
+      return {
+        name: `${customer.firstName} ${customer.lastName}`,
+        email: customer.email,
+        phone: customer.phoneNumber || '',
+      };
+    }
+    return {
+      name: bookingData.customerInfo?.name || '',
+      email: bookingData.customerInfo?.email || '',
+      phone: bookingData.customerInfo?.phone || '',
+    };
+  };
+
+  const [customerInfo, setCustomerInfo] = useState(getInitialCustomerInfo());
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [loadingVehicle, setLoadingVehicle] = useState(true);
+
+  // Update customer info when auth state changes
+  useEffect(() => {
+    if (isAuthenticated && customer) {
+      setCustomerInfo({
+        name: `${customer.firstName} ${customer.lastName}`,
+        email: customer.email,
+        phone: customer.phoneNumber || '',
+      });
+    }
+  }, [isAuthenticated, customer]);
 
   // Fetch vehicle data from API
   useEffect(() => {

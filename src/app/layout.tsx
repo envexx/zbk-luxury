@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { CustomerAuthProvider } from "@/contexts/CustomerAuthContext";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 
 const inter = Inter({
@@ -98,7 +99,9 @@ export default function RootLayout({
       <body className={`${inter.variable} font-sans antialiased`}>
         <GoogleAnalytics />
         <AuthProvider>
-          {children}
+          <CustomerAuthProvider>
+            {children}
+          </CustomerAuthProvider>
         </AuthProvider>
       </body>
     </html>
