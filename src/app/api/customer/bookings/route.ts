@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const customerId = decoded.id;
+    const customerId = decoded.customerId;
 
     // Get all bookings for this customer
     const bookings = await prisma.booking.findMany({
