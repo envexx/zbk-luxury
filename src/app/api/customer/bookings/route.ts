@@ -40,11 +40,10 @@ export async function GET(request: NextRequest) {
           select: {
             id: true,
             name: true,
-            brand: true,
             model: true,
-            image: true,
-            category: true,
+            year: true,
             capacity: true,
+            images: true,
           },
         },
       },

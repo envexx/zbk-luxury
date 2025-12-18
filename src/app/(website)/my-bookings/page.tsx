@@ -9,11 +9,10 @@ import { Calendar, MapPin, Clock, DollarSign, CheckCircle, XCircle, AlertCircle 
 interface Vehicle {
   id: string;
   name: string;
-  brand: string;
   model: string;
-  image: string | null;
-  category: string;
+  year: number;
   capacity: number;
+  images: string[];
 }
 
 interface Booking {
@@ -212,9 +211,9 @@ const MyBookingsPage = () => {
                     {/* Vehicle Info */}
                     <div className="flex items-start space-x-4 flex-1">
                       <div className="relative w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-white/5">
-                        {booking.vehicle.image ? (
+                        {booking.vehicle.images && booking.vehicle.images.length > 0 ? (
                           <Image
-                            src={booking.vehicle.image}
+                            src={booking.vehicle.images[0]}
                             alt={booking.vehicle.name}
                             fill
                             className="object-cover"
@@ -230,7 +229,7 @@ const MyBookingsPage = () => {
                           {booking.vehicle.name}
                         </h3>
                         <p className="text-gray-300 text-sm mb-2">
-                          {booking.vehicle.brand} {booking.vehicle.model}
+                          {booking.vehicle.model} • {booking.vehicle.year}
                         </p>
                         <p className="text-luxury-gold text-sm font-medium">
                           Booking #{booking.bookingNumber}
