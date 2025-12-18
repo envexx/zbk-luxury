@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
       try {
         const decoded = verifyCustomerToken(token);
         if (decoded && decoded.type === 'customer') {
-          customerId = decoded.id;
+          customerId = decoded.customerId;
         }
       } catch (error) {
         // Token is invalid or expired, but booking can still proceed
