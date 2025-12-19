@@ -12,7 +12,7 @@ async function getBlogPost(slug: string): Promise<BlogPost | null> {
     excerpt: 'Discover why Toyota Alphard has become the top choice for luxury travel worldwide. From advanced features to unparalleled comfort, learn everything you need to know about this premium MPV.',
     content: 'Full content here...',
     author: 'ZBK Luxury Team',
-    image: '/Hero.jpg',
+    images: ['/Hero.jpg'], // Changed to array
     tags: ['toyota-alphard', 'toyota-hiace', 'luxury-mpv', 'premium-rental', 'business', 'family', 'zbk-luxury'],
     publishedAt: '2025-11-15T10:00:00Z',
     createdAt: '2025-11-15T10:00:00Z',

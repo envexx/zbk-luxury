@@ -169,7 +169,7 @@ model BlogPost {
   slug        String    @unique
   excerpt     String
   content     String
-  image       String?
+  images      String[] // Multiple images support (max 5)
   author      String
   publishedAt DateTime?
   isPublished Boolean   @default(false)

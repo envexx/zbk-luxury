@@ -99,7 +99,7 @@ At ZBK Luxury, we specialize in providing premium transportation services for we
 - Audi A8
 
 Contact us today to make your wedding transportation dreams come true!`,
-        image: '/api/placeholder/800/600',
+        images: ['/api/placeholder/800/600'], // Changed to array
         author: 'ZBK Luxury Team',
         isPublished: true,
         tags: ['wedding', 'luxury', 'jakarta', 'transportation', 'guide'],

@@ -73,7 +73,7 @@ export async function GET() {
           slug: 'ultimate-guide-luxury-car-rental-jakarta',
           excerpt: 'Discover the best luxury car rental services in Jakarta for your special occasions.',
           content: 'Jakarta, the bustling capital of Indonesia, offers numerous luxury car rental options for discerning customers. Whether you need transportation for a wedding, corporate event, or special occasion, choosing the right luxury vehicle can make all the difference...',
-          image: '/api/placeholder/800/600',
+          images: ['/api/placeholder/800/600'], // Changed to array
           author: 'ZBK Luxury Team',
           isPublished: true,
           tags: ['luxury', 'jakarta', 'rental', 'guide'],

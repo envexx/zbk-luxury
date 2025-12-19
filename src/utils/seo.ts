@@ -87,7 +87,7 @@ export function generateBlogPostSEO(post: BlogPost): Metadata {
       'luxury mpv rental',
       'ZBK luxury'
     ],
-    ogImage: post.image,
+    ogImage: post.images?.[0], // Use first image as OG image
     canonicalUrl: `/blog/${post.slug}`,
     publishedTime: post.publishedAt,
     modifiedTime: post.updatedAt,
@@ -146,7 +146,7 @@ export function generateStructuredData(post: BlogPost) {
     '@type': 'BlogPosting',
     headline: post.title,
     description: post.excerpt,
-    image: post.image,
+    image: post.images?.[0], // Use first image as featured image
     author: {
       '@type': 'Person',
       name: post.author,

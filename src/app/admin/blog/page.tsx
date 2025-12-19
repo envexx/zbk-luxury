@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { FileText, Plus, Edit, Trash, Eye, Search, Filter, CheckCircle, XCircle, X } from '@/components/admin/Icons'
 import BlogModal from '@/components/admin/BlogModal'
+import { markdownToHtml } from '@/utils/markdown'
 
 interface BlogPost {
   id: string
@@ -10,7 +11,7 @@ interface BlogPost {
   slug: string
   excerpt: string
   content: string
-  image: string
+  images: string[] // Changed to array for multiple images
   author: string
   isPublished: boolean
   tags: string[]
@@ -341,9 +342,9 @@ export default function BlogPage() {
                     <td className="px-4 py-4">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10">
-                          {post.image ? (
+                          {post.images && post.images.length > 0 ? (
                             <img
-                              src={post.image}
+                              src={post.images[0]}
                               alt={post.title}
                               className="h-10 w-10 rounded-lg object-cover"
                             />
@@ -454,12 +455,13 @@ export default function BlogPage() {
 
             {/* Content */}
             <div className="p-6">
-              {previewPost.image && (
+              {/* Cover Image (First image) */}
+              {previewPost.images && previewPost.images.length > 0 && (
                 <div className="mb-6">
                   <img
-                    src={previewPost.image}
+                    src={previewPost.images[0]}
                     alt={previewPost.title}
-                    className="w-full h-64 object-cover rounded-lg"
+                    className="w-full h-96 object-cover rounded-lg shadow-lg"
                   />
                 </div>
               )}
@@ -496,9 +498,27 @@ export default function BlogPage() {
               )}
 
               <div
-                className="prose dark:prose-invert max-w-none"
-                dangerouslySetInnerHTML={{ __html: previewPost.content }}
+                className="prose prose-lg dark:prose-invert max-w-none mb-8"
+                dangerouslySetInnerHTML={{ __html: markdownToHtml(previewPost.content) }}
               />
+
+              {/* Additional Images Gallery */}
+              {previewPost.images && previewPost.images.length > 1 && (
+                <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Gallery</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {previewPost.images.slice(1).map((image, index) => (
+                      <div key={index} className="rounded-lg overflow-hidden shadow-md">
+                        <img
+                          src={image}
+                          alt={`Gallery image ${index + 2}`}
+                          className="w-full h-64 object-cover hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

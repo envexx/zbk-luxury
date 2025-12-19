@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
           slug: 'ultimate-guide-luxury-car-rental-2024',
           excerpt: 'Discover everything you need to know about renting luxury vehicles.',
           content: 'Full content here...',
-          image: '/api/placeholder/800/600',
+          images: ['/api/placeholder/800/600'], // Changed to array
           author: 'ZBK Team',
           publishedAt: new Date('2024-01-15'),
           isPublished: true,
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
         slug: body.slug || body.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
         excerpt: body.excerpt,
         content: body.content,
-        image: body.image,
+        images: body.images || [], // Changed to array
         author: body.author || 'ZBK Team',
         isPublished: body.isPublished || false,
         tags: body.tags || [],

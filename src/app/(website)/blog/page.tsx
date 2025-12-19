@@ -11,7 +11,7 @@ interface BlogPost {
   slug: string
   excerpt: string
   content: string
-  image?: string
+  images?: string[] // Changed to array
   author: string
   isPublished: boolean
   tags: string[]
@@ -126,9 +126,9 @@ export default function BlogPage() {
                       <div className="flex flex-col md:flex-row">
                         {/* Article Image - Cover */}
                         <div className="md:w-1/3 w-full h-48 md:h-auto relative bg-gray-200">
-                          {post.image ? (
+                          {post.images && post.images.length > 0 ? (
                             <Image
-                              src={post.image}
+                              src={post.images[0]}
                               alt={post.title}
                               fill
                               className="object-cover group-hover:scale-105 transition-transform duration-300"

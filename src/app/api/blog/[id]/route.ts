@@ -66,7 +66,7 @@ export async function PUT(
         slug,
         excerpt: body.excerpt,
         content: body.content,
-        image: body.image,
+        images: body.images || [], // Changed to array
         author: body.author || 'ZBK Team',
         isPublished: body.isPublished || false,
         tags: body.tags || [],

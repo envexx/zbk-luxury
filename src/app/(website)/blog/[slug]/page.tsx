@@ -6,7 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { BlogPost } from '@/types/blog';
 import BlogCard from '@/components/molecules/BlogCard';
-// Removed blogContent import - now using database
+import { markdownToHtml } from '@/utils/markdown';
 import '@/styles/blog.css';
 
 // Data akan diambil dari dataset dummy
@@ -159,11 +159,11 @@ export default function BlogPostPage() {
             </div>
           </div>
 
-          {/* Featured Image */}
-          {post.image && (
+          {/* Cover Image (First image) */}
+          {post.images && post.images.length > 0 && (
             <div className="mb-16 rounded-2xl overflow-hidden shadow-2xl bg-gray-100">
               <Image
-                src={post.image}
+                src={post.images[0]}
                 alt={post.title}
                 width={1200}
                 height={600}
@@ -174,9 +174,29 @@ export default function BlogPostPage() {
 
           {/* Article Content */}
           <div 
-            className="blog-content max-w-none mb-12"
-            dangerouslySetInnerHTML={{ __html: post.content }}
+            className="blog-content prose prose-lg max-w-none mb-12 dark:prose-invert"
+            dangerouslySetInnerHTML={{ __html: markdownToHtml(post.content) }}
           />
+
+          {/* Additional Images Gallery */}
+          {post.images && post.images.length > 1 && (
+            <div className="mb-16">
+              <h3 className="text-2xl font-bold text-deep-navy mb-6">Gallery</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {post.images.slice(1).map((image, index) => (
+                  <div key={index} className="rounded-xl overflow-hidden shadow-lg bg-gray-100 group">
+                    <Image
+                      src={image}
+                      alt={`${post.title} - Image ${index + 2}`}
+                      width={600}
+                      height={400}
+                      className="object-cover w-full h-auto transition-transform duration-500 group-hover:scale-110"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Tags */}
           <div className="mb-10 p-6 bg-gray-50 rounded-xl border border-gray-200">

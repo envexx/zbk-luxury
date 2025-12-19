@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { X, FileText, Upload, Eye } from '@/components/admin/Icons'
+import { markdownToHtml } from '@/utils/markdown'
 
 interface BlogPost {
   id?: string
@@ -9,7 +10,7 @@ interface BlogPost {
   slug: string
   excerpt: string
   content: string
-  image: string
+  images: string[] // Changed to array for multiple images
   author: string
   isPublished: boolean
   tags: string[]
@@ -32,7 +33,7 @@ export default function BlogModal({ isOpen, onClose, onSave, blog, mode }: BlogM
     slug: '',
     excerpt: '',
     content: '',
-    image: '',
+    images: [], // Changed to array
     author: 'ZBK Team',
     isPublished: false,
     tags: []
@@ -46,6 +47,8 @@ export default function BlogModal({ isOpen, onClose, onSave, blog, mode }: BlogM
     if (blog && mode === 'edit') {
       setFormData({
         ...blog,
+        // Ensure images is always an array (handle old data with 'image' field)
+        images: blog.images && Array.isArray(blog.images) ? blog.images : [],
         publishedAt: blog.publishedAt ? new Date(blog.publishedAt).toISOString().split('T')[0] : ''
       })
       setTagsInput(blog.tags.join(', '))
@@ -56,7 +59,7 @@ export default function BlogModal({ isOpen, onClose, onSave, blog, mode }: BlogM
         slug: '',
         excerpt: '',
         content: '',
-        image: '',
+        images: [], // Changed to array
         author: 'ZBK Team',
         isPublished: false,
         tags: []
@@ -101,25 +104,48 @@ export default function BlogModal({ isOpen, onClose, onSave, blog, mode }: BlogM
       .replace(/(^-|-$)/g, '')
   }
 
-  const handleFileUpload = async (file: File) => {
-    console.log('🔄 Starting blog image upload...', file.name)
+  const handleFileUpload = async (files: FileList) => {
+    console.log('🔄 Starting blog images upload...', files.length, 'files')
+    
+    // Check max 5 images limit
+    if (formData.images.length + files.length > 5) {
+      alert(`Maximum 5 images allowed. You can only add ${5 - formData.images.length} more image(s).`)
+      return
+    }
+    
     setIsUploading(true)
 
     try {
-      // Validate file
-      if (!file.type.startsWith('image/')) {
-        alert(`${file.name} is not an image file`)
-        return
+      // Validate files first
+      const validFiles: File[] = []
+      for (const file of Array.from(files)) {
+        console.log('📁 Processing file:', file.name, file.type, file.size)
+        
+        if (!file.type.startsWith('image/')) {
+          console.warn('❌ Invalid file type:', file.type)
+          alert(`${file.name} is not an image file`)
+          continue
+        }
+        
+        if (file.size > 5 * 1024 * 1024) { // 5MB limit
+          console.warn('❌ File too large:', file.size)
+          alert(`${file.name} is too large. Maximum size is 5MB`)
+          continue
+        }
+
+        validFiles.push(file)
       }
-      
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        alert(`${file.name} is too large. Maximum size is 5MB`)
+
+      if (validFiles.length === 0) {
+        console.warn('⚠️ No valid files to upload')
         return
       }
 
-      // Upload file to server
+      // Upload files to server
       const uploadFormData = new FormData()
-      uploadFormData.append('files', file)
+      validFiles.forEach(file => {
+        uploadFormData.append('files', file)
+      })
       uploadFormData.append('type', 'blog')
 
       console.log('📤 Uploading to server...')
@@ -135,25 +161,37 @@ export default function BlogModal({ isOpen, onClose, onSave, blog, mode }: BlogM
       const result = await response.json()
       console.log('✅ Upload response:', result)
 
-      if (result.success && result.files && result.files.length > 0) {
-        // Update form data with uploaded image URL
+      if (result.success && result.files) {
+        // Append new images to existing ones
+        const updatedImages = [...formData.images, ...result.files]
+        console.log('🔄 Updated images array:', updatedImages)
+        
         setFormData(prev => ({
           ...prev,
-          image: result.files[0]
+          images: updatedImages
         }))
-        console.log('✅ Image URL updated:', result.files[0])
+        
+        console.log('✅ State updated with server paths')
       } else {
         throw new Error(result.error || 'Upload failed')
       }
       
     } catch (error) {
-      console.error('❌ Error uploading file:', error)
+      console.error('❌ Error uploading files:', error)
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-      alert(`Error uploading image: ${errorMessage}`)
+      alert(`Error uploading files: ${errorMessage}`)
     } finally {
       setIsUploading(false)
       console.log('🏁 Upload process completed')
     }
+  }
+
+  const removeImage = (index: number) => {
+    const updatedImages = formData.images.filter((_, i) => i !== index)
+    setFormData(prev => ({
+      ...prev,
+      images: updatedImages
+    }))
   }
 
   if (!isOpen) return null
@@ -246,67 +284,84 @@ export default function BlogModal({ isOpen, onClose, onSave, blog, mode }: BlogM
                 </div>
               </div>
 
-              {/* Featured Image */}
+              {/* Blog Images (Max 5) */}
               <div>
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Featured Image</h3>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                  Blog Images
+                  <span className="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">
+                    (Maximum 5 images - First image will be cover)
+                  </span>
+                </h3>
                 <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Image URL
-                    </label>
-                    <input
-                      type="url"
-                      name="image"
-                      value={formData.image}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 dark:bg-gray-700 dark:text-white bg-white text-gray-900"
-                      placeholder="https://example.com/image.jpg"
-                    />
-                  </div>
-                  
-                  {/* Image Preview */}
-                  {formData.image && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Preview
-                      </label>
-                      <img
-                        src={formData.image}
-                        alt="Featured"
-                        className="w-full max-w-md h-48 object-cover rounded-lg border border-gray-200 dark:border-gray-600"
-                      />
-                    </div>
-                  )}
-                  
-                  {/* Upload Alternative */}
-                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4">
+                  {/* Upload Section */}
+                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6">
                     <div className="text-center">
-                      <Upload className={`mx-auto h-8 w-8 ${isUploading ? 'text-yellow-500 animate-pulse' : 'text-gray-400'}`} />
-                      <div className="mt-2">
-                        <label htmlFor="blog-image" className={`cursor-pointer ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}>
-                          <span className="text-sm font-medium text-gray-900 dark:text-white">
-                            {isUploading ? 'Uploading...' : 'Upload featured image'}
+                      <Upload className={`mx-auto h-10 w-10 ${isUploading ? 'text-yellow-500 animate-pulse' : 'text-gray-400'}`} />
+                      <div className="mt-3">
+                        <label htmlFor="blog-images" className={`cursor-pointer ${isUploading || formData.images.length >= 5 ? 'opacity-50 pointer-events-none' : ''}`}>
+                          <span className="text-base font-medium text-gray-900 dark:text-white">
+                            {isUploading ? 'Uploading...' : formData.images.length >= 5 ? 'Maximum 5 images reached' : 'Upload blog images'}
                           </span>
-                          <span className="block text-xs text-gray-500 dark:text-gray-400">
-                            PNG, JPG, JPEG up to 5MB
+                          <span className="block text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            PNG, JPG, JPEG up to 5MB each ({formData.images.length}/5 images)
                           </span>
                         </label>
                         <input
-                          id="blog-image"
+                          id="blog-images"
                           type="file"
                           accept="image/*"
+                          multiple
                           className="hidden"
-                          disabled={isUploading}
+                          disabled={isUploading || formData.images.length >= 5}
                           onChange={(e) => {
-                            const file = e.target.files?.[0]
-                            if (file) {
-                              handleFileUpload(file)
+                            const files = e.target.files
+                            if (files && files.length > 0) {
+                              handleFileUpload(files)
                             }
+                            e.target.value = '' // Reset input
                           }}
                         />
                       </div>
                     </div>
                   </div>
+
+                  {/* Images Preview Grid */}
+                  {formData.images.length > 0 && (
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Uploaded Images {formData.images.length > 0 && `(${formData.images.length})`}
+                      </label>
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                        {formData.images.map((image, index) => (
+                          <div key={index} className="relative group">
+                            <div className="aspect-square rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-600">
+                              <img
+                                src={image}
+                                alt={`Blog image ${index + 1}`}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            {index === 0 && (
+                              <div className="absolute top-1 left-1 bg-yellow-500 text-white text-xs font-bold px-2 py-0.5 rounded">
+                                COVER
+                              </div>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => removeImage(index)}
+                              className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                              title="Remove image"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                            <div className="text-center mt-1 text-xs text-gray-500 dark:text-gray-400">
+                              Image {index + 1}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -385,19 +440,41 @@ export default function BlogModal({ isOpen, onClose, onSave, blog, mode }: BlogM
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{formData.title}</h1>
                 <p className="text-gray-600 dark:text-gray-400">By {formData.author}</p>
                 
-                {formData.image && (
-                  <img
-                    src={formData.image}
-                    alt={formData.title}
-                    className="w-full h-64 object-cover rounded-lg"
-                  />
+                {/* Cover Image (First image) */}
+                {formData.images.length > 0 && (
+                  <div className="my-6">
+                    <img
+                      src={formData.images[0]}
+                      alt={formData.title}
+                      className="w-full h-96 object-cover rounded-lg shadow-lg"
+                    />
+                  </div>
                 )}
                 
                 <p className="text-lg text-gray-700 dark:text-gray-300 italic">{formData.excerpt}</p>
                 
-                <div className="whitespace-pre-wrap text-gray-900 dark:text-white">
-                  {formData.content}
-                </div>
+                <div 
+                  className="prose prose-lg max-w-none dark:prose-invert"
+                  dangerouslySetInnerHTML={{ __html: markdownToHtml(formData.content) }}
+                />
+
+                {/* Additional Images Gallery */}
+                {formData.images.length > 1 && (
+                  <div className="my-8 space-y-4">
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Gallery</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {formData.images.slice(1).map((image, index) => (
+                        <div key={index} className="rounded-lg overflow-hidden shadow-md">
+                          <img
+                            src={image}
+                            alt={`Gallery image ${index + 2}`}
+                            className="w-full h-64 object-cover hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 
                 {tagsInput && (
                   <div className="flex flex-wrap gap-2 mt-4">

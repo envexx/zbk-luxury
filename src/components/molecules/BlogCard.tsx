@@ -25,7 +25,7 @@ const BlogCard: React.FC<BlogCardProps> = ({ post, featured = false }) => {
         <Link href={`/blog/${post.slug}`}>
           <div className="aspect-w-16 aspect-h-9 relative">
             <Image
-              src={post.image || '/4.-alphard-colors-black.png'}
+              src={post.images?.[0] || '/4.-alphard-colors-black.png'}
               alt={post.title}
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -79,7 +79,7 @@ const BlogCard: React.FC<BlogCardProps> = ({ post, featured = false }) => {
       <Link href={`/blog/${post.slug}`}>
         <div className="aspect-w-16 aspect-h-10 relative">
           <Image
-            src={post.image || '/4.-alphard-colors-black.png'}
+            src={post.images?.[0] || '/4.-alphard-colors-black.png'}
             alt={post.title}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-300"

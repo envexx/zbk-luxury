@@ -73,7 +73,80 @@ module.exports = {
         'standard': '200ms',
         'entrance': '300ms',
       },
+      typography: {
+        DEFAULT: {
+          css: {
+            maxWidth: 'none',
+            color: '#374151',
+            h1: {
+              fontWeight: '800',
+              fontSize: '2.5rem',
+              marginTop: '2rem',
+              marginBottom: '1rem',
+            },
+            h2: {
+              fontWeight: '700',
+              fontSize: '2rem',
+              marginTop: '1.75rem',
+              marginBottom: '0.875rem',
+            },
+            h3: {
+              fontWeight: '600',
+              fontSize: '1.5rem',
+              marginTop: '1.5rem',
+              marginBottom: '0.75rem',
+            },
+            a: {
+              color: '#D4AF37',
+              textDecoration: 'none',
+              '&:hover': {
+                color: '#C9A227',
+                textDecoration: 'underline',
+              },
+            },
+            strong: {
+              fontWeight: '700',
+              color: '#111827',
+            },
+            code: {
+              backgroundColor: '#F3F4F6',
+              padding: '0.25rem 0.5rem',
+              borderRadius: '0.25rem',
+              fontWeight: '500',
+            },
+            table: {
+              width: '100%',
+              marginTop: '2rem',
+              marginBottom: '2rem',
+            },
+            thead: {
+              borderBottomWidth: '2px',
+              borderBottomColor: '#E5E7EB',
+            },
+            'thead th': {
+              paddingTop: '0.75rem',
+              paddingBottom: '0.75rem',
+              paddingLeft: '1rem',
+              paddingRight: '1rem',
+              fontWeight: '600',
+              textAlign: 'left',
+            },
+            'tbody td': {
+              paddingTop: '0.75rem',
+              paddingBottom: '0.75rem',
+              paddingLeft: '1rem',
+              paddingRight: '1rem',
+            },
+            'tbody tr': {
+              borderBottomWidth: '1px',
+              borderBottomColor: '#F3F4F6',
+            },
+          },
+        },
+      },
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/typography'),
+  ],
 }

@@ -4,7 +4,7 @@ export interface BlogPost {
   slug: string;
   excerpt: string;
   content: string;
-  image: string; // Changed from featuredImage to match database
+  images: string[]; // Changed to array for multiple images support
   author: string; // Simplified to string to match database
   tags: string[];
   publishedAt: string;
