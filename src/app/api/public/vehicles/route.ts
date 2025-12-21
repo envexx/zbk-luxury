@@ -25,9 +25,14 @@ export async function GET(request: NextRequest) {
 
     const vehicles = await prisma.vehicle.findMany({
       where: whereClause,
-      orderBy: {
-        name: 'asc'
-      }
+      orderBy: [
+        {
+          carouselOrder: 'asc' // Order by carousel order first (1, 2, 3, etc.)
+        },
+        {
+          name: 'asc' // Then alphabetically by name for vehicles without carousel order
+        }
+      ]
     })
 
     // Transform data for public consumption

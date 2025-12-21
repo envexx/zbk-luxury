@@ -23,6 +23,7 @@ interface Vehicle {
   price12Hours?: number
   price?: number
   minimumHours?: number
+  carouselOrder?: number
   features: string[]
   images: string[]
   description?: string

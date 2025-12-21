@@ -23,6 +23,7 @@ interface Vehicle {
   price6Hours?: number;
   price12Hours?: number;
   services?: string[];
+  carouselOrder?: number;
   images: string[];
   features: string[];
 }

@@ -20,6 +20,7 @@ interface Vehicle {
   price6Hours?: number
   price12Hours?: number
   services?: string[]
+  carouselOrder?: number
   purchaseDate: string
   purchasePrice: number
   mileage: string

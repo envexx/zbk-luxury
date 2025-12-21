@@ -16,6 +16,7 @@ export interface Vehicle {
   engine?: string;
   fuel?: string;
   doors?: number;
+  carouselOrder?: number;
 }
 
 // Real fleet data - Toyota vehicles

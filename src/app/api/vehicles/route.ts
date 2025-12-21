@@ -6,9 +6,14 @@ import { vehicleData, getAvailableVehicles } from '@/data/vehicleData'
 export async function GET() {
   try {
     const vehicles = await prisma.vehicle.findMany({
-      orderBy: {
-        createdAt: 'desc'
-      }
+      orderBy: [
+        {
+          carouselOrder: 'asc' // Order by carousel order first (1, 2, 3, etc.)
+        },
+        {
+          createdAt: 'desc' // Then by creation date for vehicles without carousel order
+        }
+      ]
     })
     
     return NextResponse.json({

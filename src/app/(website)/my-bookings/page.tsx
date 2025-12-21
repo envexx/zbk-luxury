@@ -12,6 +12,7 @@ interface Vehicle {
   model: string;
   year: number;
   capacity: number;
+  carouselOrder?: number;
   images: string[];
 }
 

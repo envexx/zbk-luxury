@@ -19,6 +19,7 @@ export interface Vehicle {
   engine?: string;
   fuel?: string;
   doors?: number;
+  carouselOrder?: number;
 }
 
 export interface Article {

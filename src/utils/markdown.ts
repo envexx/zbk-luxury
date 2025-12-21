@@ -35,3 +35,5 @@ export function calculateReadingTime(content: string): number {
   const wordCount = text.split(/\s+/).length;
   return Math.ceil(wordCount / 200); // Average 200 words per minute
 }
+
+

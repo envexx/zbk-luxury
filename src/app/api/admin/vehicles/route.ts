@@ -43,9 +43,14 @@ export async function GET(request: NextRequest) {
           }
         }
       },
-      orderBy: {
-        createdAt: 'desc'
-      }
+      orderBy: [
+        {
+          carouselOrder: 'asc' // Order by carousel order first (1, 2, 3, etc.)
+        },
+        {
+          createdAt: 'desc' // Then by creation date for vehicles without carousel order
+        }
+      ]
     })
 
     // Calculate revenue for each vehicle
@@ -88,6 +93,7 @@ export async function POST(request: NextRequest) {
       price12Hours,
       services,
       minimumHours,
+      carouselOrder,
       features,
       images,
       description
@@ -122,6 +128,7 @@ export async function POST(request: NextRequest) {
         price12Hours: price12Hours ? parseFloat(price12Hours) : null,
         services: services || [],
         minimumHours: minimumHours ? parseInt(minimumHours) : null,
+        carouselOrder: carouselOrder ? parseInt(carouselOrder) : null,
         purchaseDate: new Date(), // Set to current date as default
         purchasePrice: 0, // Set to 0 as default
         features: features || [],

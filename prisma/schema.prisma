@@ -77,6 +77,7 @@ model Vehicle {
   price12Hours         Float? // 12 hours rental/booking price
   services             String[] // Available services: ["AIRPORT_TRANSFER", "TRIP", "RENTAL"]
   minimumHours         Int? // Minimum booking hours
+  carouselOrder        Int? // Optional carousel display order (1, 2, 3, etc.)
   lastMaintenance      DateTime?
   nextMaintenance      DateTime?
   purchaseDate         DateTime

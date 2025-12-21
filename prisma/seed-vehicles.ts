@@ -29,6 +29,7 @@ async function seedVehicles() {
       price12Hours: 720.00, // 12 hours booking: $720
       services: ['AIRPORT_TRANSFER', 'TRIP', 'RENTAL'], // All services available
       minimumHours: 6, // Minimum 6 hours for rental
+      carouselOrder: 1, // Display order: #1
       purchaseDate: new Date('2024-01-01'),
       purchasePrice: 150000.00,
       mileage: '15000 km',
@@ -71,6 +72,7 @@ async function seedVehicles() {
       price12Hours: 660.00, // 12 hours booking: $660
       services: ['AIRPORT_TRANSFER', 'TRIP', 'RENTAL'], // All services available
       minimumHours: 6, // Minimum 6 hours for rental
+      carouselOrder: 2, // Display order: #2
       purchaseDate: new Date('2024-01-15'),
       purchasePrice: 90000.00,
       mileage: '8000 km',
@@ -112,6 +114,7 @@ async function seedVehicles() {
       price12Hours: 720.00, // 12 hours booking: $720
       services: ['AIRPORT_TRANSFER', 'TRIP', 'RENTAL'], // All services available
       minimumHours: 6, // Minimum 6 hours for rental
+      carouselOrder: 3, // Display order: #3
       purchaseDate: new Date('2023-06-01'),
       purchasePrice: 85000.00,
       mileage: '25000 km',
@@ -135,9 +138,9 @@ async function seedVehicles() {
   })
 
   console.log('✅ Vehicles seeded successfully!')
-  console.log(`Alphard: ${alphard.id} - Airport: $80, Trip: $60, 6hrs: $360, 12hrs: $720`)
-  console.log(`Noah: ${noah.id} - Airport: $75, Trip: $50, 6hrs: $360, 12hrs: $660`)
-  console.log(`Combi: ${combi.id} - Airport: $90, Trip: $70, 6hrs: $390, 12hrs: $720`)
+  console.log(`Alphard (Order: 1): ${alphard.id} - Airport: $80, Trip: $60, 6hrs: $360, 12hrs: $720`)
+  console.log(`Noah (Order: 2): ${noah.id} - Airport: $75, Trip: $50, 6hrs: $360, 12hrs: $660`)
+  console.log(`Combi (Order: 3): ${combi.id} - Airport: $90, Trip: $70, 6hrs: $390, 12hrs: $720`)
 }
 
 async function main() {

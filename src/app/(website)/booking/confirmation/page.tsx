@@ -16,6 +16,7 @@ interface Vehicle {
   category: string;
   capacity: number;
   price: number;
+  carouselOrder?: number;
   images: string[];
   description?: string;
 }

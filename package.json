@@ -40,6 +40,7 @@
     "eslint": "^9",
     "eslint-config-next": "^16.0.7",
     "prisma": "^5.22.0",
+    "tsx": "^4.19.2",
     "typescript": "^5"
   },
   "scripts": {
@@ -53,6 +54,11 @@
     "db:studio": "prisma studio",
     "db:setup": "node scripts/setup-database.js",
     "db:reset": "prisma db push --force-reset",
+    "db:seed": "npx tsx prisma/seed-complete.ts",
+    "db:seed:vehicles": "npx tsx prisma/seed-vehicles.ts",
+    "db:seed:blog": "node scripts/seed-blog.js",
+    "db:seed:customers": "node scripts/seed-test-customers.js",
+    "db:seed:all": "npm run db:generate && npm run db:seed",
     "test:db": "node --loader ts-node/esm -e \"import('./src/lib/prisma.js').then(m => m.prisma.$connect()).then(() => console.log('✅ Database connected!')).catch(e => console.error('❌ Connection failed:', e.message))\"",
     "test:create-data": "curl -X POST http://localhost:3000/api/test-data || echo 'Make sure dev server is running: npm run dev'",
     "test:email": "node scripts/send-test-email.js"

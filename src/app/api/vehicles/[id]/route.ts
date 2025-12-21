@@ -96,6 +96,9 @@ export async function PUT(
     if (body.minimumHours !== undefined) {
       updateData.minimumHours = body.minimumHours ? parseInt(body.minimumHours) : null
     }
+    if (body.carouselOrder !== undefined) {
+      updateData.carouselOrder = body.carouselOrder ? parseInt(body.carouselOrder) : null
+    }
     if (body.lastMaintenance) {
       updateData.lastMaintenance = new Date(body.lastMaintenance)
     }

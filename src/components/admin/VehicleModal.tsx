@@ -20,6 +20,7 @@ interface Vehicle {
   price6Hours?: number
   price12Hours?: number
   services?: string[]
+  carouselOrder?: number
   mileage: string
   features: string[]
   images: string[]
@@ -51,6 +52,7 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
     price6Hours: 0,
     price12Hours: 0,
     services: [],
+    carouselOrder: undefined,
     mileage: '',
     features: [],
     images: [],
@@ -73,7 +75,8 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
         priceAirportTransfer: vehicle.priceAirportTransfer || 0,
         priceTrip: vehicle.priceTrip || 0,
         price6Hours: vehicle.price6Hours || 0,
-        price12Hours: vehicle.price12Hours || 0
+        price12Hours: vehicle.price12Hours || 0,
+        carouselOrder: vehicle.carouselOrder || undefined
       })
       setFeaturesInput(Array.isArray(vehicle.features) ? vehicle.features.join(', ') : '')
     } else {
@@ -94,6 +97,7 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
         price6Hours: 0,
         price12Hours: 0,
         services: [],
+        carouselOrder: undefined,
         mileage: '',
         features: [],
         images: [],
@@ -390,6 +394,25 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 dark:bg-gray-700 dark:text-white bg-white text-gray-900"
                   placeholder="Jakarta"
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Carousel Order
+                  <span className="text-xs text-gray-500 ml-2">(Optional - for display sorting)</span>
+                </label>
+                <input
+                  type="number"
+                  name="carouselOrder"
+                  value={formData.carouselOrder || ''}
+                  onChange={handleInputChange}
+                  min="1"
+                  max="99"
+                  placeholder="1, 2, 3..."
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 dark:bg-gray-700 dark:text-white bg-white text-gray-900"
+                />
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Set display order (e.g., 1 for first, 2 for second). Leave empty to sort by date.
+                </p>
               </div>
             </div>
           </div>
