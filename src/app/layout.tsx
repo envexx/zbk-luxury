@@ -68,9 +68,9 @@ export const metadata: Metadata = {
     siteName: "ZBK Limo Tours",
     images: [
       {
-        url: "/api/logo",
-        width: 800,
-        height: 600,
+        url: "https://www.zbktransportservices.com/logo-website.png",
+        width: 1200,
+        height: 630,
         alt: "ZBK Limo Tours - Premium Luxury Transportation",
       },
     ],
@@ -81,7 +81,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "ZBK Limo Tours - Premium Luxury Transportation Services",
     description: "Premium Toyota Alphard & Hiace rental for Airport Transfers, City Tours, and Special Events.",
-    images: ["/api/logo"],
+    images: ["https://www.zbktransportservices.com/logo-website.png"],
     creator: "@zbklimotours",
   },
   verification: {
@@ -94,8 +94,47 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "ZBK Limo Tours",
+    "alternateName": "ZBK Transport Services",
+    "url": "https://www.zbktransportservices.com",
+    "logo": "https://www.zbktransportservices.com/logo-website.png",
+    "image": "https://www.zbktransportservices.com/logo-website.png",
+    "description": "Premium Toyota Alphard & Hiace rental for Airport Transfers, City Tours, and Special Events. Experience luxury transportation tailored to your needs.",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Singapore",
+      "addressRegion": "Singapore",
+      "addressCountry": "SG"
+    },
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "contactType": "customer service",
+      "areaServed": ["SG", "MY"],
+      "availableLanguage": ["en", "id", "zh"]
+    },
+    "sameAs": [
+      "https://www.facebook.com/zbklimotours",
+      "https://www.instagram.com/zbklimotours"
+    ],
+    "founder": {
+      "@type": "Person",
+      "name": "ZBK Limo Tours"
+    },
+    "foundingDate": "2020",
+    "slogan": "Premium Luxury Transportation Services"
+  };
+
   return (
     <html lang="en">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className={`${inter.variable} font-sans antialiased`}>
         <GoogleAnalytics />
         <AuthProvider>

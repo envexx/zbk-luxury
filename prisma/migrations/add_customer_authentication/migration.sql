@@ -44,3 +44,4 @@ ALTER TABLE "bookings" ADD CONSTRAINT "bookings_customerId_fkey" FOREIGN KEY ("c
 
 
 
+
