@@ -198,101 +198,103 @@ export default function VehiclesPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
             Vehicle Management
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
             Manage your luxury vehicle fleet
           </p>
         </div>
         <button 
           onClick={handleAddVehicle}
-          className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
+          className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 sm:px-4 py-2 rounded-lg flex items-center justify-center space-x-2 transition-colors text-sm sm:text-base w-full sm:w-auto"
         >
-          <Plus className="h-5 w-5" />
+          <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
           <span>Add Vehicle</span>
         </button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-4 lg:p-6 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Vehicles</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{vehicles.length}</p>
+              <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Total</p>
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mt-1 sm:mt-2">{vehicles.length}</p>
             </div>
-            <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
-              <Car className="h-6 w-6 text-white" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+              <Car className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-4 lg:p-6 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Available</p>
-              <p className="text-3xl font-bold text-green-600 mt-2">{Array.isArray(vehicles) ? vehicles.filter(v => v.status === 'AVAILABLE').length : 0}</p>
+              <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Available</p>
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-green-600 mt-1 sm:mt-2">{Array.isArray(vehicles) ? vehicles.filter(v => v.status === 'AVAILABLE').length : 0}</p>
             </div>
-            <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
-              <CheckCircle className="h-6 w-6 text-white" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-green-500 rounded-lg flex items-center justify-center">
+              <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-4 lg:p-6 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Booked</p>
-              <p className="text-3xl font-bold text-blue-600 mt-2">{Array.isArray(vehicles) ? vehicles.filter(v => v.status === 'BOOKED' || v.status === 'RESERVED' || v.status === 'IN_USE').length : 0}</p>
+              <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Booked</p>
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600 mt-1 sm:mt-2">{Array.isArray(vehicles) ? vehicles.filter(v => v.status === 'BOOKED' || v.status === 'RESERVED' || v.status === 'IN_USE').length : 0}</p>
             </div>
-            <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
-              <XCircle className="h-6 w-6 text-white" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+              <XCircle className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-4 lg:p-6 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Maintenance</p>
-              <p className="text-3xl font-bold text-red-600 mt-2">{Array.isArray(vehicles) ? vehicles.filter(v => v.status === 'MAINTENANCE').length : 0}</p>
+              <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Maintenance</p>
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-red-600 mt-1 sm:mt-2">{Array.isArray(vehicles) ? vehicles.filter(v => v.status === 'MAINTENANCE').length : 0}</p>
             </div>
-            <div className="w-12 h-12 bg-red-500 rounded-lg flex items-center justify-center">
-              <Settings className="h-6 w-6 text-white" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-red-500 rounded-lg flex items-center justify-center">
+              <Settings className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Vehicles Table */}
+      {/* Vehicles List - Desktop Table / Mobile Cards */}
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
             Vehicle List
           </h2>
         </div>
-        <div className="overflow-x-auto">
+        
+        {/* Desktop Table View - Hidden on mobile */}
+        <div className="hidden lg:block overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Vehicle
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Model & Year
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Plate Number
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -300,27 +302,27 @@ export default function VehiclesPage() {
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               {Array.isArray(vehicles) && vehicles.map((vehicle, index) => (
                 <tr key={vehicle.id || `vehicle-${index}`} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900 dark:text-white">
                       {vehicle.name}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-500 dark:text-gray-300">
                       {vehicle.model} ({vehicle.year})
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-500 dark:text-gray-300">
                       {vehicle.plateNumber}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(vehicle.status)}`}>
                       {vehicle.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
                       <button 
                         onClick={() => handleViewVehicle(vehicle)}
@@ -354,6 +356,66 @@ export default function VehiclesPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Mobile Card View */}
+        <div className="lg:hidden divide-y divide-gray-200 dark:divide-gray-700">
+          {Array.isArray(vehicles) && vehicles.map((vehicle, index) => (
+            <div key={vehicle.id || `vehicle-${index}`} className="p-4 space-y-3">
+              <div className="flex items-start justify-between">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                    {vehicle.name}
+                  </h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                    {vehicle.model} ({vehicle.year})
+                  </p>
+                </div>
+                <span className={`ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full whitespace-nowrap ${getStatusColor(vehicle.status)}`}>
+                  {vehicle.status}
+                </span>
+              </div>
+              
+              <div className="text-xs text-gray-600 dark:text-gray-400">
+                <div className="flex items-center gap-1">
+                  <span className="font-medium">Plate:</span>
+                  <span>{vehicle.plateNumber}</span>
+                </div>
+                <div className="flex items-center gap-1 mt-1">
+                  <span className="font-medium">Capacity:</span>
+                  <span>{vehicle.capacity} seats</span>
+                </div>
+              </div>
+              
+              <div className="flex gap-2 pt-2">
+                <button 
+                  onClick={() => handleViewVehicle(vehicle)}
+                  className="flex-1 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 px-3 py-2 rounded-md text-xs font-medium flex items-center justify-center gap-1.5 transition-colors"
+                >
+                  <Eye className="h-3.5 w-3.5" />
+                  <span>View</span>
+                </button>
+                <button 
+                  onClick={() => handleEditVehicle(vehicle)}
+                  className="flex-1 text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 px-3 py-2 rounded-md text-xs font-medium flex items-center justify-center gap-1.5 transition-colors"
+                >
+                  <Edit className="h-3.5 w-3.5" />
+                  <span>Edit</span>
+                </button>
+                <button 
+                  onClick={() => handleDeleteVehicle(vehicle.id)}
+                  className={`flex-1 px-3 py-2 rounded-md text-xs font-medium flex items-center justify-center gap-1.5 transition-colors ${
+                    deleteConfirm === vehicle.id 
+                      ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400' 
+                      : 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30'
+                  }`}
+                >
+                  <Trash className="h-3.5 w-3.5" />
+                  <span>{deleteConfirm === vehicle.id ? 'Confirm?' : 'Delete'}</span>
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Vehicle Modal */}
@@ -367,100 +429,94 @@ export default function VehiclesPage() {
 
       {/* Preview Modal */}
       {isPreviewModalOpen && previewVehicle && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4">
           <div className="bg-white dark:bg-gray-800 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-                  <Eye className="h-6 w-6 text-white" />
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800 z-10">
+              <div className="flex items-center space-x-2 sm:space-x-3">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                  <Eye className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  <h2 className="text-base sm:text-xl font-semibold text-gray-900 dark:text-white">
                     Vehicle Preview
                   </h2>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 hidden sm:block">
                     Preview vehicle details
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setIsPreviewModalOpen(false)}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-2"
               >
-                <X className="h-6 w-6" />
+                <X className="h-5 w-5 sm:h-6 sm:w-6" />
               </button>
             </div>
 
             {/* Content */}
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               {previewVehicle.images && previewVehicle.images.length > 0 && (
-                <div className="mb-6">
+                <div className="mb-4 sm:mb-6">
                   <img
                     src={previewVehicle.images[0]}
                     alt={previewVehicle.name}
-                    className="w-full h-64 object-cover rounded-lg"
+                    className="w-full h-48 sm:h-64 object-cover rounded-lg"
                   />
                 </div>
               )}
               
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">
                 {previewVehicle.name}
               </h1>
               
-              <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Model</p>
-                  <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Model</p>
+                  <p className="text-sm sm:text-base lg:text-lg font-semibold text-gray-900 dark:text-white">
                     {previewVehicle.model} ({previewVehicle.year})
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Plate Number</p>
-                  <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Plate Number</p>
+                  <p className="text-sm sm:text-base lg:text-lg font-semibold text-gray-900 dark:text-white">
                     {previewVehicle.plateNumber}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Status</p>
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Status</p>
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(previewVehicle.status)}`}>
                     {previewVehicle.status}
                   </span>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Capacity</p>
-                  <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Capacity</p>
+                  <p className="text-sm sm:text-base lg:text-lg font-semibold text-gray-900 dark:text-white">
                     {previewVehicle.capacity} seats
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Color</p>
-                  <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Color</p>
+                  <p className="text-sm sm:text-base lg:text-lg font-semibold text-gray-900 dark:text-white">
                     {previewVehicle.color}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Location</p>
-                  <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Location</p>
+                  <p className="text-sm sm:text-base lg:text-lg font-semibold text-gray-900 dark:text-white">
                     {previewVehicle.location}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Mileage</p>
-                  <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                    {previewVehicle.mileage || 'N/A'}
                   </p>
                 </div>
               </div>
 
               {previewVehicle.features && previewVehicle.features.length > 0 && (
-                <div className="mb-6">
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Features</p>
+                <div className="mb-4 sm:mb-6">
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-2">Features</p>
                   <div className="flex flex-wrap gap-2">
                     {previewVehicle.features.map((feature, index) => (
                       <span
                         key={index}
-                        className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-md text-sm text-gray-700 dark:text-gray-300"
+                        className="px-2 sm:px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-md text-xs sm:text-sm text-gray-700 dark:text-gray-300"
                       >
                         {feature}
                       </span>
@@ -470,32 +526,32 @@ export default function VehiclesPage() {
               )}
 
               {previewVehicle.description && (
-                <div className="mb-6">
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Description</p>
-                  <p className="text-gray-700 dark:text-gray-300">
+                <div className="mb-4 sm:mb-6">
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-2">Description</p>
+                  <p className="text-sm text-gray-700 dark:text-gray-300">
                     {previewVehicle.description}
                   </p>
                 </div>
               )}
               
               {/* Pricing Information */}
-              <div className="mb-6">
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-3 font-semibold">Pricing Information</p>
-                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-3">
+              <div className="mb-4 sm:mb-6">
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-3 font-semibold">Pricing Information</p>
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 sm:p-4 space-y-3">
                   {/* One Way Services */}
                   <div>
                     <p className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-2">One Way Services</p>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-2 sm:gap-3">
                       {previewVehicle.priceAirportTransfer && (
-                        <div className="bg-white dark:bg-gray-800 rounded-md p-3 border border-gray-200 dark:border-gray-600">
+                        <div className="bg-white dark:bg-gray-800 rounded-md p-2 sm:p-3 border border-gray-200 dark:border-gray-600">
                           <p className="text-xs text-gray-500 dark:text-gray-400">Airport Transfer</p>
-                          <p className="text-lg font-bold text-luxury-gold">${previewVehicle.priceAirportTransfer.toFixed(2)}</p>
+                          <p className="text-base sm:text-lg font-bold text-luxury-gold">${previewVehicle.priceAirportTransfer.toFixed(2)}</p>
                         </div>
                       )}
                       {previewVehicle.priceTrip && (
-                        <div className="bg-white dark:bg-gray-800 rounded-md p-3 border border-gray-200 dark:border-gray-600">
+                        <div className="bg-white dark:bg-gray-800 rounded-md p-2 sm:p-3 border border-gray-200 dark:border-gray-600">
                           <p className="text-xs text-gray-500 dark:text-gray-400">Trip</p>
-                          <p className="text-lg font-bold text-luxury-gold">${previewVehicle.priceTrip.toFixed(2)}</p>
+                          <p className="text-base sm:text-lg font-bold text-luxury-gold">${previewVehicle.priceTrip.toFixed(2)}</p>
                         </div>
                       )}
                     </div>
@@ -504,17 +560,17 @@ export default function VehiclesPage() {
                   {/* Rental per Hours */}
                   <div>
                     <p className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-2">Rental per Hours</p>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-2 sm:gap-3">
                       {previewVehicle.price6Hours && (
-                        <div className="bg-white dark:bg-gray-800 rounded-md p-3 border border-gray-200 dark:border-gray-600">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">6 Hours Booking</p>
-                          <p className="text-lg font-bold text-luxury-gold">${previewVehicle.price6Hours.toFixed(2)}</p>
+                        <div className="bg-white dark:bg-gray-800 rounded-md p-2 sm:p-3 border border-gray-200 dark:border-gray-600">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">6 Hours</p>
+                          <p className="text-base sm:text-lg font-bold text-luxury-gold">${previewVehicle.price6Hours.toFixed(2)}</p>
                         </div>
                       )}
                       {previewVehicle.price12Hours && (
-                        <div className="bg-white dark:bg-gray-800 rounded-md p-3 border border-gray-200 dark:border-gray-600">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">12 Hours Booking</p>
-                          <p className="text-lg font-bold text-luxury-gold">${previewVehicle.price12Hours.toFixed(2)}</p>
+                        <div className="bg-white dark:bg-gray-800 rounded-md p-2 sm:p-3 border border-gray-200 dark:border-gray-600">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">12 Hours</p>
+                          <p className="text-base sm:text-lg font-bold text-luxury-gold">${previewVehicle.price12Hours.toFixed(2)}</p>
                         </div>
                       )}
                     </div>
