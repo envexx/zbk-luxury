@@ -38,6 +38,31 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     
+    // Log incoming request for debugging
+    console.log('📝 Booking request received:', {
+      vehicleId: body.vehicleId,
+      customerName: body.customerName,
+      customerEmail: body.customerEmail,
+      service: body.service,
+      serviceType: body.serviceType,
+      startDate: body.startDate,
+      endDate: body.endDate,
+      pickupLocation: body.pickupLocation,
+      dropoffLocation: body.dropoffLocation
+    })
+    
+    // Validate required fields
+    const requiredFields = ['customerName', 'customerEmail', 'customerPhone', 'vehicleId', 'startDate', 'pickupLocation']
+    const missingFields = requiredFields.filter(field => !body[field])
+    
+    if (missingFields.length > 0) {
+      console.error('❌ Missing required fields:', missingFields)
+      return NextResponse.json({
+        success: false,
+        error: `Missing required fields: ${missingFields.join(', ')}`
+      }, { status: 400 })
+    }
+    
     // Get vehicle details for price calculation
     const vehicle = await prisma.vehicle.findUnique({
       where: { id: body.vehicleId },
@@ -124,6 +149,14 @@ export async function POST(request: NextRequest) {
     const tax = subtotal * 0.1; // 10% tax
     const totalAmount = subtotal + tax;
     
+    console.log('💰 Calculated pricing:', {
+      serviceType,
+      subtotal,
+      tax,
+      totalAmount,
+      hours
+    })
+    
     const booking = await prisma.booking.create({
       data: {
         customerName: body.customerName,
@@ -133,14 +166,14 @@ export async function POST(request: NextRequest) {
         service: body.service || serviceType, // Keep legacy field
         serviceType: serviceType, // New field
         startDate: new Date(body.startDate),
-        endDate: new Date(body.endDate),
+        endDate: body.endDate ? new Date(body.endDate) : new Date(body.startDate),
         startTime: body.startTime || '09:00',
         duration: body.duration || '8 hours',
         pickupLocation: body.pickupLocation,
-        dropoffLocation: body.dropoffLocation,
+        dropoffLocation: body.dropoffLocation || body.pickupLocation,
         totalAmount: totalAmount,
         status: body.status || 'PENDING',
-        notes: body.notes,
+        notes: body.notes || '',
       },
       include: {
         vehicle: {
@@ -156,16 +189,26 @@ export async function POST(request: NextRequest) {
     // NOTE: Email notifications will be sent after payment confirmation via webhook
     // This ensures emails are only sent when payment is successful
     
+    console.log('✅ Booking created successfully:', booking.id)
+    
     return NextResponse.json({
       success: true,
       data: booking,
       message: 'Booking created successfully. Please proceed to payment.'
     }, { status: 201 })
   } catch (error) {
-    console.error('Error creating booking:', error)
+    console.error('❌ Error creating booking:', error)
+    
+    // Log detailed error information
+    if (error instanceof Error) {
+      console.error('Error message:', error.message)
+      console.error('Error stack:', error.stack)
+    }
+    
     return NextResponse.json({
       success: false,
-      error: 'Failed to create booking'
+      error: 'Failed to create booking',
+      details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 })
   }
 }

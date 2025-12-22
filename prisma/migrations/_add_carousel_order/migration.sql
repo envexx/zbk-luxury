@@ -8,3 +8,4 @@ ALTER TABLE "vehicles" ADD COLUMN "carouselOrder" INTEGER;
 -- UPDATE "vehicles" SET "carouselOrder" = 3 WHERE "model" = 'HIACE';
 
 
+
