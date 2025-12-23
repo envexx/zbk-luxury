@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Button from '@/components/atoms/Button';
 import Badge from '@/components/atoms/Badge';
 import { cn } from '@/utils/cn';
+import { getImagePath, isUploadedImage } from '@/utils/imagePath';
 
 export interface VehicleCardProps {
   id: string;
@@ -76,13 +77,31 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
     )}>
       {/* Image Section */}
       <div className="relative aspect-[16/10] overflow-hidden">
-        <Image
-          src={image}
-          alt={name}
-          fill
-          className="object-cover transition-all duration-700 group-hover:scale-105"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        />
+        {image.startsWith('/api/uploads/') || image.startsWith('/uploads/') ? (
+          // Use regular img tag for uploaded images (Next.js Image Optimization doesn't work with uploaded files)
+          <img
+            src={image.startsWith('/api/uploads/') ? image : getImagePath(image)}
+            alt={name}
+            className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              // Try original path if API route fails
+              if (target.src.includes('/api/uploads/')) {
+                const originalPath = image.replace('/api/uploads/', '/uploads/');
+                target.src = originalPath;
+              }
+            }}
+          />
+        ) : (
+          // Use Next.js Image for static images
+          <Image
+            src={image}
+            alt={name}
+            fill
+            className="object-cover transition-all duration-700 group-hover:scale-105"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        )}
         
         {/* Modern Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent opacity-60 group-hover:opacity-80 transition-all duration-500" />

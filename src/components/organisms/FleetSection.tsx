@@ -5,6 +5,7 @@ import VehicleCard from '@/components/molecules/VehicleCard';
 import Button from '@/components/atoms/Button';
 import VehicleSearchModal from '@/components/organisms/VehicleSearchModal';
 import { cn } from '@/utils/cn';
+import { getImagePath } from '@/utils/imagePath';
 
 interface Vehicle {
   id: string
@@ -145,7 +146,7 @@ const FleetSection: React.FC<FleetSectionProps> = ({
                     <VehicleCard
                       id={vehicle.id}
                       name={vehicle.name}
-                      image={vehicle.images?.[0] || '/4.-alphard-colors-black.png'}
+                      image={vehicle.images?.[0] ? getImagePath(vehicle.images[0]) : '/4.-alphard-colors-black.png'}
                       price={vehicle.pricePerHour || vehicle.price || 0}
                       priceUnit="trip"
                       seats={vehicle.capacity}
@@ -230,7 +231,7 @@ const FleetSection: React.FC<FleetSectionProps> = ({
                   <VehicleCard
                     id={vehicle.id}
                     name={vehicle.name}
-                    image={vehicle.images?.[0] || '/4.-alphard-colors-black.png'}
+                    image={vehicle.images?.[0] ? getImagePath(vehicle.images[0]) : '/4.-alphard-colors-black.png'}
                     price={vehicle.pricePerHour || vehicle.price || 0}
                     priceUnit="trip"
                     seats={vehicle.capacity}
