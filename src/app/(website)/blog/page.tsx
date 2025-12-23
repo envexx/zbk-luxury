@@ -127,7 +127,7 @@ export default function BlogPage() {
                       <div className="flex flex-col md:flex-row">
                         {/* Article Image - Cover */}
                         <div className="md:w-1/3 w-full h-48 md:h-auto relative bg-gray-200">
-                          {post.images && post.images.length > 0 ? (
+                          {post.images && post.images.length > 0 && post.images[0] ? (
                             <Image
                               src={getImagePath(post.images[0])}
                               alt={post.title}
@@ -136,7 +136,7 @@ export default function BlogPage() {
                               sizes="(max-width: 768px) 100vw, 33vw"
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
-                                if (target.src.includes('/api/uploads/')) {
+                                if (target.src.includes('/api/uploads/') && post.images?.[0]) {
                                   target.src = post.images[0];
                                 }
                               }}

@@ -161,7 +161,7 @@ export default function BlogPostPage() {
           </div>
 
           {/* Cover Image (First image) */}
-          {post.images && post.images.length > 0 && (
+          {post.images && post.images.length > 0 && post.images[0] && (
             <div className="mb-16 rounded-2xl overflow-hidden shadow-2xl bg-gray-100">
               <Image
                 src={getImagePath(post.images[0])}
@@ -171,7 +171,7 @@ export default function BlogPostPage() {
                 className="object-cover w-full h-auto transition-transform duration-300 hover:scale-105"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  if (target.src.includes('/api/uploads/')) {
+                  if (target.src.includes('/api/uploads/') && post.images?.[0]) {
                     target.src = post.images[0];
                   }
                 }}

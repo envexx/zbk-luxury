@@ -343,13 +343,13 @@ export default function BlogPage() {
                     <td className="px-4 py-4">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10">
-                          {post.images && post.images.length > 0 ? (
+                          {post.images && post.images.length > 0 && post.images[0] ? (
                             <img
                               src={getImagePath(post.images[0])}
                               alt={post.title}
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
-                                if (target.src.includes('/api/uploads/')) {
+                                if (target.src.includes('/api/uploads/') && post.images?.[0]) {
                                   target.src = post.images[0];
                                 }
                               }}
