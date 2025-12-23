@@ -59,6 +59,8 @@
     "db:seed:blog": "node scripts/seed-blog.js",
     "db:seed:customers": "node scripts/seed-test-customers.js",
     "db:seed:all": "npm run db:generate && npm run db:seed",
+    "db:setup:production": "npx prisma generate && npx prisma migrate deploy && npm run db:seed",
+    "db:migrate:deploy": "npx prisma migrate deploy",
     "test:db": "node --loader ts-node/esm -e \"import('./src/lib/prisma.js').then(m => m.prisma.$connect()).then(() => console.log('✅ Database connected!')).catch(e => console.error('❌ Connection failed:', e.message))\"",
     "test:create-data": "curl -X POST http://localhost:3000/api/test-data || echo 'Make sure dev server is running: npm run dev'",
     "test:email": "node scripts/send-test-email.js"
