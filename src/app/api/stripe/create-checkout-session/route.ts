@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { prisma } from '@/lib/prisma'
-import { calculateBookingPrice, calculateDeposit } from '@/utils/pricing'
+import { calculateBookingPriceNew } from '@/utils/pricing'
 
 // Helper function to get and validate Stripe secret key
 const getStripeSecretKey = (): string => {
@@ -143,38 +143,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Calculate total amount based on service type
+    // Calculate total amount using new pricing logic
     const hoursMatch = booking.duration?.match(/\d+/);
     const hours = hoursMatch ? parseInt(hoursMatch[0]) : 0;
     
     // Get service type from booking (should be set from frontend)
-    const serviceTypeFromBooking = (booking as any).serviceType as string | undefined;
+    const serviceTypeFromBooking = (booking as any).serviceType as 'AIRPORT_TRANSFER' | 'TRIP' | 'RENTAL' | undefined;
     
-    let subtotal = 0;
-    let serviceLabel = '';
+    // Determine service type if not set
+    let serviceType: 'AIRPORT_TRANSFER' | 'TRIP' | 'RENTAL' = serviceTypeFromBooking || 'RENTAL';
     
-    // Determine service type
-    if (serviceTypeFromBooking === 'AIRPORT_TRANSFER') {
-      // AIRPORT TRANSFER
-      subtotal = booking.vehicle.priceAirportTransfer || 100;
-      serviceLabel = 'Airport Transfer';
-    } else if (serviceTypeFromBooking === 'TRIP') {
-      // GENERAL TRIP
-      subtotal = booking.vehicle.priceTrip || 85;
-      serviceLabel = 'Trip';
-    } else if (serviceTypeFromBooking === 'RENTAL') {
-      // RENTAL: Calculate based on hours
-      if (hours >= 12 && booking.vehicle.price12Hours) {
-        subtotal = booking.vehicle.price12Hours;
-        serviceLabel = '12 Hours Rental';
-      } else if (hours >= 6 && booking.vehicle.price6Hours) {
-        subtotal = booking.vehicle.price6Hours;
-        serviceLabel = '6 Hours Rental';
-      } else {
-        subtotal = booking.vehicle.price6Hours || 360;
-        serviceLabel = '6 Hours Rental';
-      }
-    } else {
+    if (!serviceTypeFromBooking) {
       // Fallback: Detect from service field (legacy support)
       const serviceStr = (booking.service || '').toUpperCase();
       const pickupLower = (booking.pickupLocation || '').toLowerCase();
@@ -186,49 +165,49 @@ export async function POST(request: NextRequest) {
                        serviceStr.includes('AIRPORT');
       
       if (isOneWay) {
-        // Airport keywords and names
-        const airportKeywords = ['airport', 'terminal', 'bandara', 'arrival', 'departure', 'flight', 'gate'];
-        const airportNames = [
-          'ngurah rai', 'denpasar', 'dps', 'changi', 'singapore airport', 'sin',
-          'soekarno-hatta', 'soekarno hatta', 'soetta', 'cengkareng', 'cgk',
-          'juanda', 'sub', 'halim', 'lombok airport', 'praya', 'lop',
-          'klia', 'kul', 'suvarnabhumi', 'bkk', 'don mueang', 'dmk', 'hkg', 'hkt'
-        ];
-        
-        const checkLocation = (location: string) => {
-          return airportKeywords.some(kw => location.includes(kw)) || 
-                 airportNames.some(name => location.includes(name));
-        };
-        
-        const isAirportRelated = checkLocation(pickupLower) || checkLocation(dropoffLower);
-        
-        if (isAirportRelated) {
-          subtotal = booking.vehicle.priceAirportTransfer || 100;
-          serviceLabel = 'Airport Transfer';
-        } else {
-          subtotal = booking.vehicle.priceTrip || 85;
-          serviceLabel = 'Trip';
-        }
+        const { isAirportLocation } = await import('@/utils/pricing');
+        const isAirportRelated = isAirportLocation(pickupLower) || isAirportLocation(dropoffLower);
+        serviceType = isAirportRelated ? 'AIRPORT_TRANSFER' : 'TRIP';
       } else {
-        // RENTAL
-        if (hours >= 12 && booking.vehicle.price12Hours) {
-          subtotal = booking.vehicle.price12Hours;
-          serviceLabel = '12 Hours Rental';
-        } else if (hours >= 6 && booking.vehicle.price6Hours) {
-          subtotal = booking.vehicle.price6Hours;
-          serviceLabel = '6 Hours Rental';
-        } else {
-          subtotal = booking.vehicle.price6Hours || 360;
-          serviceLabel = '6 Hours Rental';
-        }
+        serviceType = 'RENTAL';
       }
     }
     
-    const tax = subtotal * 0.1; // 10% tax
-    const calculatedTotal = subtotal + tax;
+    // Calculate price using new pricing logic
+    const priceCalculation = calculateBookingPriceNew({
+      vehicle: {
+        priceAirportTransfer: booking.vehicle.priceAirportTransfer,
+        price6Hours: booking.vehicle.price6Hours,
+        price12Hours: booking.vehicle.price12Hours,
+        pricePerHour: (booking.vehicle as any).pricePerHour
+      },
+      serviceType,
+      pickupLocation: booking.pickupLocation,
+      dropoffLocation: booking.dropoffLocation || null,
+      startTime: booking.startTime,
+      startDate: booking.startDate,
+      hours: serviceType === 'RENTAL' ? hours : 0
+    });
     
-    // Use calculated total
-    const finalTotal = calculatedTotal;
+    const subtotal = priceCalculation.subtotal;
+    const midnightCharge = priceCalculation.midnightCharge;
+    const finalTotal = priceCalculation.total;
+    
+    // Generate service label
+    let serviceLabel = '';
+    if (serviceType === 'AIRPORT_TRANSFER') {
+      serviceLabel = 'Airport Transfer';
+    } else if (serviceType === 'TRIP') {
+      serviceLabel = 'Trip';
+    } else {
+      if (hours >= 12) {
+        serviceLabel = '12 Hours Rental';
+      } else if (hours >= 6) {
+        serviceLabel = '6 Hours Rental';
+      } else {
+        serviceLabel = `${hours} Hours Rental`;
+      }
+    }
     
     // Update booking with accurate total if different
     if (Math.abs(finalTotal - (booking.totalAmount || 0)) > 0.01) {
@@ -273,33 +252,40 @@ export async function POST(request: NextRequest) {
     
     // Use the calculated values from above
 
+    // Create line items for Stripe
+    const lineItems: any[] = [
+      {
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: `${booking.vehicle.name} - ${serviceLabel || booking.service}`,
+            description: `${serviceLabel || booking.service} • ${booking.pickupLocation} → ${booking.dropoffLocation || 'N/A'}`,
+          },
+          unit_amount: Math.round(subtotal * 100), // Subtotal in cents
+        },
+        quantity: 1,
+      }
+    ];
+    
+    // Add midnight charge if applicable
+    if (midnightCharge > 0) {
+      lineItems.push({
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: 'Midnight Pickup Charge',
+            description: 'Additional charge for pickup between 23:00 - 06:00',
+          },
+          unit_amount: Math.round(midnightCharge * 100), // Midnight charge in cents
+        },
+        quantity: 1,
+      });
+    }
+    
     // Create Stripe Checkout Session with detailed line items
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: `${booking.vehicle.name} - ${serviceLabel || booking.service}`,
-              description: `${serviceLabel || booking.service} • ${booking.pickupLocation} → ${booking.dropoffLocation}`,
-            },
-            unit_amount: Math.round(subtotal * 100), // Subtotal in cents
-          },
-          quantity: 1,
-        },
-        {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: 'Tax (10%)',
-              description: 'Service tax',
-            },
-            unit_amount: Math.round(tax * 100), // Tax in cents
-          },
-          quantity: 1,
-        },
-      ],
+      line_items: lineItems,
       // Ensure total matches what's displayed in OrderSummary
       // Total = subtotal + tax (already calculated above)
       mode: 'payment',
@@ -325,7 +311,7 @@ export async function POST(request: NextRequest) {
         startDate: booking.startDate.toISOString(),
         startTime: booking.startTime,
         subtotal: subtotal.toFixed(2),
-        tax: tax.toFixed(2),
+        midnightCharge: midnightCharge.toFixed(2),
         total: finalTotal.toFixed(2),
       },
       customer_email: booking.customerEmail,

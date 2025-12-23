@@ -16,7 +16,7 @@ interface Vehicle {
   color: string
   price?: number
   priceAirportTransfer?: number
-  priceTrip?: number
+  pricePerHour?: number
   price6Hours?: number
   price12Hours?: number
   services?: string[]
@@ -48,7 +48,7 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
     color: '',
     price: 0,
     priceAirportTransfer: 0,
-    priceTrip: 0,
+    pricePerHour: 0,
     price6Hours: 0,
     price12Hours: 0,
     services: [],
@@ -73,7 +73,7 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
         services: Array.isArray(vehicle.services) ? vehicle.services : [],
         luggage: vehicle.luggage || 4,
         priceAirportTransfer: vehicle.priceAirportTransfer || 0,
-        priceTrip: vehicle.priceTrip || 0,
+        pricePerHour: (vehicle as any).pricePerHour || 0,
         price6Hours: vehicle.price6Hours || 0,
         price12Hours: vehicle.price12Hours || 0,
         carouselOrder: vehicle.carouselOrder || undefined
@@ -93,7 +93,7 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
         color: '',
         price: 0,
         priceAirportTransfer: 0,
-        priceTrip: 0,
+        pricePerHour: 0,
         price6Hours: 0,
         price12Hours: 0,
         services: [],
@@ -123,8 +123,8 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
     }
     
     // Validate pricing fields
-    if (!formData.priceAirportTransfer || !formData.priceTrip || !formData.price6Hours || !formData.price12Hours) {
-      alert('Please fill in all pricing fields (Airport Transfer, Trip, 6 Hours, 12 Hours)')
+    if (!formData.priceAirportTransfer || !formData.pricePerHour || !formData.price6Hours || !formData.price12Hours) {
+      alert('Please fill in all pricing fields (Airport Transfer, Per Hour, 6 Hours, 12 Hours)')
       return
     }
     
@@ -158,7 +158,7 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
       ...prev,
       [name]: name === 'year' || name === 'capacity' || name === 'luggage'
         ? parseInt(value) || 0 
-        : name === 'price' || name === 'priceAirportTransfer' || name === 'priceTrip' || name === 'price6Hours' || name === 'price12Hours'
+        : name === 'price' || name === 'priceAirportTransfer' || name === 'pricePerHour' || name === 'price6Hours' || name === 'price12Hours'
         ? parseFloat(value) || 0
         : value
     }))
@@ -523,12 +523,12 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Trip Price ($) *
+                      Per Hour Price ($) *
                     </label>
                     <input
                       type="number"
-                      name="priceTrip"
-                      value={formData.priceTrip || 0}
+                      name="pricePerHour"
+                      value={formData.pricePerHour || 0}
                       onChange={handleInputChange}
                       min="0"
                       step="0.01"
@@ -537,7 +537,7 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
                       placeholder="60"
                     />
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      For general trip locations
+                      Used for additional rental hours (&lt; 6 hours or &gt; 12 hours) and TRIP service
                     </p>
                   </div>
                 </div>

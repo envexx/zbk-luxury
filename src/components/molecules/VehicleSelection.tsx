@@ -22,7 +22,7 @@ export interface Vehicle {
   description?: string;
   price?: number; // Legacy hourly rental price
   priceAirportTransfer?: number;
-  priceTrip?: number;
+  pricePerHour?: number;
   price6Hours?: number;
   price12Hours?: number;
   services?: string[];
@@ -416,7 +416,7 @@ const VehicleCardContent: React.FC<VehicleCardContentProps> = ({
                 <div className="text-2xl font-bold text-gray-900">
                   ${isAirportTrip 
                     ? (vehicle.priceAirportTransfer || 80)
-                    : (vehicle.priceTrip || 75)}
+                    : (vehicle.pricePerHour || 75)}
                 </div>
                 <div className="text-xs text-gray-600">/trip</div>
               </div>
@@ -724,7 +724,7 @@ const VehicleSelectionWrapper: React.FC<VehicleSelectionProps> = (props) => {
                   if (isOneWay) {
                     return isAirportTrip
                       ? (selectedVehicle.priceAirportTransfer || 80)
-                      : (selectedVehicle.priceTrip || 75);
+                      : (selectedVehicle.pricePerHour || 75);
                   } else {
                     // Round-trip: calculate based on hours
                     const hours = parseInt(bookingData?.hours || '0');

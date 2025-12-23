@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
         color: body.color,
         price: body.price !== undefined ? body.price : null,
         priceAirportTransfer: body.priceAirportTransfer || null,
-        priceTrip: body.priceTrip || null,
+        pricePerHour: body.pricePerHour || null,
         price6Hours: body.price6Hours || null,
         price12Hours: body.price12Hours || null,
         services: body.services || [],

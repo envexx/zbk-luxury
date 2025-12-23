@@ -71,10 +71,10 @@ model Vehicle {
   luggage              Int? // Luggage capacity
   color                String
   price                Float? // Legacy hourly rental price (deprecated)
-  priceAirportTransfer Float? // Airport Transfer price (One Way - Airport service)
-  priceTrip            Float? // Trip price (One Way - General trip service)
+  priceAirportTransfer Float? // Airport Transfer price (One Way - Airport to Home/Hotel/Destination)
   price6Hours          Float? // 6 hours rental/booking price
   price12Hours         Float? // 12 hours rental/booking price
+  pricePerHour         Float? // Per hour price (for TRIP service, rental < 6 hours, or additional hours > 6/12 hours)
   services             String[] // Available services: ["AIRPORT_TRANSFER", "TRIP", "RENTAL"]
   minimumHours         Int? // Minimum booking hours
   carouselOrder        Int? // Optional carousel display order (1, 2, 3, etc.)
@@ -257,6 +257,6 @@ enum MaintenanceStatus {
 
 enum ServiceType {
   AIRPORT_TRANSFER // One Way - Airport Transfer (priceAirportTransfer)
-  TRIP // One Way - General Trip (priceTrip)
-  RENTAL // Round Trip - Hourly Rental (price6Hours / price12Hours)
+  TRIP // One Way - General Trip (pricePerHour)
+  RENTAL // Round Trip - Hourly Rental (price6Hours / price12Hours / pricePerHour for additional hours)
 }

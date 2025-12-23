@@ -81,8 +81,8 @@ export async function PUT(
     if (body.priceAirportTransfer !== undefined) {
       updateData.priceAirportTransfer = parseFloat(body.priceAirportTransfer)
     }
-    if (body.priceTrip !== undefined) {
-      updateData.priceTrip = parseFloat(body.priceTrip)
+    if (body.pricePerHour !== undefined) {
+      updateData.pricePerHour = parseFloat(body.pricePerHour)
     }
     if (body.price6Hours !== undefined) {
       updateData.price6Hours = parseFloat(body.price6Hours)

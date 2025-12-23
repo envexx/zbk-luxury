@@ -79,27 +79,30 @@ async function seedZBKVehicles() {
             priceAirportTransfer: 80,
             price6Hours: 360,
             price12Hours: 720,
+            pricePerHour: 60,
             capacity: 6,
             luggage: 4,
-            services: ['TRIP', 'RENT']
+            services: ['AIRPORT_TRANSFER', 'TRIP', 'RENT']
           };
         } else if (vehicle.name === 'Toyota Noah') {
           updateData = {
             priceAirportTransfer: 75,
             price6Hours: 360,
             price12Hours: 660,
+            pricePerHour: 60,
             capacity: 6,
             luggage: 4,
-            services: ['TRIP', 'RENT']
+            services: ['AIRPORT_TRANSFER', 'TRIP', 'RENT']
           };
         } else if (vehicle.name === 'Toyota Combi') {
           updateData = {
             priceAirportTransfer: 90,
             price6Hours: 390,
             price12Hours: 720,
+            pricePerHour: 65,
             capacity: 9,
             luggage: 8,
-            services: ['TRIP', 'RENT']
+            services: ['AIRPORT_TRANSFER', 'TRIP', 'RENT']
           };
         }
         
@@ -121,7 +124,6 @@ async function seedZBKVehicles() {
         name: 'Toyota Alphard',
         model: 'Executive Lounge',
         year: 2024,
-        category: 'ALPHARD_PREMIUM',
         status: 'AVAILABLE',
         location: 'Jakarta',
         plateNumber: 'B 1234 ZBK',
@@ -132,7 +134,8 @@ async function seedZBKVehicles() {
         priceAirportTransfer: 80,
         price6Hours: 360,
         price12Hours: 720,
-        services: ['TRIP', 'RENT'],
+        pricePerHour: 60, // Used for TRIP service and additional rental hours
+        services: ['AIRPORT_TRANSFER', 'TRIP', 'RENT'],
         minimumHours: 6,
         purchaseDate: new Date('2024-01-01'),
         purchasePrice: 150000,
@@ -159,7 +162,6 @@ async function seedZBKVehicles() {
         name: 'Toyota Noah',
         model: 'Si GR Sport',
         year: 2024,
-        category: 'COMBI_TRANSPORT',
         status: 'AVAILABLE',
         location: 'Jakarta',
         plateNumber: 'B 5678 ZBK',
@@ -170,7 +172,8 @@ async function seedZBKVehicles() {
         priceAirportTransfer: 75,
         price6Hours: 360,
         price12Hours: 660,
-        services: ['TRIP', 'RENT'],
+        pricePerHour: 60, // Used for TRIP service and additional rental hours
+        services: ['AIRPORT_TRANSFER', 'TRIP', 'RENT'],
         minimumHours: 6,
         purchaseDate: new Date('2024-01-15'),
         purchasePrice: 95000,
@@ -197,7 +200,6 @@ async function seedZBKVehicles() {
         name: 'Toyota Combi',
         model: 'Hiace Premium',
         year: 2024,
-        category: 'COMBI_TRANSPORT',
         status: 'AVAILABLE',
         location: 'Jakarta',
         plateNumber: 'B 9012 ZBK',
@@ -208,7 +210,8 @@ async function seedZBKVehicles() {
         priceAirportTransfer: 90,
         price6Hours: 390,
         price12Hours: 720,
-        services: ['TRIP', 'RENT'],
+        pricePerHour: 65, // Used for TRIP service and additional rental hours
+        services: ['AIRPORT_TRANSFER', 'TRIP', 'RENT'],
         minimumHours: 6,
         purchaseDate: new Date('2024-02-01'),
         purchasePrice: 85000,

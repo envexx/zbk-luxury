@@ -19,9 +19,9 @@ interface Vehicle {
   luggage?: number;
   price?: number;
   priceAirportTransfer?: number;
-  priceTrip?: number;
   price6Hours?: number;
   price12Hours?: number;
+  pricePerHour?: number;
   services?: string[];
   carouselOrder?: number;
   images: string[];
@@ -102,24 +102,22 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
     fetchVehicle();
   }, [bookingData.selectedVehicleId]);
   
-  // Calculate pricing based on trip type (one-way vs round-trip) and service type
+  // Calculate pricing using new pricing logic
   const hours = parseInt(bookingData.hours) || 0;
-  let subtotal = 0;
-  let serviceTypeLabel = '';
   
   // Use service type from bookingData if available (set in VehicleSelection)
-  let serviceType: 'AIRPORT_TRANSFER' | 'TRIP' | 'RENTAL' = bookingData.serviceType || 'RENTAL';
-  
   const isOneWay = bookingData.tripType === 'one-way';
+  const [serviceType, setServiceType] = React.useState<'AIRPORT_TRANSFER' | 'TRIP' | 'RENTAL'>(
+    bookingData.serviceType || 'RENTAL'
+  );
   
-  if (isOneWay) {
-    // ONE WAY: Use service type determined in VehicleSelection step
-    // Fallback: Determine if it's Airport Transfer or Trip if not already set
-    if (!bookingData.serviceType) {
+  // Determine service type if not set
+  React.useEffect(() => {
+    if (isOneWay && !bookingData.serviceType) {
       const pickupLower = (bookingData.pickupLocation || '').toLowerCase();
       const dropoffLower = (bookingData.dropOffLocation || '').toLowerCase();
       
-      // Airport keywords and names (must match VehicleSelection)
+      // Airport keywords and names
       const airportKeywords = ['airport', 'terminal', 'bandara', 'changi', 'soekarno', 'hatta'];
       const airportNames = [
         'changi', 'suvarnabhumi', 'don mueang', 'noi bai', 'tan son nhat',
@@ -134,38 +132,63 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
       };
       
       const isAirportRelated = checkLocation(pickupLower) || checkLocation(dropoffLower);
-      
-      serviceType = isAirportRelated ? 'AIRPORT_TRANSFER' : 'TRIP';
+      setServiceType(isAirportRelated ? 'AIRPORT_TRANSFER' : 'TRIP');
+    } else if (!isOneWay) {
+      setServiceType('RENTAL');
+    } else if (bookingData.serviceType) {
+      setServiceType(bookingData.serviceType);
     }
-    
-    if (serviceType === 'AIRPORT_TRANSFER') {
-      // AIRPORT TRANSFER
-      subtotal = selectedVehicle?.priceAirportTransfer || 100;
-      serviceTypeLabel = 'Airport Transfer (One Way)';
-    } else {
-      // GENERAL TRIP
-      subtotal = selectedVehicle?.priceTrip || 85;
-      serviceTypeLabel = 'Trip (One Way)';
+  }, [isOneWay, bookingData.serviceType, bookingData.pickupLocation, bookingData.dropOffLocation]);
+  
+  // Calculate price using new pricing logic
+  const [priceCalculation, setPriceCalculation] = React.useState<{
+    subtotal: number;
+    midnightCharge: number;
+    total: number;
+    breakdown: any;
+  } | null>(null);
+  
+  React.useEffect(() => {
+    if (selectedVehicle) {
+      import('@/utils/pricing').then(({ calculateBookingPriceNew }) => {
+        const calculation = calculateBookingPriceNew({
+          vehicle: {
+            priceAirportTransfer: selectedVehicle.priceAirportTransfer,
+            price6Hours: selectedVehicle.price6Hours,
+            price12Hours: selectedVehicle.price12Hours,
+            pricePerHour: selectedVehicle.pricePerHour
+          },
+          serviceType,
+          pickupLocation: bookingData.pickupLocation,
+          dropoffLocation: bookingData.dropOffLocation,
+          startTime: bookingData.pickupTime,
+          startDate: bookingData.pickupDate,
+          hours: serviceType === 'RENTAL' ? hours : 0
+        });
+        setPriceCalculation(calculation);
+      });
     }
+  }, [selectedVehicle, serviceType, bookingData.pickupLocation, bookingData.dropOffLocation, bookingData.pickupTime, bookingData.pickupDate, hours]);
+  
+  const subtotal = priceCalculation?.subtotal || 0;
+  const midnightCharge = priceCalculation?.midnightCharge || 0;
+  const total = priceCalculation?.total || 0;
+  
+  // Generate service type label
+  let serviceTypeLabel = '';
+  if (serviceType === 'AIRPORT_TRANSFER') {
+    serviceTypeLabel = 'Airport Transfer (One Way)';
+  } else if (serviceType === 'TRIP') {
+    serviceTypeLabel = 'Trip (One Way)';
   } else {
-    // ROUND TRIP / RENTAL: Calculate based on hours
     if (hours <= 6) {
-      subtotal = selectedVehicle?.price6Hours || 360;
       serviceTypeLabel = `${hours} Hours Rental`;
     } else if (hours <= 12) {
-      subtotal = selectedVehicle?.price12Hours || 720;
       serviceTypeLabel = `${hours} Hours Rental`;
     } else {
-      // For > 12 hours, calculate hourly rate based on 12-hour price
-      const hourlyRate = (selectedVehicle?.price12Hours || 720) / 12;
-      subtotal = Math.round(hourlyRate * hours);
       serviceTypeLabel = `${hours} Hours Rental (Extended)`;
     }
-    serviceType = 'RENTAL';
   }
-  
-  const tax = subtotal * 0.1; // 10% tax
-  const total = subtotal + tax;
 
   const handleInputChange = (field: string, value: string) => {
     setCustomerInfo(prev => ({ ...prev, [field]: value }));
@@ -368,10 +391,12 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                 <span className="text-gray-700">Subtotal:</span>
                 <span className="font-semibold text-gray-900">${subtotal.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-700">Tax (10%):</span>
-                <span className="font-semibold text-gray-900">${tax.toFixed(2)}</span>
-              </div>
+              {midnightCharge > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-gray-700">Midnight Pickup Charge:</span>
+                  <span className="font-semibold text-gray-900">${midnightCharge.toFixed(2)}</span>
+                </div>
+              )}
               <div className="pt-3 border-t border-gray-200">
                 <div className="flex justify-between">
                   <span className="text-lg font-bold text-gray-900">Total Amount:</span>

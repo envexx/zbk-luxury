@@ -21,7 +21,7 @@ export async function POST() {
         color: 'Pearl White',
         price: 60.00,
         priceAirportTransfer: 80.00,
-        priceTrip: 60.00,
+        pricePerHour: 60.00,
         price6Hours: 360.00,
         price12Hours: 720.00,
         services: ['AIRPORT_TRANSFER', 'TRIP', 'RENTAL'],

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendEmail, emailTemplates } from '@/lib/email'
+import { calculateBookingPriceNew } from '@/utils/pricing'
 
 // POST /api/booking - Create booking from website
 export async function POST(request: NextRequest) {
@@ -43,9 +44,9 @@ export async function POST(request: NextRequest) {
         model: true,
         price: true,
         priceAirportTransfer: true,
-        priceTrip: true,
         price6Hours: true,
         price12Hours: true,
+        pricePerHour: true,
         services: true,
         minimumHours: true
       }
@@ -60,7 +61,6 @@ export async function POST(request: NextRequest) {
 
     // Calculate price based on service type and duration
     const durationHours = parseInt((duration || '6 hours').replace(' hours', '').replace(' hour', '')) || 6
-    let subtotal = 0
     
     // Determine service type
     let finalServiceType: 'AIRPORT_TRANSFER' | 'TRIP' | 'RENTAL' = serviceType || 'RENTAL'
@@ -87,24 +87,23 @@ export async function POST(request: NextRequest) {
       }
     }
     
-    // Calculate price based on service type
-    if (finalServiceType === 'AIRPORT_TRANSFER') {
-      subtotal = availableVehicle.priceAirportTransfer || 100
-    } else if (finalServiceType === 'TRIP') {
-      subtotal = availableVehicle.priceTrip || 85
-    } else {
-      // RENTAL: Calculate based on hours
-      if (durationHours >= 12 && availableVehicle.price12Hours) {
-        subtotal = availableVehicle.price12Hours
-      } else if (durationHours >= 6 && availableVehicle.price6Hours) {
-        subtotal = availableVehicle.price6Hours
-      } else {
-        subtotal = availableVehicle.price6Hours || 360
-      }
-    }
+    // Calculate price using new pricing logic
+    const priceCalculation = calculateBookingPriceNew({
+      vehicle: {
+        priceAirportTransfer: availableVehicle.priceAirportTransfer,
+        price6Hours: availableVehicle.price6Hours,
+        price12Hours: availableVehicle.price12Hours,
+        pricePerHour: availableVehicle.pricePerHour
+      },
+      serviceType: finalServiceType,
+      pickupLocation: pickupLocation,
+      dropoffLocation: dropoffLocation,
+      startTime: startTime,
+      startDate: startDate,
+      hours: finalServiceType === 'RENTAL' ? durationHours : 0
+    })
     
-    const tax = subtotal * 0.1 // 10% tax
-    const totalAmount = subtotal + tax
+    const totalAmount = priceCalculation.total
 
     // Create booking
     const booking = await prisma.booking.create({

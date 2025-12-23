@@ -82,9 +82,9 @@ async function main() {
         color: 'Black',
         price: 60.00,
         priceAirportTransfer: 80.00,
-        priceTrip: 60.00,
         price6Hours: 360.00,
         price12Hours: 720.00,
+        pricePerHour: 60.00,
         services: ['AIRPORT_TRANSFER', 'TRIP', 'RENTAL'],
         minimumHours: 6,
         carouselOrder: 1, // Position #1
@@ -130,9 +130,9 @@ async function main() {
         color: 'Silver',
         price: 50.00,
         priceAirportTransfer: 75.00,
-        priceTrip: 50.00,
         price6Hours: 360.00,
         price12Hours: 660.00,
+        pricePerHour: 60.00,
         services: ['AIRPORT_TRANSFER', 'TRIP', 'RENTAL'],
         minimumHours: 6,
         carouselOrder: 2, // Position #2
@@ -177,9 +177,9 @@ async function main() {
         color: 'White',
         price: 70.00,
         priceAirportTransfer: 90.00,
-        priceTrip: 70.00,
         price6Hours: 390.00,
         price12Hours: 720.00,
+        pricePerHour: 65.00,
         services: ['AIRPORT_TRANSFER', 'TRIP', 'RENTAL'],
         minimumHours: 6,
         carouselOrder: 3, // Position #3

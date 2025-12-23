@@ -16,7 +16,7 @@ interface Vehicle {
   luggage?: number
   color: string
   priceAirportTransfer?: number
-  priceTrip?: number
+  pricePerHour?: number
   price6Hours?: number
   price12Hours?: number
   services?: string[]
@@ -81,7 +81,7 @@ export default function VehiclesPage() {
             luggage: 4,
             color: 'Pearl White',
             priceAirportTransfer: 80,
-            priceTrip: 60,
+            pricePerHour: 60,
             price6Hours: 360,
             price12Hours: 720,
             services: ['AIRPORT_TRANSFER', 'TRIP', 'RENTAL'],
@@ -548,10 +548,10 @@ export default function VehiclesPage() {
                           <p className="text-base sm:text-lg font-bold text-luxury-gold">${previewVehicle.priceAirportTransfer.toFixed(2)}</p>
                         </div>
                       )}
-                      {previewVehicle.priceTrip && (
+                      {(previewVehicle as any).pricePerHour && (
                         <div className="bg-white dark:bg-gray-800 rounded-md p-2 sm:p-3 border border-gray-200 dark:border-gray-600">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">Trip</p>
-                          <p className="text-base sm:text-lg font-bold text-luxury-gold">${previewVehicle.priceTrip.toFixed(2)}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Per Hour</p>
+                          <p className="text-base sm:text-lg font-bold text-luxury-gold">${(previewVehicle as any).pricePerHour.toFixed(2)}</p>
                         </div>
                       )}
                     </div>

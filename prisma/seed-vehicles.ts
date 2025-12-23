@@ -24,9 +24,9 @@ async function seedVehicles() {
       color: 'Black',
       price: 60.00, // Legacy: per hour (not used)
       priceAirportTransfer: 80.00, // Airport Transfer: $80
-      priceTrip: 60.00, // Trip: $60
       price6Hours: 360.00, // 6 hours booking: $360
       price12Hours: 720.00, // 12 hours booking: $720
+      pricePerHour: 60.00, // Per hour price: $60 (for TRIP service and additional rental hours)
       services: ['AIRPORT_TRANSFER', 'TRIP', 'RENTAL'], // All services available
       minimumHours: 6, // Minimum 6 hours for rental
       carouselOrder: 1, // Display order: #1
@@ -67,9 +67,9 @@ async function seedVehicles() {
       color: 'Silver',
       price: 50.00, // Legacy: per hour (not used)
       priceAirportTransfer: 75.00, // Airport Transfer: $75
-      priceTrip: 50.00, // Trip: $50
       price6Hours: 360.00, // 6 hours booking: $360
       price12Hours: 660.00, // 12 hours booking: $660
+      pricePerHour: 60.00, // Per hour price: $60 (for TRIP service and additional rental hours)
       services: ['AIRPORT_TRANSFER', 'TRIP', 'RENTAL'], // All services available
       minimumHours: 6, // Minimum 6 hours for rental
       carouselOrder: 2, // Display order: #2
@@ -109,9 +109,9 @@ async function seedVehicles() {
       color: 'White',
       price: 70.00, // Legacy: per hour (not used)
       priceAirportTransfer: 90.00, // Airport Transfer: $90
-      priceTrip: 70.00, // Trip: $70
       price6Hours: 390.00, // 6 hours booking: $390
       price12Hours: 720.00, // 12 hours booking: $720
+      pricePerHour: 65.00, // Per hour price: $65 (for TRIP service and additional rental hours)
       services: ['AIRPORT_TRANSFER', 'TRIP', 'RENTAL'], // All services available
       minimumHours: 6, // Minimum 6 hours for rental
       carouselOrder: 3, // Display order: #3
@@ -138,9 +138,9 @@ async function seedVehicles() {
   })
 
   console.log('✅ Vehicles seeded successfully!')
-  console.log(`Alphard (Order: 1): ${alphard.id} - Airport: $80, Trip: $60, 6hrs: $360, 12hrs: $720`)
-  console.log(`Noah (Order: 2): ${noah.id} - Airport: $75, Trip: $50, 6hrs: $360, 12hrs: $660`)
-  console.log(`Combi (Order: 3): ${combi.id} - Airport: $90, Trip: $70, 6hrs: $390, 12hrs: $720`)
+  console.log(`Alphard (Order: 1): ${alphard.id} - Airport: $80, Per Hour: $60, 6hrs: $360, 12hrs: $720`)
+  console.log(`Noah (Order: 2): ${noah.id} - Airport: $75, Per Hour: $60, 6hrs: $360, 12hrs: $660`)
+  console.log(`Combi (Order: 3): ${combi.id} - Airport: $90, Per Hour: $65, 6hrs: $390, 12hrs: $720`)
 }
 
 async function main() {

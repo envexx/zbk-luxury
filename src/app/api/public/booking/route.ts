@@ -56,9 +56,9 @@ export async function POST(request: NextRequest) {
         plateNumber: true,
         price: true,
         priceAirportTransfer: true,
-        priceTrip: true,
         price6Hours: true,
         price12Hours: true,
+        pricePerHour: true,
         services: true,
         minimumHours: true
       }
@@ -113,24 +113,25 @@ export async function POST(request: NextRequest) {
         }
       }
       
-      // Calculate price based on service type
-      if (serviceType === 'AIRPORT_TRANSFER') {
-        totalAmount = vehicle.priceAirportTransfer || 100;
-      } else if (serviceType === 'TRIP') {
-        totalAmount = vehicle.priceTrip || 85;
-      } else {
-        // RENTAL: Calculate based on hours
-        if (durationHours >= 12 && vehicle.price12Hours) {
-          totalAmount = vehicle.price12Hours;
-        } else if (durationHours >= 6 && vehicle.price6Hours) {
-          totalAmount = vehicle.price6Hours;
-        } else {
-          totalAmount = vehicle.price6Hours || 360;
-        }
-      }
+      // Calculate price using new pricing logic
+      const { calculateBookingPriceNew } = await import('@/utils/pricing')
       
-      // Add 10% tax
-      totalAmount = totalAmount * 1.1
+      const priceCalculation = calculateBookingPriceNew({
+        vehicle: {
+          priceAirportTransfer: vehicle.priceAirportTransfer,
+          price6Hours: vehicle.price6Hours,
+          price12Hours: vehicle.price12Hours,
+          pricePerHour: vehicle.pricePerHour
+        },
+        serviceType,
+        pickupLocation: body.pickupLocation,
+        dropoffLocation: body.dropoffLocation,
+        startTime: body.startTime,
+        startDate: body.startDate,
+        hours: serviceType === 'RENTAL' ? durationHours : 0
+      })
+      
+      totalAmount = priceCalculation.total
     }
 
     // Create booking with PENDING status (admin needs to confirm)

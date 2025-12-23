@@ -17,7 +17,7 @@ interface Vehicle {
   capacity: number
   luggage?: number
   color: string
-  priceTrip?: number
+  pricePerHour?: number
   priceAirportTransfer?: number
   price6Hours?: number
   price12Hours?: number
@@ -146,7 +146,7 @@ const FleetSection: React.FC<FleetSectionProps> = ({
                       id={vehicle.id}
                       name={vehicle.name}
                       image={vehicle.images?.[0] || '/4.-alphard-colors-black.png'}
-                      price={vehicle.priceTrip || vehicle.price || 0}
+                      price={vehicle.pricePerHour || vehicle.price || 0}
                       priceUnit="trip"
                       seats={vehicle.capacity}
                       transmission="Automatic"
@@ -185,7 +185,7 @@ const FleetSection: React.FC<FleetSectionProps> = ({
                         id={vehicle.id}
                         name={vehicle.name}
                         image={vehicle.images?.[0] || '/4.-alphard-colors-black.png'}
-                        price={vehicle.priceTrip || vehicle.price || 0}
+                        price={vehicle.pricePerHour || vehicle.price || 0}
                         priceUnit="trip"
                         seats={vehicle.capacity}
                         transmission="Automatic"
@@ -231,7 +231,7 @@ const FleetSection: React.FC<FleetSectionProps> = ({
                     id={vehicle.id}
                     name={vehicle.name}
                     image={vehicle.images?.[0] || '/4.-alphard-colors-black.png'}
-                    price={vehicle.priceTrip || vehicle.price || 0}
+                    price={vehicle.pricePerHour || vehicle.price || 0}
                     priceUnit="trip"
                     seats={vehicle.capacity}
                     transmission="Automatic"
