@@ -18,8 +18,9 @@ echo "📦 Step 1: Generating Prisma Client..."
 npx prisma generate
 
 echo ""
-echo "🔄 Step 2: Running database migrations..."
-npx prisma migrate deploy
+echo "🔄 Step 2: Pushing database schema..."
+# Try migrate deploy first, if no migrations exist, use db push
+npx prisma migrate deploy || npx prisma db push --accept-data-loss
 
 echo ""
 echo "🌱 Step 3: Seeding database..."

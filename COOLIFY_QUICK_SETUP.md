@@ -67,20 +67,27 @@ npx prisma migrate deploy
 
 Setelah aplikasi pertama kali deploy, jalankan via Terminal di Coolify:
 
+**Opsi 1: Menggunakan script otomatis (Recommended)**
 ```bash
-# 1. Run migrations
-npx prisma migrate deploy
+npm run db:setup:production
+```
+
+**Opsi 2: Manual step by step**
+```bash
+# 1. Push schema ke database (membuat tabel)
+npx prisma db push --accept-data-loss
 
 # 2. Run seeder (sekali saja)
 npm run db:seed
 ```
 
-Atau gunakan script otomatis:
-
+**Opsi 3: Menggunakan bash script**
 ```bash
 chmod +x scripts/setup-production.sh
 ./scripts/setup-production.sh
 ```
+
+> **Catatan:** Jika tidak ada migration files, gunakan `prisma db push` bukan `prisma migrate deploy`
 
 ---
 
@@ -110,9 +117,9 @@ Lihat `docs/COOLIFY_DEPLOYMENT.md` untuk panduan detail.
 **Error: Database connection failed**
 → Cek DATABASE_URL dan pastikan database service running
 
-**Error: Migration failed**
-→ Pastikan database sudah dibuat dan accessible
+**Error: Migration failed / No migration found**
+→ Gunakan `npx prisma db push --accept-data-loss` untuk membuat tabel dari schema
 
-**Error: Seeder failed**
-→ Pastikan migrations sudah dijalankan terlebih dahulu
+**Error: Seeder failed - table does not exist**
+→ Pastikan schema sudah di-push ke database dengan `npx prisma db push --accept-data-loss`
 
