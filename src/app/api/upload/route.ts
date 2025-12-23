@@ -3,10 +3,6 @@ import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
 
-// Check if we're in production/serverless environment
-const isProduction = process.env.NODE_ENV === 'production'
-const isVercel = process.env.VERCEL === '1'
-
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData()
@@ -15,9 +11,7 @@ export async function POST(request: NextRequest) {
     
     console.log(`📤 Upload request received:`, {
       fileCount: files.length,
-      type,
-      environment: isProduction ? 'production' : 'development',
-      platform: isVercel ? 'Vercel' : 'other'
+      type
     })
     
     if (!files || files.length === 0) {
@@ -28,18 +22,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate environment
-    if (isProduction || isVercel) {
-      console.error('❌ File system upload not available in production')
-      console.error('💡 Please configure Vercel Blob Storage or cloud storage')
-      return NextResponse.json({
-        error: 'File uploads require cloud storage configuration',
-        details: 'File system uploads are not available in serverless environments. Please configure Vercel Blob, Cloudinary, or AWS S3.',
-        setup: 'See documentation: https://vercel.com/docs/storage/vercel-blob'
-      }, { status: 500 })
-    }
-
-    // Local development upload
+    // File system upload (works with Coolify, Docker, and local development)
     const uploadedFiles: string[] = []
     const uploadDir = join(process.cwd(), 'public', 'uploads', type)
     

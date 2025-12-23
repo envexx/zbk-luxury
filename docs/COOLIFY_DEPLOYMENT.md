@@ -66,6 +66,8 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 NODE_ENV=production
 ```
 
+> **Catatan:** Coolify dan platform container lainnya mendukung file system upload secara default. Tidak perlu environment variable tambahan.
+
 ---
 
 ## 3. Build & Deploy Configuration
@@ -104,33 +106,48 @@ next start
 
 ---
 
-## 4. Menjalankan Migrations
+## 4. Menjalankan Migrations / Push Schema
 
-### Opsi 1: Post-Deploy Command (Recommended)
+### ⚠️ Penting: Migration Files vs Schema Push
+
+- **Jika ada migration files** di `prisma/migrations/`: Gunakan `prisma migrate deploy`
+- **Jika TIDAK ada migration files**: Gunakan `prisma db push` untuk membuat tabel dari schema
+
+### Opsi 1: Menggunakan db push (Jika tidak ada migration files)
+
+**Untuk setup pertama kali atau jika tidak ada migration files:**
+
+```bash
+npx prisma db push --accept-data-loss
+```
+
+Ini akan membuat semua tabel dari schema Prisma langsung ke database.
+
+### Opsi 2: Post-Deploy Command (Jika ada migration files)
 
 Di Coolify, tambahkan **Post-Deploy Command**:
 
 ```bash
-npx prisma migrate deploy
+npx prisma migrate deploy || npx prisma db push --accept-data-loss
 ```
 
-Ini akan otomatis menjalankan migrations setelah deployment selesai.
+Ini akan coba migrate dulu, jika tidak ada migration files, akan fallback ke db push.
 
-### Opsi 2: Manual via Coolify Terminal
+### Opsi 3: Manual via Coolify Terminal
 
 1. Masuk ke aplikasi di Coolify
 2. Klik **"Terminal"** atau **"Execute Command"**
 3. Jalankan:
    ```bash
+   # Cek apakah ada migration files
+   ls prisma/migrations/
+   
+   # Jika ada migration files:
    npx prisma migrate deploy
+   
+   # Jika TIDAK ada migration files:
+   npx prisma db push --accept-data-loss
    ```
-
-### Opsi 3: Via Build Command (Not Recommended)
-
-Bisa juga ditambahkan di build command, tapi tidak disarankan karena akan run setiap build:
-```bash
-npm install && npx prisma generate && npx prisma migrate deploy && npm run build
-```
 
 ---
 
@@ -200,17 +217,26 @@ npm install && npx prisma generate && npm run build
 2. Pastikan database service sudah running di Coolify
 3. Cek apakah database accessible dari aplikasi (network settings)
 
-### Error: "Migration failed"
+### Error: "Migration failed" / "No migration found"
 
 **Solusi:**
-1. Pastikan database sudah dibuat dan accessible
-2. Cek apakah ada migration yang conflict:
+1. Jika error "No migration found", gunakan `db push`:
+   ```bash
+   npx prisma db push --accept-data-loss
+   ```
+
+2. Pastikan database sudah dibuat dan accessible
+
+3. Cek apakah ada migration yang conflict:
    ```bash
    npx prisma migrate status
    ```
-3. Jika perlu reset (HATI-HATI, akan hapus semua data):
+
+4. Jika perlu reset (HATI-HATI, akan hapus semua data):
    ```bash
    npx prisma migrate reset
+   # atau
+   npx prisma db push --force-reset
    ```
 
 ### Error: "Seeder failed"
@@ -225,6 +251,31 @@ npm install && npx prisma generate && npm run build
    ```bash
    npx prisma migrate reset
    npm run db:seed
+   ```
+
+### Error: "File upload failed" / "500 error on /api/upload"
+
+**Solusi:**
+1. Setup persistent volume di Coolify untuk menyimpan file upload:
+   - Di Coolify, masuk ke aplikasi → **Volumes**
+   - Tambahkan volume dengan path: `/app/public/uploads`
+   - Atau: `/app/public/uploads/vehicles` dan `/app/public/uploads/blog`
+
+3. Pastikan folder `public/uploads` ada dan writable:
+   ```bash
+   # Via Terminal di Coolify:
+   mkdir -p public/uploads/vehicles public/uploads/blog
+   chmod -R 755 public/uploads
+   ```
+
+4. Cek permission folder:
+   ```bash
+   ls -la public/uploads
+   ```
+
+5. Jika masih error, cek logs di Coolify untuk detail error:
+   ```bash
+   # Di Coolify Dashboard → Logs
    ```
 
 ### Error: "Module not found: tsx"
@@ -272,9 +323,13 @@ node --loader tsx prisma/seed-complete.ts
    # Coolify akan otomatis build dan deploy
    ```
 
-4. **Run Migrations (Post-Deploy):**
+4. **Push Schema / Run Migrations (Post-Deploy):**
    ```bash
    # Via Terminal di Coolify:
+   # Jika tidak ada migration files:
+   npx prisma db push --accept-data-loss
+   
+   # Atau jika ada migration files:
    npx prisma migrate deploy
    ```
 

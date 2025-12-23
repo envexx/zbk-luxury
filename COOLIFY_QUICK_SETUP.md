@@ -34,6 +34,8 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 # Environment
 NODE_ENV=production
 ```
+<｜tool▁calls▁begin｜><｜tool▁call▁begin｜>
+read_file
 
 ### 3️⃣ Build Command
 
@@ -122,4 +124,8 @@ Lihat `docs/COOLIFY_DEPLOYMENT.md` untuk panduan detail.
 
 **Error: Seeder failed - table does not exist**
 → Pastikan schema sudah di-push ke database dengan `npx prisma db push --accept-data-loss`
+
+**Error: File upload failed (500)**
+→ Pastikan `ALLOW_FILE_SYSTEM_UPLOAD=true` di environment variables
+→ Setup persistent volume di Coolify untuk folder `/app/public/uploads`
 
