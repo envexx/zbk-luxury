@@ -6,11 +6,13 @@ import { existsSync } from 'fs'
 // Serve uploaded files from public/uploads directory
 export async function GET(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
   try {
+    // Await params (Next.js 16+ requires params to be awaited)
+    const resolvedParams = await params
     // Reconstruct the path from params
-    const filePath = params.path.join('/')
+    const filePath = resolvedParams.path.join('/')
     
     // Security: Only allow files from uploads directory
     if (filePath.includes('..') || !filePath.startsWith('vehicles/') && !filePath.startsWith('blog/')) {
