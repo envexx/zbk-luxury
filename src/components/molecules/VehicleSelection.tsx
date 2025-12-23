@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { cn } from '@/utils/cn';
+import { getImagePath } from '@/utils/imagePath';
 import Button from '@/components/atoms/Button';
 import Badge from '@/components/atoms/Badge';
 import { BookingData } from '@/components/organisms/BookingForm';
@@ -320,9 +321,15 @@ const VehicleCardContent: React.FC<VehicleCardContentProps> = ({
       {/* Vehicle Image */}
       <div className="relative h-48 overflow-hidden bg-gray-100">
         <img 
-          src={vehicle.images?.[0] || '/4.-alphard-colors-black.png'} 
+          src={getImagePath(vehicle.images?.[0])} 
           alt={vehicle.name}
           className="w-full h-48 object-cover transition-transform duration-300 hover:scale-105"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            if (target.src.includes('/api/uploads/')) {
+              target.src = vehicle.images?.[0] || '/4.-alphard-colors-black.png';
+            }
+          }}
         />
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
@@ -689,9 +696,15 @@ const VehicleSelectionWrapper: React.FC<VehicleSelectionProps> = (props) => {
           <div className="flex items-center gap-4">
             <div className="relative w-20 h-16 rounded-lg overflow-hidden bg-gray-100">
               <img
-                src={selectedVehicle.images?.[0] || '/4.-alphard-colors-black.png'}
+                src={getImagePath(selectedVehicle.images?.[0])}
                 alt={selectedVehicle.name}
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  if (target.src.includes('/api/uploads/')) {
+                    target.src = selectedVehicle.images?.[0] || '/4.-alphard-colors-black.png';
+                  }
+                }}
               />
             </div>
             <div className="flex-1">

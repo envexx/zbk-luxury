@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { X, FileText, Upload, Eye } from '@/components/admin/Icons'
 import { markdownToHtml } from '@/utils/markdown'
+import { getImagePath } from '@/utils/imagePath'
 
 interface BlogPost {
   id?: string
@@ -336,9 +337,15 @@ export default function BlogModal({ isOpen, onClose, onSave, blog, mode }: BlogM
                           <div key={index} className="relative group">
                             <div className="aspect-square rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-600">
                               <img
-                                src={image}
+                                src={getImagePath(image)}
                                 alt={`Blog image ${index + 1}`}
                                 className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  if (target.src.includes('/api/uploads/')) {
+                                    target.src = image;
+                                  }
+                                }}
                               />
                             </div>
                             {index === 0 && (
@@ -444,9 +451,15 @@ export default function BlogModal({ isOpen, onClose, onSave, blog, mode }: BlogM
                 {formData.images.length > 0 && (
                   <div className="my-6">
                     <img
-                      src={formData.images[0]}
+                      src={getImagePath(formData.images[0])}
                       alt={formData.title}
                       className="w-full h-96 object-cover rounded-lg shadow-lg"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        if (target.src.includes('/api/uploads/')) {
+                          target.src = formData.images[0];
+                        }
+                      }}
                     />
                   </div>
                 )}

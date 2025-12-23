@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Car, Plus, Edit, Trash, Eye, Settings, CheckCircle, XCircle, AlertCircle, X } from '@/components/admin/Icons'
 import VehicleModal from '@/components/admin/VehicleModal'
+import { getImagePath } from '@/utils/imagePath'
 
 interface Vehicle {
   id: string
@@ -459,9 +460,15 @@ export default function VehiclesPage() {
               {previewVehicle.images && previewVehicle.images.length > 0 && (
                 <div className="mb-4 sm:mb-6">
                   <img
-                    src={previewVehicle.images[0]}
+                    src={getImagePath(previewVehicle.images[0])}
                     alt={previewVehicle.name}
                     className="w-full h-48 sm:h-64 object-cover rounded-lg"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      if (target.src.includes('/api/uploads/')) {
+                        target.src = previewVehicle.images[0]; // Try direct path
+                      }
+                    }}
                   />
                 </div>
               )}

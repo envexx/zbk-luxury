@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { BlogPost } from '@/types/blog';
 import BlogCard from '@/components/molecules/BlogCard';
 import { markdownToHtml } from '@/utils/markdown';
+import { getImagePath } from '@/utils/imagePath';
 import '@/styles/blog.css';
 
 // Data akan diambil dari dataset dummy
@@ -163,11 +164,17 @@ export default function BlogPostPage() {
           {post.images && post.images.length > 0 && (
             <div className="mb-16 rounded-2xl overflow-hidden shadow-2xl bg-gray-100">
               <Image
-                src={post.images[0]}
+                src={getImagePath(post.images[0])}
                 alt={post.title}
                 width={1200}
                 height={600}
                 className="object-cover w-full h-auto transition-transform duration-300 hover:scale-105"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  if (target.src.includes('/api/uploads/')) {
+                    target.src = post.images[0];
+                  }
+                }}
               />
             </div>
           )}
@@ -186,11 +193,17 @@ export default function BlogPostPage() {
                 {post.images.slice(1).map((image, index) => (
                   <div key={index} className="rounded-xl overflow-hidden shadow-lg bg-gray-100 group">
                     <Image
-                      src={image}
+                      src={getImagePath(image)}
                       alt={`${post.title} - Image ${index + 2}`}
                       width={600}
                       height={400}
                       className="object-cover w-full h-auto transition-transform duration-500 group-hover:scale-110"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        if (target.src.includes('/api/uploads/')) {
+                          target.src = image;
+                        }
+                      }}
                     />
                   </div>
                 ))}

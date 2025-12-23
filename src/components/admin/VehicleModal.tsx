@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { X, Car, Upload } from '@/components/admin/Icons'
+import { getImagePath } from '@/utils/imagePath'
 
 interface Vehicle {
   id?: string
@@ -700,13 +701,18 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
                       <div key={index} className="relative group">
                         <div className="aspect-square rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700">
                           <img
-                            src={image}
+                            src={getImagePath(image)}
                             alt={`Vehicle ${index + 1}`}
                             className="w-full h-full object-cover transition-transform group-hover:scale-105 transition-opacity duration-300"
                             onError={(e) => {
                               console.log('❌ Image load error for:', image)
                               const target = e.target as HTMLImageElement;
-                              target.src = '/api/placeholder/400/400';
+                              // Try direct path if API route fails
+                              if (target.src.includes('/api/uploads/')) {
+                                target.src = image; // Try direct path
+                              } else {
+                                target.src = '/api/placeholder/400/400';
+                              }
                               target.style.opacity = '1';
                             }}
                             onLoad={(e) => {

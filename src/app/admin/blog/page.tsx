@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { FileText, Plus, Edit, Trash, Eye, Search, Filter, CheckCircle, XCircle, X } from '@/components/admin/Icons'
 import BlogModal from '@/components/admin/BlogModal'
 import { markdownToHtml } from '@/utils/markdown'
+import { getImagePath } from '@/utils/imagePath'
 
 interface BlogPost {
   id: string
@@ -344,8 +345,14 @@ export default function BlogPage() {
                         <div className="flex-shrink-0 h-10 w-10">
                           {post.images && post.images.length > 0 ? (
                             <img
-                              src={post.images[0]}
+                              src={getImagePath(post.images[0])}
                               alt={post.title}
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                if (target.src.includes('/api/uploads/')) {
+                                  target.src = post.images[0];
+                                }
+                              }}
                               className="h-10 w-10 rounded-lg object-cover"
                             />
                           ) : (
@@ -459,9 +466,15 @@ export default function BlogPage() {
               {previewPost.images && previewPost.images.length > 0 && (
                 <div className="mb-6">
                   <img
-                    src={previewPost.images[0]}
+                    src={getImagePath(previewPost.images[0])}
                     alt={previewPost.title}
                     className="w-full h-96 object-cover rounded-lg shadow-lg"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      if (target.src.includes('/api/uploads/')) {
+                        target.src = previewPost.images[0];
+                      }
+                    }}
                   />
                 </div>
               )}
@@ -510,9 +523,15 @@ export default function BlogPage() {
                     {previewPost.images.slice(1).map((image, index) => (
                       <div key={index} className="rounded-lg overflow-hidden shadow-md">
                         <img
-                          src={image}
+                          src={getImagePath(image)}
                           alt={`Gallery image ${index + 2}`}
                           className="w-full h-64 object-cover hover:scale-105 transition-transform duration-300"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            if (target.src.includes('/api/uploads/')) {
+                              target.src = image;
+                            }
+                          }}
                         />
                       </div>
                     ))}

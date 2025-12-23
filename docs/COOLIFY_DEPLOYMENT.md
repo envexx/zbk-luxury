@@ -261,22 +261,34 @@ npm install && npx prisma generate && npm run build
    - Tambahkan volume dengan path: `/app/public/uploads`
    - Atau: `/app/public/uploads/vehicles` dan `/app/public/uploads/blog`
 
-3. Pastikan folder `public/uploads` ada dan writable:
+2. Pastikan folder `public/uploads` ada dan writable:
    ```bash
    # Via Terminal di Coolify:
    mkdir -p public/uploads/vehicles public/uploads/blog
    chmod -R 755 public/uploads
    ```
 
-4. Cek permission folder:
+3. Cek permission folder:
    ```bash
    ls -la public/uploads
    ```
 
-5. Jika masih error, cek logs di Coolify untuk detail error:
+4. Jika masih error, cek logs di Coolify untuk detail error:
    ```bash
    # Di Coolify Dashboard → Logs
    ```
+
+### Error: "Image 404" / "File tidak bisa diakses setelah upload"
+
+**Solusi:**
+1. File di-upload berhasil tapi tidak bisa diakses? Pastikan:
+   - File benar-benar tersimpan di `public/uploads/vehicles/` atau `public/uploads/blog/`
+   - Cek via terminal: `ls -la public/uploads/vehicles/`
+
+2. Di production, file di folder `public` seharusnya bisa diakses langsung via `/uploads/...`
+   - Jika tidak, file akan di-serve melalui API route `/api/uploads/...`
+
+3. Pastikan persistent volume sudah di-setup di Coolify agar file tidak hilang setelah restart
 
 ### Error: "Module not found: tsx"
 

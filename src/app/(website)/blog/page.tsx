@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import BlogCard from '@/components/molecules/BlogCard';
+import { getImagePath } from '@/utils/imagePath';
 
 interface BlogPost {
   id: string
@@ -128,11 +129,17 @@ export default function BlogPage() {
                         <div className="md:w-1/3 w-full h-48 md:h-auto relative bg-gray-200">
                           {post.images && post.images.length > 0 ? (
                             <Image
-                              src={post.images[0]}
+                              src={getImagePath(post.images[0])}
                               alt={post.title}
                               fill
                               className="object-cover group-hover:scale-105 transition-transform duration-300"
                               sizes="(max-width: 768px) 100vw, 33vw"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                if (target.src.includes('/api/uploads/')) {
+                                  target.src = post.images[0];
+                                }
+                              }}
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300">
