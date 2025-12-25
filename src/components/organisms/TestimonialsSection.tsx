@@ -9,11 +9,12 @@ export interface TestimonialsSectionProps {
 
 const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ className }) => {
   useEffect(() => {
-    // Load Elfsight script if not already loaded
-    if (!document.querySelector('script[src="https://elfsightcdn.com/platform.js"]')) {
+    // Load Featurable script if not already loaded
+    if (!document.querySelector('script[src="https://featurable.com/assets/bundle.js"]')) {
       const script = document.createElement('script');
-      script.src = 'https://elfsightcdn.com/platform.js';
-      script.async = true;
+      script.src = 'https://featurable.com/assets/bundle.js';
+      script.defer = true;
+      script.charset = 'UTF-8';
       document.head.appendChild(script);
     }
   }, []);
@@ -34,11 +35,11 @@ const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ className }) 
           <div className="w-16 h-1 bg-luxury-gold mx-auto rounded-full mt-8"></div>
         </div>
 
-        {/* Google Reviews Embed */}
+        {/* Featurable Reviews Embed */}
         <div className="flex justify-center">
           <div 
-            className="elfsight-app-abad4134-b8dc-4a21-8519-cd78ff490635" 
-            data-elfsight-app-lazy
+            id="featurable-185cc8af-969b-4710-9594-2d0465477145" 
+            data-featurable-async
           ></div>
         </div>
       </div>
