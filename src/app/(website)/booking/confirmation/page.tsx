@@ -315,6 +315,9 @@ function BookingConfirmationContent() {
                   <div className="flex-1">
                     <p className="text-gray-400 text-sm">Pickup Location</p>
                     <p className="text-white font-semibold">{bookingData.pickupLocation}</p>
+                    {bookingData.pickupNote && (
+                      <p className="text-yellow-400 text-sm mt-1 font-medium">📍 {bookingData.pickupNote}</p>
+                    )}
                     <p className="text-gray-300 text-sm mt-1">
                       {formatDate(bookingData.pickupDate)} at {formatTime(bookingData.pickupTime)}
                     </p>
@@ -331,6 +334,9 @@ function BookingConfirmationContent() {
                   <div className="flex-1">
                     <p className="text-gray-400 text-sm">Drop-off Location</p>
                     <p className="text-white font-semibold">{bookingData.dropOffLocation}</p>
+                    {bookingData.dropoffNote && (
+                      <p className="text-yellow-400 text-sm mt-1 font-medium">📍 {bookingData.dropoffNote}</p>
+                    )}
                     {bookingData.returnDate && bookingData.returnTime && (
                       <p className="text-gray-300 text-sm mt-1">
                         {formatDate(bookingData.returnDate)} at {formatTime(bookingData.returnTime)}

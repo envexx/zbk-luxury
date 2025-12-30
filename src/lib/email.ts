@@ -61,7 +61,10 @@ export const emailTemplates = {
     vehicleName: string, 
     date: string,
     pickupLocation?: string,
-    pickupTime?: string
+    pickupTime?: string,
+    pickupNote?: string,
+    dropoffLocation?: string,
+    dropoffNote?: string
   ) => {
     const formattedTime = pickupTime ? formatTime12Hour(pickupTime) : '';
     
@@ -152,11 +155,23 @@ export const emailTemplates = {
                         ` : ''}
                         ${pickupLocation ? `
                         <tr>
-                          <td style="padding: 10px 0; color: #666666; font-size: 14px; border-top: 1px solid #dee2e6;">
+                          <td style="padding: 10px 0; color: #666666; font-size: 14px; border-top: 1px solid #dee2e6; vertical-align: top;">
                             <strong>Pickup Location:</strong>
                           </td>
                           <td style="padding: 10px 0; color: #1a1a2e; font-size: 14px; border-top: 1px solid #dee2e6;">
                             ${pickupLocation}
+                            ${pickupNote ? `<br/><span style="color: #D4AF37; font-size: 13px; font-style: italic;">📍 ${pickupNote}</span>` : ''}
+                          </td>
+                        </tr>
+                        ` : ''}
+                        ${dropoffLocation ? `
+                        <tr>
+                          <td style="padding: 10px 0; color: #666666; font-size: 14px; border-top: 1px solid #dee2e6; vertical-align: top;">
+                            <strong>Drop-off Location:</strong>
+                          </td>
+                          <td style="padding: 10px 0; color: #1a1a2e; font-size: 14px; border-top: 1px solid #dee2e6;">
+                            ${dropoffLocation}
+                            ${dropoffNote ? `<br/><span style="color: #D4AF37; font-size: 13px; font-style: italic;">📍 ${dropoffNote}</span>` : ''}
                           </td>
                         </tr>
                         ` : ''}
@@ -256,7 +271,9 @@ export const emailTemplates = {
     duration: string,
     totalAmount: number,
     notes?: string,
-    serviceType?: 'AIRPORT_TRANSFER' | 'TRIP' | 'RENTAL'
+    serviceType?: 'AIRPORT_TRANSFER' | 'TRIP' | 'RENTAL',
+    pickupNote?: string,
+    dropoffNote?: string
   ) => {
     const formattedTime = formatTime12Hour(startTime);
     
@@ -369,12 +386,18 @@ export const emailTemplates = {
                       <table style="width: 100%; border-collapse: collapse;">
                         <tr>
                           <td style="padding: 6px 0; color: #666; font-size: 14px; width: 25%; vertical-align: top;">Pickup:</td>
-                          <td style="padding: 6px 0; color: #1a1a2e; font-size: 14px; line-height: 1.5;">${pickupLocation}</td>
+                          <td style="padding: 6px 0; color: #1a1a2e; font-size: 14px; line-height: 1.5;">
+                            ${pickupLocation}
+                            ${pickupNote ? `<br/><span style="color: #D4AF37; font-size: 13px; font-weight: 600; background: #fffbf0; padding: 2px 6px; border-radius: 3px; display: inline-block; margin-top: 4px;">📍 ${pickupNote}</span>` : ''}
+                          </td>
                         </tr>
                         ${dropoffLocation ? `
                         <tr>
                           <td style="padding: 6px 0; color: #666; font-size: 14px; vertical-align: top;">Drop-off:</td>
-                          <td style="padding: 6px 0; color: #1a1a2e; font-size: 14px; line-height: 1.5;">${dropoffLocation}</td>
+                          <td style="padding: 6px 0; color: #1a1a2e; font-size: 14px; line-height: 1.5;">
+                            ${dropoffLocation}
+                            ${dropoffNote ? `<br/><span style="color: #D4AF37; font-size: 13px; font-weight: 600; background: #fffbf0; padding: 2px 6px; border-radius: 3px; display: inline-block; margin-top: 4px;">📍 ${dropoffNote}</span>` : ''}
+                          </td>
                         </tr>
                         ` : ''}
                       </table>

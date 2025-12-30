@@ -27,6 +27,8 @@ const RideDetailsForm: React.FC<RideDetailsFormProps> = ({
     returnTime: initialData.returnTime || '',
     pickupLocation: initialData.pickupLocation || '',
     dropOffLocation: initialData.dropOffLocation || '',
+    pickupNote: initialData.pickupNote || '',
+    dropoffNote: initialData.dropoffNote || '',
     hours: initialData.hours || '',
   });
 
@@ -63,6 +65,20 @@ const RideDetailsForm: React.FC<RideDetailsFormProps> = ({
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
   };
+
+  // Check if location contains airport/bandara keywords
+  const isAirportLocation = (location: string): boolean => {
+    if (!location) return false;
+    const locationLower = location.toLowerCase();
+    const airportKeywords = ['airport', 'bandara', 'terminal', 'changi', 'soekarno', 'sukarno', 'hatta', 'ngurah rai'];
+    return airportKeywords.some(keyword => locationLower.includes(keyword));
+  };
+
+  // Check if pickup location is airport
+  const isPickupAirport = isAirportLocation(formData.pickupLocation);
+  
+  // Check if dropoff location is airport
+  const isDropoffAirport = isAirportLocation(formData.dropOffLocation);
 
   // Calculate hours automatically for round-trip based on pickup and return datetime
   const calculateHours = () => {
@@ -216,29 +232,63 @@ const RideDetailsForm: React.FC<RideDetailsFormProps> = ({
 
         {/* Location Fields */}
         <div className="space-y-4">
-          <LocationInput
-            label="Pickup Location"
-            placeholder="Enter pickup address or landmark"
-            value={formData.pickupLocation}
-            onChange={(value) => handleInputChange('pickupLocation', value)}
-            error={errors.pickupLocation}
-            isRequired
-            icon={
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            }
-          />
+          <div>
+            <LocationInput
+              label="Pickup Location"
+              placeholder="Enter pickup address or landmark"
+              value={formData.pickupLocation}
+              onChange={(value) => handleInputChange('pickupLocation', value)}
+              error={errors.pickupLocation}
+              isRequired
+              icon={
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              }
+            />
+            
+            {/* Show pickup note field if airport detected */}
+            {isPickupAirport && (
+              <div className="mt-3">
+                <Input
+                  type="text"
+                  label="Additional Pickup Details"
+                  placeholder="e.g., Terminal 1, Terminal 2, Terminal 3, Terminal 4, Gate A, Arrival Hall, etc."
+                  value={formData.pickupNote || ''}
+                  onChange={(e) => handleInputChange('pickupNote', e.target.value)}
+                  error={errors.pickupNote}
+                  helperText="Please specify terminal or gate details for accurate pickup"
+                />
+              </div>
+            )}
+          </div>
           
-          <LocationInput
-            label="Drop-Off Location"
-            placeholder="Enter destination address or landmark"
-            value={formData.dropOffLocation}
-            onChange={(value) => handleInputChange('dropOffLocation', value)}
-            error={errors.dropOffLocation}
-            isRequired
-            icon={
-              <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-            }
-          />
+          <div>
+            <LocationInput
+              label="Drop-Off Location"
+              placeholder="Enter destination address or landmark"
+              value={formData.dropOffLocation}
+              onChange={(value) => handleInputChange('dropOffLocation', value)}
+              error={errors.dropOffLocation}
+              isRequired
+              icon={
+                <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+              }
+            />
+            
+            {/* Show dropoff note field if airport detected */}
+            {isDropoffAirport && (
+              <div className="mt-3">
+                <Input
+                  type="text"
+                  label="Additional Drop-Off Details"
+                  placeholder="e.g., Terminal 1, Terminal 2, Terminal 3, Terminal 4, Gate A, Departure Hall, etc."
+                  value={formData.dropoffNote || ''}
+                  onChange={(e) => handleInputChange('dropoffNote', e.target.value)}
+                  error={errors.dropoffNote}
+                  helperText="Please specify terminal or gate details for accurate drop-off"
+                />
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Auto-calculated Duration Display - Only for Round Trip */}

@@ -95,7 +95,10 @@ export async function POST(request: NextRequest) {
           booking.vehicle.name,
           formattedDate,
           booking.pickupLocation,
-          booking.startTime
+          booking.startTime,
+          (booking as any).pickupNote || undefined,
+          booking.dropoffLocation || undefined,
+          (booking as any).dropoffNote || undefined
         )
 
         await sendEmail({
@@ -119,7 +122,10 @@ export async function POST(request: NextRequest) {
           booking.dropoffLocation || '',
           booking.duration,
           booking.totalAmount,
-          booking.notes || undefined
+          booking.notes || undefined,
+          (booking as any).serviceType || undefined,
+          (booking as any).pickupNote || undefined,
+          (booking as any).dropoffNote || undefined
         )
 
         const adminEmail = 'zbklimo@gmail.com' // Admin email is always zbklimo@gmail.com

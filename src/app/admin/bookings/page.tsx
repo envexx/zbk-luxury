@@ -16,6 +16,8 @@ interface Booking {
   duration: string
   pickupLocation: string
   dropoffLocation: string
+  pickupNote?: string
+  dropoffNote?: string
   totalAmount: number
   depositAmount?: number
   status: string
@@ -462,11 +464,17 @@ export default function BookingsPage() {
                   <div className="sm:col-span-2">
                     <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Pickup Location</p>
                     <p className="text-xs sm:text-sm text-gray-900 dark:text-white">{selectedBooking.pickupLocation}</p>
+                    {selectedBooking.pickupNote && (
+                      <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1 font-medium">📍 {selectedBooking.pickupNote}</p>
+                    )}
                   </div>
                   {selectedBooking.dropoffLocation && (
                     <div className="sm:col-span-2">
                       <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Drop-off Location</p>
                       <p className="text-xs sm:text-sm text-gray-900 dark:text-white">{selectedBooking.dropoffLocation}</p>
+                      {selectedBooking.dropoffNote && (
+                        <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1 font-medium">📍 {selectedBooking.dropoffNote}</p>
+                      )}
                     </div>
                   )}
                 </div>

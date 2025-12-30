@@ -150,10 +150,12 @@ export async function POST(request: NextRequest) {
         duration: body.duration || '8 hours',
         pickupLocation: body.pickupLocation,
         dropoffLocation: body.dropoffLocation || body.pickupLocation,
+        pickupNote: body.pickupNote || null,
+        dropoffNote: body.dropoffNote || null,
         totalAmount: totalAmount,
         status: 'PENDING', // Always start as PENDING for admin review
         notes: body.notes || ''
-      },
+      } as any,
       include: {
         vehicle: {
           select: {
@@ -163,7 +165,7 @@ export async function POST(request: NextRequest) {
           }
         }
       }
-    })
+    }) as any
 
     // Send email notifications
     try {
@@ -201,13 +203,17 @@ export async function POST(request: NextRequest) {
       }
       
       // Send confirmation email to customer
+      const bookingWithVehicle = booking as any;
       const customerTemplate = emailTemplates.bookingConfirmation(
         booking.customerName,
         booking.id,
-        booking.vehicle.name,
+        bookingWithVehicle.vehicle.name,
         formattedDate,
         booking.pickupLocation,
-        booking.startTime
+        booking.startTime,
+        bookingWithVehicle.pickupNote || undefined,
+        booking.dropoffLocation || undefined,
+        bookingWithVehicle.dropoffNote || undefined
       )
       
       await sendEmail({
@@ -222,8 +228,8 @@ export async function POST(request: NextRequest) {
         booking.customerName,
         booking.customerEmail,
         booking.customerPhone,
-        booking.vehicle.name,
-        booking.vehicle.model || '',
+        bookingWithVehicle.vehicle.name,
+        bookingWithVehicle.vehicle.model || '',
         booking.service,
         formattedDate,
         booking.startTime,
@@ -232,7 +238,9 @@ export async function POST(request: NextRequest) {
         booking.duration,
         booking.totalAmount,
         booking.notes || undefined,
-        serviceType // Pass the detected service type
+        serviceType, // Pass the detected service type
+        bookingWithVehicle.pickupNote || undefined,
+        bookingWithVehicle.dropoffNote || undefined
       )
       
       // Send to zbklimo@gmail.com (same email as sender)

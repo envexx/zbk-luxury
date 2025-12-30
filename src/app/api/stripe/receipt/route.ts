@@ -142,6 +142,8 @@ export async function GET(request: NextRequest) {
       service: booking.service,
       pickupLocation: booking.pickupLocation,
       dropoffLocation: booking.dropoffLocation,
+      pickupNote: (booking as any).pickupNote || null,
+      dropoffNote: (booking as any).dropoffNote || null,
       startDate: booking.startDate.toISOString(),
       startTime: booking.startTime,
       duration: booking.duration,

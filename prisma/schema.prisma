@@ -111,6 +111,8 @@ model Booking {
   duration        String
   pickupLocation  String
   dropoffLocation String?
+  pickupNote      String?
+  dropoffNote     String?
   totalAmount     Float
   depositAmount   Float? // 20% deposit amount
   status          BookingStatus @default(PENDING)

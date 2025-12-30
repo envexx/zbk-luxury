@@ -22,6 +22,8 @@ interface ReceiptData {
   service: string;
   pickupLocation: string;
   dropoffLocation: string | null;
+  pickupNote?: string;
+  dropoffNote?: string;
   startDate: string;
   startTime: string;
   duration: string;
@@ -439,14 +441,24 @@ function PaymentSuccessContent() {
                   <span className="text-gray-600 font-medium">Service:</span>
                   <span className="text-deep-navy font-semibold">{receiptData.service.replace('_', ' ')}</span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                <div className="flex justify-between items-start py-2 border-b border-gray-100">
                   <span className="text-gray-600 font-medium">Pickup Location:</span>
-                  <span className="text-deep-navy font-semibold text-right max-w-xs">{receiptData.pickupLocation}</span>
+                  <div className="text-right max-w-xs">
+                    <span className="text-deep-navy font-semibold block">{receiptData.pickupLocation}</span>
+                    {receiptData.pickupNote && (
+                      <span className="text-yellow-600 text-sm font-medium mt-1 block">📍 {receiptData.pickupNote}</span>
+                    )}
+                  </div>
                 </div>
                 {receiptData.dropoffLocation && (
-                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                  <div className="flex justify-between items-start py-2 border-b border-gray-100">
                     <span className="text-gray-600 font-medium">Drop-off Location:</span>
-                    <span className="text-deep-navy font-semibold text-right max-w-xs">{receiptData.dropoffLocation}</span>
+                    <div className="text-right max-w-xs">
+                      <span className="text-deep-navy font-semibold block">{receiptData.dropoffLocation}</span>
+                      {receiptData.dropoffNote && (
+                        <span className="text-yellow-600 text-sm font-medium mt-1 block">📍 {receiptData.dropoffNote}</span>
+                      )}
+                    </div>
                   </div>
                 )}
                 <div className="flex justify-between items-center py-2 border-b border-gray-100">

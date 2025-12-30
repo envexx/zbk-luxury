@@ -170,6 +170,8 @@ export async function POST(request: NextRequest) {
         duration: body.duration || '8 hours',
         pickupLocation: body.pickupLocation,
         dropoffLocation: body.dropoffLocation || body.pickupLocation,
+        pickupNote: body.pickupNote || null,
+        dropoffNote: body.dropoffNote || null,
         totalAmount: totalAmount,
         status: body.status || 'PENDING',
         notes: body.notes || '',

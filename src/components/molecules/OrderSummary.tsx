@@ -318,12 +318,18 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                   <span className="text-gray-700">Pickup Location:</span>
                 </div>
                 <p className="font-semibold text-gray-900 text-sm">{bookingData.pickupLocation}</p>
+                {bookingData.pickupNote && (
+                  <p className="text-xs text-gray-600 mt-1 italic">Note: {bookingData.pickupNote}</p>
+                )}
               </div>
               <div>
                 <div className="mb-2">
                   <span className="text-gray-700">Drop-off Location:</span>
                 </div>
                 <p className="font-semibold text-gray-900 text-sm">{bookingData.dropOffLocation}</p>
+                {bookingData.dropoffNote && (
+                  <p className="text-xs text-gray-600 mt-1 italic">Note: {bookingData.dropoffNote}</p>
+                )}
               </div>
             </div>
           </div>

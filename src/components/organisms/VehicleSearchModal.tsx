@@ -91,6 +91,8 @@ const VehicleSearchModal: React.FC<VehicleSearchModalProps> = ({
         duration: `${hours} hours`,
         pickupLocation: updatedBookingData.pickupLocation,
         dropoffLocation: updatedBookingData.dropOffLocation,
+        pickupNote: updatedBookingData.pickupNote || null,
+        dropoffNote: updatedBookingData.dropoffNote || null,
         status: 'PENDING',
         notes: `Trip Type: ${updatedBookingData.tripType}${updatedBookingData.returnTime ? `, Return Time: ${updatedBookingData.returnTime}` : ''}`
       };

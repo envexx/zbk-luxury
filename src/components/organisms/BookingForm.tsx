@@ -17,6 +17,8 @@ export interface BookingData {
   returnTime?: string;
   pickupLocation: string;
   dropOffLocation: string;
+  pickupNote?: string;
+  dropoffNote?: string;
   hours: string;
   
   // Step 2: Vehicle Selection

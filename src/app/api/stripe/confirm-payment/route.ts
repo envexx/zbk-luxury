@@ -149,7 +149,10 @@ export async function POST(request: NextRequest) {
             updatedBooking.vehicle.name,
             formattedDate,
             updatedBooking.pickupLocation,
-            updatedBooking.startTime
+            updatedBooking.startTime,
+            (updatedBooking as any).pickupNote || undefined,
+            updatedBooking.dropoffLocation || undefined,
+            (updatedBooking as any).dropoffNote || undefined
           )
 
           await sendEmail({
@@ -173,7 +176,10 @@ export async function POST(request: NextRequest) {
             updatedBooking.dropoffLocation || '',
             updatedBooking.duration,
             updatedBooking.totalAmount,
-            updatedBooking.notes || undefined
+            updatedBooking.notes || undefined,
+            (updatedBooking as any).serviceType || undefined,
+            (updatedBooking as any).pickupNote || undefined,
+            (updatedBooking as any).dropoffNote || undefined
           )
 
           const adminEmail = 'zbklimo@gmail.com'

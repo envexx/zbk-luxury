@@ -157,7 +157,7 @@ export function generateStructuredData(post: BlogPost) {
       name: 'ZBK Luxury Car Rental',
       logo: {
         '@type': 'ImageObject',
-        url: `${baseUrl}/logo.png`,
+        url: `${baseUrl}/logo-google.png`
       },
     },
     datePublished: post.publishedAt,
