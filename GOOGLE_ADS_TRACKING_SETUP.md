@@ -1,14 +1,18 @@
 # 📊 Google Ads Conversion Tracking Setup
 
-## ✅ Status: Sudah Diinstall
+## ✅ Status: Sudah Diinstall & Dikonfigurasi
 
-Google Ads conversion tracking tag sudah ditambahkan ke website.
+Google Ads conversion tracking tag sudah ditambahkan ke website dan helper functions sudah diintegrasikan.
 
 ### 📍 Lokasi Implementation
 
-**File:** `src/components/GoogleAnalytics.tsx`
+**Files:**
+- `src/components/GoogleAnalytics.tsx` - Base tag dan global helper function
+- `src/utils/googleAds.ts` - TypeScript utility functions
+- `src/components/organisms/VehicleSearchModal.tsx` - Conversion tracking untuk redirect ke Stripe
+- `src/app/(website)/payment/success/page.tsx` - Conversion tracking untuk completed booking
 
-Tag Google Ads sudah diintegrasikan dengan Google Analytics yang sudah ada.
+Tag Google Ads sudah diintegrasikan dengan Google Analytics yang sudah ada, dan helper functions sudah ditambahkan untuk delayed navigation.
 
 ### 🔧 Konfigurasi
 

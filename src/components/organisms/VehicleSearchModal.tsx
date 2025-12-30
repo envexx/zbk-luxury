@@ -9,6 +9,7 @@ import OrderSummary from '@/components/molecules/OrderSummary';
 import { BookingData } from '@/components/organisms/BookingForm';
 import BookingForm from '@/components/organisms/BookingForm';
 import { useCustomerAuth } from '@/contexts/CustomerAuthContext';
+import { gtagSendEvent, CONVERSION_LABELS } from '@/utils/googleAds';
 
 export interface VehicleSearchModalProps {
   isOpen: boolean;
@@ -141,8 +142,9 @@ const VehicleSearchModal: React.FC<VehicleSearchModalProps> = ({
       const checkoutResult = await checkoutResponse.json();
 
       if (checkoutResult.success && checkoutResult.url) {
-        // Redirect to Stripe Checkout
-        window.location.href = checkoutResult.url;
+        // Track lead form submission conversion before redirecting to Stripe Checkout
+        // Note: Payment completion with accurate value will be tracked on payment success page
+        gtagSendEvent(checkoutResult.url, CONVERSION_LABELS.SUBMIT_LEAD_FORM);
       } else {
         alert(`Payment setup failed: ${checkoutResult.error || 'Unknown error'}`);
       }

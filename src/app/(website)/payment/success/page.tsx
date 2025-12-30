@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Button from '@/components/atoms/Button';
 import { cn } from '@/utils/cn';
+import { gtagTrackConversion, CONVERSION_LABELS } from '@/utils/googleAds';
 
 interface ReceiptData {
   receiptNumber: string;
@@ -91,6 +92,13 @@ function PaymentSuccessContent() {
         .then(data => {
           if (data.success) {
             setReceiptData(data.data);
+            
+            // Track Google Ads conversion - Booking completed & payment successful
+            gtagTrackConversion(CONVERSION_LABELS.SUBMIT_LEAD_FORM, {
+              value: data.data.totalAmount,
+              currency: data.data.currency || 'SGD',
+              transaction_id: data.data.bookingId,
+            });
           }
           setLoading(false);
         })
