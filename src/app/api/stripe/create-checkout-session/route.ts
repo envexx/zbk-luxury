@@ -165,8 +165,9 @@ export async function POST(request: NextRequest) {
                        serviceStr.includes('AIRPORT');
       
       if (isOneWay) {
+        // Use isAirportLocation function for proper airport detection
         const { isAirportLocation } = await import('@/utils/pricing');
-        const isAirportRelated = isAirportLocation(pickupLower) || isAirportLocation(dropoffLower);
+        const isAirportRelated = isAirportLocation(booking.pickupLocation || '') || isAirportLocation(booking.dropoffLocation || '');
         serviceType = isAirportRelated ? 'AIRPORT_TRANSFER' : 'TRIP';
       } else {
         serviceType = 'RENTAL';
@@ -196,9 +197,9 @@ export async function POST(request: NextRequest) {
     // Generate service label
     let serviceLabel = '';
     if (serviceType === 'AIRPORT_TRANSFER') {
-      serviceLabel = 'Airport Transfer';
+      serviceLabel = 'Airport Transfer (One Way)';
     } else if (serviceType === 'TRIP') {
-      serviceLabel = 'Trip';
+      serviceLabel = 'Trip (One Way)';
     } else {
       if (hours >= 12) {
         serviceLabel = '12 Hours Rental';
@@ -289,8 +290,8 @@ export async function POST(request: NextRequest) {
       // Ensure total matches what's displayed in OrderSummary
       // Total = subtotal + tax (already calculated above)
       mode: 'payment',
-      success_url: `${origin}/payment/success?session_id={CHECKOUT_SESSION_ID}&booking_id=${bookingId}`,
-      cancel_url: `${origin}/payment/cancel?booking_id=${bookingId}`,
+      success_url: `${origin}/payment/success`,
+      cancel_url: `${origin}/payment/cancel`,
       // Ensure we're using absolute URLs
       payment_intent_data: {
         metadata: {

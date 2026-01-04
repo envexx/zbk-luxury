@@ -167,6 +167,9 @@ function BookingConfirmationContent() {
       const bookingId = bookingResult.data.id;
       console.log('Booking created successfully:', bookingId);
 
+      // Save booking_id to sessionStorage before redirect to Stripe
+      sessionStorage.setItem('pending_booking_id', bookingId);
+
       // Step 2: Create Stripe checkout session
       const checkoutResponse = await fetch('/api/stripe/create-checkout-session', {
         method: 'POST',

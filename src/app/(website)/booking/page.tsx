@@ -16,8 +16,10 @@ function BookingContent() {
     const bookingId = searchParams.get('booking_id');
     
     if (sessionId && bookingId) {
-      // Redirect to payment success page
-      router.replace(`/payment/success?session_id=${sessionId}&booking_id=${bookingId}`);
+      // Save booking_id to sessionStorage before redirect
+      sessionStorage.setItem('pending_booking_id', bookingId);
+      // Redirect to payment success page (without query parameters)
+      router.replace('/payment/success');
       return;
     }
 

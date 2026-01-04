@@ -49,10 +49,15 @@ function PaymentSuccessContent() {
   const receiptRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const sessionId = searchParams.get('session_id');
-    const bookingId = searchParams.get('booking_id');
+    // Get booking_id from sessionStorage (stored before redirect to Stripe)
+    const bookingId = sessionStorage.getItem('pending_booking_id');
+    
+    // Clean up sessionStorage after reading
+    if (bookingId) {
+      sessionStorage.removeItem('pending_booking_id');
+    }
 
-    if (sessionId || bookingId) {
+    if (bookingId) {
       // First, confirm payment (fallback if webhook hasn't fired)
       const confirmPayment = async () => {
         try {
@@ -62,8 +67,7 @@ function PaymentSuccessContent() {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              sessionId: sessionId || undefined,
-              bookingId: bookingId || undefined,
+              bookingId: bookingId,
             }),
           });
 
@@ -82,12 +86,8 @@ function PaymentSuccessContent() {
       // Confirm payment first
       confirmPayment();
 
-      // Then fetch receipt data
-      const params = new URLSearchParams();
-      if (sessionId) params.append('session_id', sessionId);
-      if (bookingId) params.append('booking_id', bookingId);
-
-      fetch(`/api/stripe/receipt?${params.toString()}`)
+      // Then fetch receipt data using booking_id
+      fetch(`/api/stripe/receipt?booking_id=${bookingId}`)
         .then(res => res.json())
         .then(data => {
           if (data.success) {

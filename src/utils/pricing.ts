@@ -130,8 +130,8 @@ export function calculateBookingPriceNew(params: CalculatePriceParams): {
       basePrice = airportTransferPrice
     }
   } else if (serviceType === 'TRIP') {
-    // Trip uses pricePerHour (1 hour trip = pricePerHour)
-    basePrice = vehicle.pricePerHour || 60
+    // Trip (one-way) uses priceAirportTransfer, same as airport transfer
+    basePrice = vehicle.priceAirportTransfer || 100
   } else {
     // RENTAL: Calculate based on hours
     const price6Hours = vehicle.price6Hours || 360

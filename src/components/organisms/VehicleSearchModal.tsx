@@ -71,13 +71,45 @@ const VehicleSearchModal: React.FC<VehicleSearchModalProps> = ({
 
     // Proceed with payment
     try {
-      // Determine service type based on duration
-      let service = 'RENTAL';
-      const hours = parseInt(updatedBookingData.hours as string) || 8;
-      if ((updatedBookingData.pickupLocation as string)?.toLowerCase().includes('airport') || 
-          (updatedBookingData.dropOffLocation as string)?.toLowerCase().includes('airport')) {
-        service = 'AIRPORT_TRANSFER';
+      // Determine service type using same logic as OrderSummary
+      const isOneWay = updatedBookingData.tripType === 'one-way';
+      let serviceType: 'AIRPORT_TRANSFER' | 'TRIP' | 'RENTAL' = 'RENTAL';
+      
+      if (updatedBookingData.serviceType) {
+        // Use serviceType from OrderSummary if available
+        serviceType = updatedBookingData.serviceType as 'AIRPORT_TRANSFER' | 'TRIP' | 'RENTAL';
+      } else if (isOneWay) {
+        // Determine service type for one-way trips
+        const pickupLower = ((updatedBookingData.pickupLocation as string) || '').toLowerCase();
+        const dropoffLower = ((updatedBookingData.dropOffLocation as string) || '').toLowerCase();
+        
+        // Airport keywords and names (same as OrderSummary)
+        const airportKeywords = ['airport', 'terminal', 'bandara', 'changi', 'soekarno', 'hatta'];
+        const airportNames = [
+          'changi', 'suvarnabhumi', 'don mueang', 'noi bai', 'tan son nhat',
+          'ninoy aquino', 'soekarno-hatta', 'ngurah rai', 'kuala lumpur',
+          'klia', 'penang', 'phuket', 'incheon', 'narita', 'haneda',
+          'singapore changi', 'hong kong', 'macau', 'dubai', 'heathrow'
+        ];
+        
+        const checkLocation = (location: string) => {
+          return airportKeywords.some(kw => location.includes(kw)) || 
+                 airportNames.some(name => location.includes(name));
+        };
+        
+        const isAirportRelated = checkLocation(pickupLower) || checkLocation(dropoffLower);
+        serviceType = isAirportRelated ? 'AIRPORT_TRANSFER' : 'TRIP';
       }
+      
+      // Service field for backward compatibility
+      let service = 'RENTAL';
+      if (serviceType === 'AIRPORT_TRANSFER') {
+        service = 'AIRPORT_TRANSFER';
+      } else if (serviceType === 'TRIP') {
+        service = 'TRIP';
+      }
+      
+      const hours = parseInt(updatedBookingData.hours as string) || 8;
 
       // Prepare booking data for API
       const bookingPayload = {
@@ -86,6 +118,7 @@ const VehicleSearchModal: React.FC<VehicleSearchModalProps> = ({
         customerPhone: updatedBookingData.customerInfo?.phone,
         vehicleId: updatedBookingData.selectedVehicleId,
         service: service,
+        serviceType: serviceType,
         startDate: updatedBookingData.pickupDate,
         endDate: updatedBookingData.returnDate || updatedBookingData.pickupDate,
         startTime: updatedBookingData.pickupTime,
@@ -123,6 +156,9 @@ const VehicleSearchModal: React.FC<VehicleSearchModalProps> = ({
       }
 
       const bookingId = bookingResult.data.id;
+
+      // Save booking_id to sessionStorage before redirect to Stripe
+      sessionStorage.setItem('pending_booking_id', bookingId);
 
       // Step 2: Create Stripe checkout session
       const checkoutResponse = await fetch('/api/stripe/create-checkout-session', {
