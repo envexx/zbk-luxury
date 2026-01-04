@@ -145,7 +145,7 @@ const Footer: React.FC = () => {
             <div className="space-y-4">
               <div>
                 <p className="text-base font-bold text-luxury-gold mb-1">
-                  +1 (555) 123-4567
+                  +65 9747 6453
                 </p>
                 <p className="text-sm text-gray-300">24/7 Customer Support</p>
               </div>

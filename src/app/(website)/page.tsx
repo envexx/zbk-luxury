@@ -36,7 +36,7 @@ export default function Home() {
       },
       "contactPoint": {
         "@type": "ContactPoint",
-        "telephone": "+65-XXXX-XXXX",
+        "telephone": "+65 9747 6453",
         "contactType": "customer service",
         "email": "zbklimo@gmail.com",
         "availableLanguage": ["English", "Indonesian"]

@@ -71,7 +71,7 @@ export default function ContactPage() {
                       </svg>
                     ),
                     title: "Phone",
-                    content: "+1 (555) 123-4567"
+                    content: "+65 9747 6453"
                   },
                   {
                     icon: (
@@ -119,7 +119,7 @@ export default function ContactPage() {
                   For urgent assistance or roadside support:
                 </p>
                 <p className="text-xl font-bold text-red-800">
-                  +1 (555) 911-HELP
+                  +65 9747 6453
                 </p>
               </div>
             </div>
@@ -177,7 +177,7 @@ export default function ContactPage() {
                       value={formData.phone}
                       onChange={handleChange}
                       className="w-full px-4 py-3 border border-gray-600 rounded-compact focus:ring-2 focus:ring-luxury-gold focus:border-luxury-gold transition-colors text-white placeholder-gray-400 bg-gray-700"
-                      placeholder="+1 (555) 123-4567"
+                      placeholder="+65 9747 6453"
                     />
                   </div>
                   

@@ -29,7 +29,7 @@ export const organizationSchema = {
   },
   "contactPoint": {
     "@type": "ContactPoint",
-    "telephone": "+65-XXXX-XXXX",
+    "telephone": "+65 9747 6453",
     "contactType": "Customer Service",
     "availableLanguage": ["English", "Chinese", "Malay"]
   },

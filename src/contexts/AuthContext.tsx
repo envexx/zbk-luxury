@@ -97,7 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           email: credentials.email,
           firstName: 'John',
           lastName: 'Doe',
-          phone: '+1 (555) 123-4567',
+          phone: '+65 9747 6453',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
