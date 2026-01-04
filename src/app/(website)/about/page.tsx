@@ -47,7 +47,7 @@ export default function AboutPage() {
             <div className="relative">
               <div className="aspect-w-4 aspect-h-3 rounded-lg overflow-hidden">
                 <Image
-                  src="/api/placeholder/600/450"
+                  src="/2025-01-31.webp"
                   alt="ZBK Luxury Car Rental Story"
                   width={600}
                   height={450}

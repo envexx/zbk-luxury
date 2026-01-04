@@ -14,3 +14,5 @@ ADD COLUMN IF NOT EXISTS "dropoffNote" TEXT;
 COMMENT ON COLUMN "bookings"."pickupNote" IS 'Additional notes for pickup location (e.g., Terminal 1, Gate A)';
 COMMENT ON COLUMN "bookings"."dropoffNote" IS 'Additional notes for dropoff location (e.g., Terminal 2, Departure Hall)';
 
+
+
