@@ -12,8 +12,8 @@ const services = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
       </svg>
     ),
-    title: 'Airport Transport',
-    description: 'Reliable and punctual airport transfers with luxury vehicles. Professional chauffeurs ensure comfortable journeys to and from the airport, with flight monitoring and meet-and-greet services.',
+    title: 'Airport Limousine Transfer',
+    description: 'Reliable and punctual airport limo transfers in Singapore. Professional chauffeurs ensure comfortable journeys to and from the airport with premium limousines, flight monitoring, and meet-and-greet services.',
   },
   {
     id: 'city-tour-hourly',
@@ -22,8 +22,8 @@ const services = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     ),
-    title: 'City Tour / Day Rental',
-    description: 'Flexible city exploration and day rental services. Perfect for sightseeing, business meetings, or personal errands with competitive rates and knowledgeable local drivers.',
+    title: 'City Tour Limousine Rental',
+    description: 'Flexible limo rental for city exploration and day tours. Perfect for sightseeing, business meetings, or personal errands with competitive rates and knowledgeable local chauffeurs in premium limousines.',
   },
   {
     id: 'corporate-event',
@@ -32,8 +32,8 @@ const services = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
       </svg>
     ),
-    title: 'Corporate Event',
-    description: 'Professional transportation solutions for corporate events and business functions. Reliable service for conferences, meetings, and company gatherings with executive-level comfort and punctuality.',
+    title: 'Corporate Limousine Service',
+    description: 'Professional limo transportation for corporate events and business functions. Reliable service for conferences, meetings, and company gatherings with executive-level comfort, punctuality, and premium limousine vehicles.',
   },
 ];
 
@@ -53,10 +53,10 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({ className }) => {
         {/* Section Header */}
         <div className="text-center mb-12">
           <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
-            Why Choose Us?
+            Premium Limousine Services in Singapore
           </h2>
           <p className="text-lg text-gray-300 max-w-2xl mx-auto mb-6">
-            Discover our comprehensive range of luxury car rental services designed to meet your every need with excellence and sophistication.
+            Discover our comprehensive range of professional limo rental services designed to meet your every need. Experience elegance, comfort, and reliability with our premium limousine fleet.
           </p>
           
           {/* Decorative divider */}

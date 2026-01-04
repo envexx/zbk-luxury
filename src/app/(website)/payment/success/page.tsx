@@ -374,7 +374,7 @@ function PaymentSuccessContent() {
           {/* Receipt Header */}
           <div className="bg-gradient-to-r from-deep-navy via-deep-navy to-gray-900 p-8 text-center border-b-4 border-luxury-gold">
             <h1 className="text-3xl font-bold text-luxury-gold mb-2" style={{ letterSpacing: '2px' }}>
-              ZBK LIMO TOURS
+              ZBK LIMOUSINE TOURS
             </h1>
             <p className="text-white/80 text-sm">Premium Luxury Transportation Services</p>
             <p className="text-white/60 text-xs mt-2">Jurong West Street 65, Singapore 640635</p>

@@ -6,7 +6,7 @@
 import { Title } from '@/types/customer';
 import { TITLE_LABELS } from '@/types/customer';
 
-const APP_NAME = 'ZBK Limo';
+const APP_NAME = 'ZBK Limousine Tours';
 const SUPPORT_EMAIL = 'support@zbklimo.com';
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
@@ -376,6 +376,7 @@ The ${APP_NAME} Team
 
   return { subject, html, text };
 }
+
 
 
 

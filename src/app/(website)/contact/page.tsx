@@ -62,7 +62,7 @@ export default function ContactPage() {
                       </svg>
                     ),
                     title: "Address",
-                    content: "Jurong West Street 65, ZBK Limo Tours & Transportation Services, Singapura 640635"
+                    content: "Jurong West Street 65, ZBK Limousine Tours & Transportation Services, Singapura 640635"
                   },
                   {
                     icon: (
@@ -253,7 +253,7 @@ export default function ContactPage() {
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               className="w-full h-96"
-              title="ZBK Limo Tours & Transportation Services - Jurong West Street 65, Singapore 640635"
+              title="ZBK Limousine Tours & Transportation Services - Jurong West Street 65, Singapore 640635"
             ></iframe>
           </div>
         </div>

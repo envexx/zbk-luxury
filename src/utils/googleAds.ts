@@ -88,7 +88,7 @@ export function gtagTrackConversion(
 }
 
 /**
- * Standard conversion labels for ZBK Limo Tours
+ * Standard conversion labels for ZBK Limousine Tours
  */
 export const CONVERSION_LABELS = {
   SUBMIT_LEAD_FORM: 'ads_conversion_SUBMIT_LEAD_FORM_1',

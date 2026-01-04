@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { X, FileText, Upload, Eye } from '@/components/admin/Icons'
 import { markdownToHtml } from '@/utils/markdown'
 import { getImagePath } from '@/utils/imagePath'
+import RichTextEditor from '@/components/admin/RichTextEditor'
 
 interface BlogPost {
   id?: string
@@ -394,14 +395,15 @@ export default function BlogModal({ isOpen, onClose, onSave, blog, mode }: BlogM
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Content *
                     </label>
-                    <textarea
-                      name="content"
-                      value={formData.content}
-                      onChange={handleInputChange}
-                      required
-                      rows={12}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 dark:bg-gray-700 dark:text-white bg-white text-gray-900"
-                      placeholder="Write your blog post content here... (Supports Markdown)"
+                    <RichTextEditor
+                      content={formData.content}
+                      onChange={(content) => {
+                        setFormData(prev => ({
+                          ...prev,
+                          content
+                        }))
+                      }}
+                      placeholder="Write your blog post content here..."
                     />
                   </div>
                 </div>
@@ -468,7 +470,7 @@ export default function BlogModal({ isOpen, onClose, onSave, blog, mode }: BlogM
                 
                 <div 
                   className="prose prose-lg max-w-none dark:prose-invert"
-                  dangerouslySetInnerHTML={{ __html: markdownToHtml(formData.content) }}
+                  dangerouslySetInnerHTML={{ __html: formData.content }}
                 />
 
                 {/* Additional Images Gallery */}

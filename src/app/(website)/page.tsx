@@ -24,9 +24,9 @@ export default function Home() {
       "@type": "Organization",
       "url": baseUrl,
       "logo": `${baseUrl}/api/logo`,
-      "name": "ZBK Limo Tours",
+      "name": "ZBK Limousine Tours",
       "alternateName": "ZBK Transport Services",
-      "description": "Premium luxury transportation in Singapore. Experience exceptional limousine and vehicle rental services for weddings, corporate events, airport transfers, and special occasions.",
+      "description": "Premium limousine service in Singapore. Professional limo rental with Toyota Alphard & Hiace for airport transfers, corporate events, city tours, weddings, and special occasions. Book your elegant limousine ride today.",
       "address": {
         "@type": "PostalAddress",
         "streetAddress": "Jurong West Street 65",
@@ -85,10 +85,10 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
-              Our Premium Services
+              Premium Limousine Services
             </h2>
             <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-              Experience luxury transportation tailored to your specific needs
+              Professional limo rental services tailored to your specific needs. Experience elegance and comfort with our premium limousine fleet in Singapore.
             </p>
           </div>
 
@@ -96,8 +96,8 @@ export default function Home() {
             {[
               {
                 id: 'airport-transport',
-                title: 'Airport Transport',
-                description: 'Reliable and punctual airport transfers with luxury vehicles',
+                title: 'Airport Limousine Transfer',
+                description: 'Premium limo service for reliable and punctual airport transfers in Singapore',
                 icon: (
                   <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
@@ -107,8 +107,8 @@ export default function Home() {
               },
               {
                 id: 'city-tour-hourly',
-                title: 'City Tour / Hourly Rental',
-                description: 'Flexible city exploration and hourly rental services',
+                title: 'City Tour Limousine Rental',
+                description: 'Flexible limo rental for city exploration and hourly limousine services',
                 icon: (
                   <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -118,8 +118,8 @@ export default function Home() {
               },
               {
                 id: 'corporate-event',
-                title: 'Corporate Event',
-                description: 'Professional transportation for corporate events and business functions',
+                title: 'Corporate Limousine Service',
+                description: 'Professional limo transportation for corporate events and business functions',
                 icon: (
                   <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />

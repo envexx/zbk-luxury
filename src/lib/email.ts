@@ -34,7 +34,7 @@ export async function sendEmail({ to, subject, html, text, from }: EmailOptions 
   try {
     // Default to zbklimo@gmail.com if not specified
     const fromEmail = from || process.env.SMTP_USER || 'zbklimo@gmail.com'
-    const fromName = 'ZBK Limo Tours'
+    const fromName = 'ZBK Limousine Tours'
     
     const info = await transporter.sendMail({
       from: `"${fromName}" <${fromEmail}>`,
@@ -69,7 +69,7 @@ export const emailTemplates = {
     const formattedTime = pickupTime ? formatTime12Hour(pickupTime) : '';
     
     return {
-    subject: `Payment Confirmed - Booking ${bookingId} | ZBK Limo Tours`,
+    subject: `Payment Confirmed - Booking ${bookingId} | ZBK Limousine Tours`,
     html: `
       <!DOCTYPE html>
       <html lang="en">
@@ -86,10 +86,10 @@ export const emailTemplates = {
                 <!-- Header with Logo -->
                 <tr>
                   <td style="background-color: #1a1a2e; padding: 40px 30px; text-align: center;">
-                    <img src="${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.zbktransportservices.com'}/api/logo" alt="ZBK Limo Tours" style="width: 100px; height: auto; margin-bottom: 15px;" />
+                    <img src="${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.zbktransportservices.com'}/api/logo" alt="ZBK Limousine Tours" style="width: 100px; height: auto; margin-bottom: 15px;" />
                     
                     <h1 style="color: #D4AF37; margin: 10px 0 5px 0; font-size: 24px; font-weight: 600; letter-spacing: 2px;">
-                      ZBK LIMO TOURS
+                      ZBK LIMOUSINE TOURS
                     </h1>
                     <p style="color: #ffffff; margin: 0; font-size: 14px; opacity: 0.9;">
                       Premium Transportation Services
@@ -207,7 +207,7 @@ export const emailTemplates = {
                 <tr>
                   <td style="background-color: #f8f9fa; padding: 25px 30px; text-align: center; border-top: 1px solid #dee2e6;">
                     <p style="color: #6c757d; margin: 0 0 10px 0; font-size: 14px; font-weight: 600;">
-                      ZBK Limo Tours & Transportation Services
+                      ZBK Limousine Tours & Transportation Services
                     </p>
                     <p style="color: #6c757d; margin: 0 0 5px 0; font-size: 13px;">
                       📧 zbklimo@gmail.com
@@ -216,7 +216,7 @@ export const emailTemplates = {
                       📍 Jurong West Street 65, Singapore 640635
                     </p>
                     <p style="color: #adb5bd; margin: 0; font-size: 12px;">
-                      Thank you for choosing ZBK Limo Tours!
+                      Thank you for choosing ZBK Limousine Tours!
                     </p>
                   </td>
                 </tr>
@@ -425,7 +425,7 @@ export const emailTemplates = {
                 <tr>
                   <td style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #e0e0e0;">
                     <p style="color: #6c757d; margin: 0; font-size: 13px;">
-                      ZBK Limo Tours • zbklimo@gmail.com
+                      ZBK Limousine Tours • zbklimo@gmail.com
                     </p>
                   </td>
                 </tr>

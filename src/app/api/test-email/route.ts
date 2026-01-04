@@ -71,14 +71,14 @@ export async function POST(request: NextRequest) {
         // Test basic email with professional design
         emailResult = await sendEmail({
           to: recipientEmail,
-          subject: 'ZBK Limo Tours - Test Email Configuration',
+          subject: 'ZBK Limousine Tours - Test Email Configuration',
           html: `
             <!DOCTYPE html>
             <html lang="en">
             <head>
               <meta charset="UTF-8">
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>ZBK Limo Tours - Test Email</title>
+              <title>ZBK Limousine Tours - Test Email</title>
             </head>
             <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f4;">
               <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f4f4f4;">
@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
                       <tr>
                         <td style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); padding: 40px 30px; text-align: center;">
                           <h1 style="color: #D4AF37; margin: 0; font-size: 32px; font-weight: bold; letter-spacing: 2px;">
-                            ZBK LIMO TOURS
+                            ZBK LIMOUSINE TOURS
                           </h1>
                           <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">
                             & Transportation Services
@@ -146,10 +146,10 @@ export async function POST(request: NextRequest) {
                           
                           <div style="margin-top: 30px; padding-top: 30px; border-top: 2px solid #e9ecef;">
                             <h3 style="color: #1a1a2e; margin: 0 0 15px 0; font-size: 18px; font-weight: 600;">
-                              About ZBK Limo Tours
+                              About ZBK Limousine Tours
                             </h3>
                             <p style="color: #666666; margin: 0 0 15px 0; font-size: 14px; line-height: 1.8;">
-                              ZBK Limo Tours & Transportation Services is a premium luxury transportation company 
+                              ZBK Limousine Tours & Transportation Services is a premium luxury transportation company 
                               based in Singapore, providing exceptional limousine and vehicle rental services for 
                               weddings, corporate events, airport transfers, and special occasions.
                             </p>
@@ -157,7 +157,7 @@ export async function POST(request: NextRequest) {
                               <p style="margin: 0; color: #1a1a2e; font-size: 14px; line-height: 1.8;">
                                 <strong style="color: #D4AF37;">📍 Address:</strong><br>
                                 Jurong West Street 65<br>
-                                ZBK Limo Tours & Transportation Services<br>
+                                ZBK Limousine Tours & Transportation Services<br>
                                 Singapore 640635
                               </p>
                             </div>
@@ -169,7 +169,7 @@ export async function POST(request: NextRequest) {
                       <tr>
                         <td style="background-color: #1a1a2e; padding: 30px; text-align: center;">
                           <p style="color: #ffffff; margin: 0 0 10px 0; font-size: 14px;">
-                            <strong>ZBK Limo Tours & Transportation Services</strong>
+                            <strong>ZBK Limousine Tours & Transportation Services</strong>
                           </p>
                           <p style="color: #D4AF37; margin: 0 0 15px 0; font-size: 14px;">
                             Premium Luxury Transportation in Singapore

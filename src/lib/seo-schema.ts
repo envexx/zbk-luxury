@@ -1,5 +1,5 @@
 /**
- * SEO Schema.org Structured Data for ZBK Limo
+ * SEO Schema.org Structured Data for ZBK Limousine Tours
  * Based on car rental industry best practices and adapted for premium transport services
  */
 
@@ -17,7 +17,7 @@ export interface SEOMetadata {
 export const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "Organization",
-  "name": "ZBK Limo",
+  "name": "ZBK Limousine Tours",
   "alternateName": "ZBK Luxury Transport",
   "url": "https://zbklimo.com",
   "logo": "https://zbklimo.com/logo.png",
@@ -46,7 +46,7 @@ export const organizationSchema = {
 export const localBusinessSchema = {
   "@context": "https://schema.org",
   "@type": "AutoRental",
-  "name": "ZBK Limo",
+  "name": "ZBK Limousine Tours",
   "image": "https://zbklimo.com/hero-image.jpg",
   "description": "Premium car rental and chauffeur service specializing in luxury Toyota vehicles including Alphard, Noah, and Hiace for airport transfers and corporate transportation in Singapore.",
   "address": {
@@ -83,7 +83,7 @@ export const servicesSchema = {
   "serviceType": "Premium Car Rental and Chauffeur Service",
   "provider": {
     "@type": "Organization",
-    "name": "ZBK Limo"
+    "name": "ZBK Limousine Tours"
   },
   "areaServed": {
     "@type": "City",
@@ -386,7 +386,7 @@ export function generateArticleSchema(article: {
     },
     "publisher": {
       "@type": "Organization",
-      "name": "ZBK Limo",
+      "name": "ZBK Limousine Tours",
       "logo": {
         "@type": "ImageObject",
         "url": "https://zbklimo.com/logo.png"
@@ -407,8 +407,8 @@ export function generateArticleSchema(article: {
  */
 export const defaultSEO: Record<string, SEOMetadata> = {
   home: {
-    title: "ZBK Limo - Premium Car Rental & Chauffeur Service in Singapore",
-    description: "Experience luxury transport in Singapore with ZBK Limo. Premium Toyota Alphard, Noah, and Hiace rentals for airport transfers, corporate events, and special occasions. Professional chauffeur service available 24/7.",
+    title: "ZBK Limousine Tours - Premium Car Rental & Chauffeur Service in Singapore",
+    description: "Experience luxury transport in Singapore with ZBK Limousine Tours. Premium Toyota Alphard, Noah, and Hiace rentals for airport transfers, corporate events, and special occasions. Professional chauffeur service available 24/7.",
     keywords: [
       "Singapore car rental",
       "luxury car rental Singapore",
@@ -422,7 +422,7 @@ export const defaultSEO: Record<string, SEOMetadata> = {
     ogImage: "/og-image-home.jpg"
   },
   fleet: {
-    title: "Our Premium Fleet - Toyota Alphard, Noah & Hiace | ZBK Limo",
+    title: "Our Premium Fleet - Toyota Alphard, Noah & Hiace | ZBK Limousine Tours",
     description: "Browse our fleet of premium Toyota vehicles. Choose from luxury Alphard MPV, comfortable Noah, or spacious Hiace Combi. All vehicles feature professional chauffeurs, modern amenities, and competitive rates.",
     keywords: [
       "Toyota Alphard Singapore",
@@ -435,7 +435,7 @@ export const defaultSEO: Record<string, SEOMetadata> = {
     ogImage: "/og-image-fleet.jpg"
   },
   services: {
-    title: "Premium Transport Services - Airport Transfer & Hourly Rental | ZBK Limo",
+    title: "Premium Transport Services - Airport Transfer & Hourly Rental | ZBK Limousine Tours",
     description: "Comprehensive luxury transport services in Singapore: Changi Airport transfers, hourly rentals, corporate transportation, wedding cars, and special event vehicles. Book online 24/7 with instant confirmation.",
     keywords: [
       "airport transfer service",
@@ -448,7 +448,7 @@ export const defaultSEO: Record<string, SEOMetadata> = {
     ogImage: "/og-image-services.jpg"
   },
   booking: {
-    title: "Book Premium Car Rental Online - Instant Confirmation | ZBK Limo",
+    title: "Book Premium Car Rental Online - Instant Confirmation | ZBK Limousine Tours",
     description: "Book your premium car rental in Singapore with instant confirmation. Easy online booking for airport transfers, hourly rentals, and chauffeur services. Secure payment and flexible cancellation policy.",
     keywords: [
       "book car rental Singapore",
@@ -460,8 +460,8 @@ export const defaultSEO: Record<string, SEOMetadata> = {
     ogImage: "/og-image-booking.jpg"
   },
   blog: {
-    title: "Car Rental Tips & Singapore Travel Guide | ZBK Limo Blog",
-    description: "Expert advice on luxury car rentals, Singapore travel tips, business transport guides, and premium vehicle reviews. Stay informed with ZBK Limo's comprehensive blog.",
+    title: "Car Rental Tips & Singapore Travel Guide | ZBK Limousine Tours Blog",
+    description: "Expert advice on luxury car rentals, Singapore travel tips, business transport guides, and premium vehicle reviews. Stay informed with ZBK Limousine Tours' comprehensive blog.",
     keywords: [
       "car rental tips",
       "Singapore travel guide",

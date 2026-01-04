@@ -98,14 +98,15 @@ const Hero: React.FC<HeroProps> = ({ onBookingClick }) => {
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center mb-16 lg:mb-20">
           <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-            Experience{' '}
+            Premium{' '}
             <span className="text-gradient bg-gradient-to-r from-luxury-gold to-yellow-300 bg-clip-text text-transparent">
-              Luxury Travel
+              Limousine Service
             </span>
+            {' '}in Singapore
           </h1>
           
           <p className="text-xl md:text-2xl text-gray-200 mb-12 max-w-3xl mx-auto leading-relaxed">
-            Premium Toyota Alphard & Hiace rental for Airport Transfers, City Tours, and Special Events. Experience luxury transportation tailored to your needs.
+            Professional limousine rental services with premium Toyota Alphard & Hiace. Experience luxury limo transportation for airport transfers, city tours, corporate events, and special occasions. Book your elegant ride today.
           </p>
         </div>
 
