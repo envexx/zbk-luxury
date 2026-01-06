@@ -54,7 +54,9 @@ export async function POST(request: NextRequest) {
       const timestamp = Date.now()
       const randomString = Math.random().toString(36).substring(2, 15)
       const extension = file.name.split('.').pop()
-      const prefix = type === 'blog' ? 'blog' : 'vehicle'
+      let prefix = 'vehicle'
+      if (type === 'blog') prefix = 'blog'
+      else if (type === 'hero') prefix = 'hero'
       const filename = `${prefix}_${timestamp}_${randomString}.${extension}`
       
       console.log(`💾 Generated filename: ${filename}`)

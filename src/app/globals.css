@@ -161,6 +161,19 @@ h4 {
   color: var(--deep-navy);
 }
 
+/* Admin Input Selection Styling */
+input::selection,
+textarea::selection {
+  background-color: #bfdbfe; /* blue-200 */
+  color: #111827; /* gray-900 */
+}
+
+.dark input::selection,
+.dark textarea::selection {
+  background-color: #1e3a8a; /* blue-800 */
+  color: #ffffff; /* white */
+}
+
 /* Custom Components */
 @layer components {
   .glass-effect {

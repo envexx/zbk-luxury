@@ -205,6 +205,18 @@ model Settings {
   @@map("settings")
 }
 
+model HeroSection {
+  id          String   @id @default(cuid())
+  headline    String
+  description String
+  image       String?  // Image filename/path
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("hero_sections")
+}
+
 // Enums
 enum Role {
   ADMIN

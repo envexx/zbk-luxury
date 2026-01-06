@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect } from 'react'
-import { Home, Car, Calendar, FileText, BarChart3, Settings, X } from './Icons'
+import { Home, Car, Calendar, FileText, BarChart3, Settings, X, Type } from './Icons'
 import { useSidebar } from '@/contexts/SidebarContext'
 
 const navigation = [
@@ -11,6 +11,7 @@ const navigation = [
   { name: 'Vehicles', href: '/admin/vehicles', icon: Car },
   { name: 'Bookings', href: '/admin/bookings', icon: Calendar },
   { name: 'Blog', href: '/admin/blog', icon: FileText },
+  { name: 'Hero Section', href: '/admin/hero-section', icon: Type },
   { name: 'Analysis', href: '/admin/analysis', icon: BarChart3 },
   { name: 'Settings', href: '/admin/settings', icon: Settings },
 ]

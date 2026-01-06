@@ -29,5 +29,7 @@ export {
   TrendingUp,
   TrendingDown,
   Lock,
-  EyeOff
+  EyeOff,
+  Type,
+  Save
 } from 'lucide-react'

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Button from '@/components/atoms/Button';
 import AuthModal from '@/components/organisms/AuthModal';
 import BookingForm from '@/components/organisms/BookingForm';
@@ -12,11 +12,22 @@ export interface HeroProps {
   onBookingClick?: () => void;
 }
 
+interface HeroSectionData {
+  headline: string;
+  description: string;
+  image?: string;
+}
+
 const Hero: React.FC<HeroProps> = ({ onBookingClick }) => {
   const { isAuthenticated } = useAuth();
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [showVehicleSearchModal, setShowVehicleSearchModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [heroData, setHeroData] = useState<HeroSectionData>({
+    headline: 'Premium Limousine Service in Singapore',
+    description: 'Professional limousine rental services with premium Toyota Alphard & Hiace. Experience luxury limo transportation for airport transfers, city tours, corporate events, and special occasions. Book your elegant ride today.',
+    image: '/Hero.jpg'
+  });
   const [alertModal, setAlertModal] = useState<{
     isOpen: boolean;
     title?: string;
@@ -27,6 +38,27 @@ const Hero: React.FC<HeroProps> = ({ onBookingClick }) => {
     message: '',
     type: 'info',
   });
+
+  // Fetch hero section data from API
+  useEffect(() => {
+    const fetchHeroData = async () => {
+      try {
+        const response = await fetch('/api/hero-section');
+        if (response.ok) {
+          const data = await response.json();
+          setHeroData({
+            headline: data.headline || heroData.headline,
+            description: data.description || heroData.description
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching hero section:', error);
+        // Use default values if fetch fails
+      }
+    };
+
+    fetchHeroData();
+  }, []);
 
   const showAlert = (message: string, type: 'success' | 'error' | 'warning' | 'info' = 'info', title?: string) => {
     setAlertModal({
@@ -88,7 +120,7 @@ const Hero: React.FC<HeroProps> = ({ onBookingClick }) => {
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: `url('/Hero.jpg')`
+            backgroundImage: `url('${heroData.image || '/Hero.jpg'}')`
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/70"></div>
@@ -98,15 +130,11 @@ const Hero: React.FC<HeroProps> = ({ onBookingClick }) => {
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center mb-16 lg:mb-20">
           <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-            Premium{' '}
-            <span className="text-gradient bg-gradient-to-r from-luxury-gold to-yellow-300 bg-clip-text text-transparent">
-              Limousine Service
-            </span>
-            {' '}in Singapore
+            {heroData.headline}
           </h1>
           
           <p className="text-xl md:text-2xl text-gray-200 mb-12 max-w-3xl mx-auto leading-relaxed">
-            Professional limousine rental services with premium Toyota Alphard & Hiace. Experience luxury limo transportation for airport transfers, city tours, corporate events, and special occasions. Book your elegant ride today.
+            {heroData.description}
           </p>
         </div>
 
