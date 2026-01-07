@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { CheckCircle, Clock, DollarSign, AlertCircle } from '@/components/admin/Icons'
 
 interface RealTimeData {
@@ -22,8 +22,9 @@ export default function RealTimeStats() {
 
   const [isLive, setIsLive] = useState(true)
   const [loading, setLoading] = useState(false)
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
-  const fetchRealTimeStats = async () => {
+  const fetchRealTimeStats = useCallback(async () => {
     try {
       setLoading(true)
       const response = await fetch('/api/admin/realtime-stats')
@@ -47,21 +48,31 @@ export default function RealTimeStats() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
     // Fetch initial data
     fetchRealTimeStats()
 
-    // Set up interval for real-time updates
-    const interval = setInterval(() => {
-      if (isLive) {
-        fetchRealTimeStats()
-      }
-    }, 10000) // Update every 10 seconds
+    // Clear any existing interval
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+    }
 
-    return () => clearInterval(interval)
-  }, [isLive])
+    // Set up interval for real-time updates
+    if (isLive) {
+      intervalRef.current = setInterval(() => {
+        fetchRealTimeStats()
+      }, 10000) // Update every 10 seconds
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
+      }
+    }
+  }, [isLive, fetchRealTimeStats])
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {

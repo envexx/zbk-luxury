@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Car, Calendar, DollarSign, CheckCircle, Users } from '@/components/admin/Icons'
 import { LineChart, BarChart, DonutChart, MetricCard } from '@/components/admin/Charts'
 import RealTimeStats from '@/components/admin/RealTimeStats'
@@ -28,11 +28,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true)
   const [timeRange, setTimeRange] = useState('6months')
 
-  useEffect(() => {
-    fetchAnalytics()
-  }, [timeRange])
-
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = useCallback(async () => {
     try {
       setLoading(true)
       const response = await fetch(`/api/analytics?timeRange=${timeRange}`)
@@ -45,7 +41,11 @@ export default function AdminDashboard() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [timeRange])
+
+  useEffect(() => {
+    fetchAnalytics()
+  }, [fetchAnalytics])
 
   const formatCurrencyUSD = (amount: number) => {
     return new Intl.NumberFormat('en-US', {

@@ -242,9 +242,11 @@ export function cleanupRateLimitRecords(): void {
   }
 }
 
-// Run cleanup every hour
-if (typeof window === 'undefined') {
-  // Only run on server
-  setInterval(cleanupRateLimitRecords, 60 * 60 * 1000);
-}
+// Note: Module-level setInterval removed to prevent multiple intervals
+// in serverless environments. Cleanup should be called manually or
+// via a scheduled job/cron instead of module-level interval.
+// For production, consider using:
+// - Vercel Cron Jobs
+// - AWS EventBridge
+// - Or call cleanupRateLimitRecords() manually in API routes when needed
 
