@@ -279,3 +279,5 @@ npm run db:generate && npm run db:migrate
 - Test migration di staging terlebih dahulu
 - Gunakan `migrate deploy` untuk production, bukan `db push`
 
+
+

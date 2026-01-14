@@ -36,6 +36,7 @@ export const metadata: Metadata = {
       { url: '/favicon.ico', sizes: 'any' },
       { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
       { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/logo-google.png', sizes: 'any', type: 'image/png' },
     ],
     apple: [
       { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
@@ -68,7 +69,7 @@ export const metadata: Metadata = {
     siteName: "ZBK Limousine Tours",
     images: [
       {
-        url: "/api/logo",
+        url: "/logo-google.png",
         width: 800,
         height: 600,
         alt: "ZBK Limousine Tours - Premium Limousine Service Singapore",
