@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
+import sharp from 'sharp'
+
+export const runtime = 'nodejs'
 
 export async function POST(request: NextRequest) {
   try {
@@ -53,27 +56,42 @@ export async function POST(request: NextRequest) {
       // Generate unique filename
       const timestamp = Date.now()
       const randomString = Math.random().toString(36).substring(2, 15)
-      const extension = file.name.split('.').pop()
       let prefix = 'vehicle'
       if (type === 'blog') prefix = 'blog'
       else if (type === 'hero') prefix = 'hero'
-      const filename = `${prefix}_${timestamp}_${randomString}.${extension}`
+      const filename = `${prefix}_${timestamp}_${randomString}.webp`
       
       console.log(`💾 Generated filename: ${filename}`)
       
       // Convert file to buffer
       const bytes = await file.arrayBuffer()
       const buffer = Buffer.from(bytes)
+
+      // Convert to WebP (and prevent overly large images)
+      let webpBuffer: Buffer
+      try {
+        webpBuffer = await sharp(buffer)
+          .rotate()
+          .resize({ width: 1920, withoutEnlargement: true })
+          .webp({ quality: 80 })
+          .toBuffer()
+      } catch (err) {
+        console.error(`❌ Failed to convert image to WebP: ${file.name}`, err)
+        return NextResponse.json(
+          { error: `Failed to process image ${file.name}` },
+          { status: 400 }
+        )
+      }
       
       // Write file to public/uploads/{type}
       const filepath = join(uploadDir, filename)
-      await writeFile(filepath, buffer)
+      await writeFile(filepath, webpBuffer)
       
       // Store relative path for database
       const relativePath = `/uploads/${type}/${filename}`
       uploadedFiles.push(relativePath)
       
-      console.log(`✅ Uploaded: ${filename} (${buffer.length} bytes)`)
+      console.log(`✅ Uploaded: ${filename} (${webpBuffer.length} bytes)`)
     }
 
     console.log(`🎉 Successfully uploaded ${uploadedFiles.length} files`)

@@ -8,9 +8,17 @@ export function getImagePath(imagePath: string | undefined | null, fallback: str
     return fallback
   }
   
-  // If image is from uploads folder, use API route
+  // If already served via API route, keep it
+  if (imagePath.startsWith('/api/uploads/')) {
+    return imagePath
+  }
+
+  // Uploaded files are stored under public/uploads
   if (imagePath.startsWith('/uploads/')) {
-    // Convert /uploads/vehicles/filename.png to /api/uploads/vehicles/filename.png
+    // New uploads are saved as .webp and can be served statically
+    if (imagePath.toLowerCase().endsWith('.webp')) return imagePath
+
+    // Backward compatibility: old stored paths (jpg/png) are served via API route
     return imagePath.replace('/uploads/', '/api/uploads/')
   }
   
@@ -22,6 +30,6 @@ export function getImagePath(imagePath: string | undefined | null, fallback: str
  * Check if image path is from uploads
  */
 export function isUploadedImage(imagePath: string | undefined | null): boolean {
-  return imagePath?.startsWith('/uploads/') ?? false
+  return imagePath?.startsWith('/uploads/') || imagePath?.startsWith('/api/uploads/') || false
 }
 

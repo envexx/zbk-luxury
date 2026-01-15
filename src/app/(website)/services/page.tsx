@@ -13,8 +13,7 @@ export default function ServicesPage() {
               Our Premium Services
             </h1>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
-              Experience luxury travel with our comprehensive range of premium services, 
-              designed to exceed your expectations and provide unmatched comfort.
+              Enjoy luxury travel with our premium services. We go above and beyond to deliver comfort and style. Your journey, elevated.
             </p>
             <div className="w-24 h-1 bg-luxury-gold mx-auto rounded-full"></div>
           </div>

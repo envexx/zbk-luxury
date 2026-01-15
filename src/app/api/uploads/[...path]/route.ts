@@ -15,7 +15,7 @@ export async function GET(
     const filePath = resolvedParams.path.join('/')
     
     // Security: Only allow files from uploads directory
-    if (filePath.includes('..') || !filePath.startsWith('vehicles/') && !filePath.startsWith('blog/')) {
+    if (filePath.includes('..') || !filePath.startsWith('vehicles/') && !filePath.startsWith('blog/') && !filePath.startsWith('hero/')) {
       return NextResponse.json(
         { error: 'Invalid file path' },
         { status: 400 }
@@ -26,19 +26,42 @@ export async function GET(
     const fullPath = join(process.cwd(), 'public', 'uploads', filePath)
     
     // Check if file exists
-    if (!existsSync(fullPath)) {
-      console.error(`❌ File not found: ${fullPath}`)
-      return NextResponse.json(
-        { error: 'File not found' },
-        { status: 404 }
-      )
+    let resolvedFullPath = fullPath
+    let resolvedFilePath = filePath
+    if (!existsSync(resolvedFullPath)) {
+      const ext = filePath.split('.').pop()?.toLowerCase()
+      const base = ext ? filePath.slice(0, -(ext.length + 1)) : filePath
+
+      const candidates: string[] = []
+      if (ext && ext !== 'webp') {
+        candidates.push(`${base}.webp`)
+      } else {
+        candidates.push(`${base}.webp`, `${base}.jpg`, `${base}.jpeg`, `${base}.png`)
+      }
+
+      for (const candidate of candidates) {
+        const candidateFullPath = join(process.cwd(), 'public', 'uploads', candidate)
+        if (existsSync(candidateFullPath)) {
+          resolvedFullPath = candidateFullPath
+          resolvedFilePath = candidate
+          break
+        }
+      }
+
+      if (!existsSync(resolvedFullPath)) {
+        console.error(`❌ File not found: ${fullPath}`)
+        return NextResponse.json(
+          { error: 'File not found' },
+          { status: 404 }
+        )
+      }
     }
 
     // Read file
-    const fileBuffer = await readFile(fullPath)
+    const fileBuffer = await readFile(resolvedFullPath)
     
     // Determine content type from file extension
-    const extension = filePath.split('.').pop()?.toLowerCase()
+    const extension = resolvedFilePath.split('.').pop()?.toLowerCase()
     const contentType = getContentType(extension || '')
     
     // Return file with appropriate headers

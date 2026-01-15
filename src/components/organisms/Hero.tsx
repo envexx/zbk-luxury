@@ -1,12 +1,15 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
+import Image from 'next/image';
 import Button from '@/components/atoms/Button';
-import AuthModal from '@/components/organisms/AuthModal';
-import BookingForm from '@/components/organisms/BookingForm';
-import VehicleSearchModal from '@/components/organisms/VehicleSearchModal';
-import AlertModal from '@/components/molecules/AlertModal';
 import { useAuth } from '@/contexts/AuthContext';
+
+const AuthModal = dynamic(() => import('@/components/organisms/AuthModal'), { ssr: false });
+const BookingForm = dynamic(() => import('@/components/organisms/BookingForm'), { ssr: false });
+const VehicleSearchModal = dynamic(() => import('@/components/organisms/VehicleSearchModal'), { ssr: false });
+const AlertModal = dynamic(() => import('@/components/molecules/AlertModal'), { ssr: false });
 
 export interface HeroProps {
   onBookingClick?: () => void;
@@ -113,15 +116,22 @@ const Hero: React.FC<HeroProps> = ({ onBookingClick }) => {
       fleetSection.scrollIntoView({ behavior: 'smooth' });
     }
   };
+  const heroImageSrc = heroData.image || '/Hero.jpg';
   return (
     <section className="relative min-h-[120vh] lg:min-h-[130vh] flex items-center justify-center overflow-hidden py-8 lg:py-16">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: `url('${heroData.image || '/Hero.jpg'}')`
-          }}
+        <Image
+          src={heroImageSrc}
+          alt=""
+          fill
+          priority
+          fetchPriority="high"
+          loading="eager"
+          unoptimized={heroImageSrc.startsWith('http')}
+          quality={70}
+          sizes="(max-width: 768px) 100vw, 1920px"
+          className="object-cover object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/70"></div>
       </div>

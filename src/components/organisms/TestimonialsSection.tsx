@@ -9,13 +9,51 @@ export interface TestimonialsSectionProps {
 
 const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ className }) => {
   useEffect(() => {
-    // Load Elfsight script if not already loaded
-    if (!document.querySelector('script[src="https://elfsightcdn.com/platform.js"]')) {
+    const proxySrc = '/api/elfsight/elfsightcdn.com/platform.js';
+
+    // Load Elfsight script (via proxy cache) if not already loaded
+    if (!document.querySelector(`script[src="${proxySrc}"]`)) {
       const script = document.createElement('script');
-      script.src = 'https://elfsightcdn.com/platform.js';
+      script.src = proxySrc;
       script.async = true;
       document.head.appendChild(script);
     }
+
+    // Rewrite any Elfsight script injected later to go through our proxy (so cache TTL is controlled by our domain)
+    const rewriteElfsightScript = (el: HTMLScriptElement) => {
+      const src = el.getAttribute('src');
+      if (!src) return;
+
+      try {
+        const url = new URL(src, window.location.origin);
+        const host = url.hostname;
+        if (!host.includes('elfsight')) return;
+        if (url.origin === window.location.origin) return;
+
+        const proxy = `/api/elfsight/${host}${url.pathname}${url.search}`;
+        el.setAttribute('src', proxy);
+      } catch {
+        // ignore invalid URLs
+      }
+    };
+
+    const observer = new MutationObserver((mutations) => {
+      for (const m of mutations) {
+        m.addedNodes.forEach((node) => {
+          if (node instanceof HTMLScriptElement) {
+            rewriteElfsightScript(node);
+          } else if (node instanceof HTMLElement) {
+            node.querySelectorAll('script[src]').forEach((s) => rewriteElfsightScript(s as HTMLScriptElement));
+          }
+        });
+      }
+    });
+
+    observer.observe(document.head, { childList: true, subtree: true });
+
+    return () => {
+      observer.disconnect();
+    };
   }, []);
 
   return (

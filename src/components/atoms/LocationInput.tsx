@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { cn } from '@/utils/cn';
-import LocationMap from './LocationMap';
+const LocationMap = dynamic(() => import('./LocationMap'), { ssr: false });
 
 export interface LocationInputProps {
   value: string;
