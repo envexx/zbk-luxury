@@ -61,9 +61,9 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
   })
 
   const [featuresInput, setFeaturesInput] = useState('')
-  const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([])
   const [isUploading, setIsUploading] = useState(false)
   const [isDragOver, setIsDragOver] = useState(false)
+  const [uploadSuccess, setUploadSuccess] = useState(false)
 
   useEffect(() => {
     if (vehicle && mode === 'edit') {
@@ -237,6 +237,10 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
           images: updatedImages
         }))
         
+        // Show success notification
+        setUploadSuccess(true)
+        setTimeout(() => setUploadSuccess(false), 3000)
+        
         console.log('✅ State updated with server paths')
       } else {
         throw new Error(result.error || 'Upload failed')
@@ -264,8 +268,6 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
       ...prev,
       images: prev.images.filter((_, i) => i !== index)
     }))
-    
-    setImagePreviewUrls(prev => prev.filter((_, i) => i !== index))
   }
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -686,62 +688,50 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
                 </div>
               </div>
               
-              {/* Current Images Preview */}
+              {/* Upload Success Notification */}
+              {uploadSuccess && (
+                <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md p-4">
+                  <div className="flex items-center">
+                    <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <p className="text-sm text-green-700 dark:text-green-300">
+                      Gambar berhasil diupload! File telah disimpan.
+                    </p>
+                  </div>
+                </div>
+              )}
+              
+              {/* Current Images List */}
               {formData.images.length > 0 && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Current Images ({formData.images.length})
+                    Uploaded Images ({formData.images.length})
                   </label>
-                  {(() => {
-                    console.log('🖼️ Rendering images:', formData.images);
-                    return null;
-                  })()}
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  <div className="space-y-2">
                     {formData.images.map((image, index) => (
-                      <div key={index} className="relative group">
-                        <div className="aspect-square rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700">
-                          <img
-                            src={getImagePath(image)}
-                            alt={`Vehicle ${index + 1}`}
-                            className="w-full h-full object-cover transition-transform group-hover:scale-105 transition-opacity duration-300"
-                            onError={(e) => {
-                              console.log('❌ Image load error for:', image)
-                              const target = e.target as HTMLImageElement;
-                              // Try direct path if API route fails
-                              if (target.src.includes('/api/uploads/')) {
-                                target.src = image; // Try direct path
-                              } else {
-                                target.src = '/api/placeholder/400/400';
-                              }
-                              target.style.opacity = '1';
-                            }}
-                            onLoad={(e) => {
-                              console.log('✅ Image loaded successfully:', image)
-                              const target = e.target as HTMLImageElement;
-                              target.style.opacity = '1';
-                            }}
-                            style={{ opacity: 0 }}
-                          />
-                          {/* Loading overlay */}
-                          <div className="absolute inset-0 bg-gray-200 dark:bg-gray-600 animate-pulse flex items-center justify-center">
-                            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
+                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                        <div className="flex items-center space-x-3">
+                          <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                              Image {index + 1}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              {image.split('/').pop()}
+                            </p>
                           </div>
                         </div>
-                        {/* Remove button */}
                         <button
                           type="button"
                           onClick={() => removeImage(index)}
-                          className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-lg"
+                          className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-md transition-colors"
                           title="Remove image"
                         >
                           <X className="h-4 w-4" />
                         </button>
-                        {/* Image info overlay */}
-                        <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          Image {index + 1}
-                        </div>
                       </div>
                     ))}
                   </div>

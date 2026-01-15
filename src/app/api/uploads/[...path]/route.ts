@@ -14,8 +14,11 @@ export async function GET(
     // Reconstruct the path from params
     const filePath = resolvedParams.path.join('/')
     
+    console.log(`📁 API Uploads: Requesting file: ${filePath}`)
+    
     // Security: Only allow files from uploads directory
     if (filePath.includes('..') || !filePath.startsWith('vehicles/') && !filePath.startsWith('blog/') && !filePath.startsWith('hero/')) {
+      console.error(`❌ Invalid file path: ${filePath}`)
       return NextResponse.json(
         { error: 'Invalid file path' },
         { status: 400 }
@@ -24,26 +27,34 @@ export async function GET(
 
     // Construct full file path
     const fullPath = join(process.cwd(), 'public', 'uploads', filePath)
+    console.log(`📂 Full path: ${fullPath}`)
     
     // Check if file exists
     let resolvedFullPath = fullPath
     let resolvedFilePath = filePath
     if (!existsSync(resolvedFullPath)) {
+      console.log(`🔍 File not found, checking alternatives...`)
       const ext = filePath.split('.').pop()?.toLowerCase()
       const base = ext ? filePath.slice(0, -(ext.length + 1)) : filePath
 
       const candidates: string[] = []
-      if (ext && ext !== 'webp') {
+      
+      // If looking for .webp, check for older formats
+      if (ext === 'webp') {
+        candidates.push(`${base}.jpg`, `${base}.jpeg`, `${base}.png`)
+      } 
+      // If looking for older format, check for .webp
+      else if (ext === 'jpg' || ext === 'jpeg' || ext === 'png') {
         candidates.push(`${base}.webp`)
-      } else {
-        candidates.push(`${base}.webp`, `${base}.jpg`, `${base}.jpeg`, `${base}.png`)
       }
 
       for (const candidate of candidates) {
         const candidateFullPath = join(process.cwd(), 'public', 'uploads', candidate)
+        console.log(`🔍 Checking candidate: ${candidate}`)
         if (existsSync(candidateFullPath)) {
           resolvedFullPath = candidateFullPath
           resolvedFilePath = candidate
+          console.log(`✅ Found file: ${candidate}`)
           break
         }
       }
@@ -55,6 +66,8 @@ export async function GET(
           { status: 404 }
         )
       }
+    } else {
+      console.log(`✅ File found directly: ${fullPath}`)
     }
 
     // Read file

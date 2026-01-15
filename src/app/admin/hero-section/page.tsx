@@ -22,7 +22,7 @@ export default function HeroSectionPage() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [isUploading, setIsUploading] = useState(false)
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [uploadSuccess, setUploadSuccess] = useState(false)
 
   // Form state
   const [formData, setFormData] = useState({
@@ -61,7 +61,6 @@ export default function HeroSectionPage() {
       image: '',
       isActive: true
     })
-    setImagePreview(null)
     setIsModalOpen(true)
   }
 
@@ -74,7 +73,6 @@ export default function HeroSectionPage() {
       image: hero.image || '',
       isActive: hero.isActive
     })
-    setImagePreview(hero.image || null)
     setIsModalOpen(true)
   }
 
@@ -101,13 +99,6 @@ export default function HeroSectionPage() {
     setIsUploading(true)
 
     try {
-      // Create preview
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string)
-      }
-      reader.readAsDataURL(file)
-
       // Upload to server
       const uploadFormData = new FormData()
       uploadFormData.append('files', file)
@@ -124,14 +115,15 @@ export default function HeroSectionPage() {
 
       const data = await response.json()
       if (data.success && data.files && data.files.length > 0) {
-        // Get the uploaded file path
+        // Get uploaded file path
         const uploadedPath = data.files[0]
         // Ensure path starts with /uploads/
         const imagePath = uploadedPath.startsWith('/') ? uploadedPath : `/${uploadedPath}`
         setFormData(prev => ({ ...prev, image: imagePath }))
-        setImagePreview(imagePath)
-        setMessage({ type: 'success', text: 'Image uploaded successfully' })
-        setTimeout(() => setMessage(null), 3000)
+        
+        // Show success notification
+        setUploadSuccess(true)
+        setTimeout(() => setUploadSuccess(false), 3000)
       } else {
         throw new Error('No file returned from server')
       }
@@ -146,7 +138,6 @@ export default function HeroSectionPage() {
 
   const handleRemoveImage = () => {
     setFormData(prev => ({ ...prev, image: '' }))
-    setImagePreview(null)
   }
 
   const handleDelete = async (heroId: string) => {
@@ -399,26 +390,45 @@ export default function HeroSectionPage() {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Hero Image
                   </label>
-                  {(imagePreview || formData.image) && (
-                    <div className="mb-3">
-                      <div className="relative inline-block">
-                        <img
-                          src={imagePreview || formData.image || '/Hero.jpg'}
-                          alt="Hero preview"
-                          className="w-full max-w-md h-48 object-cover rounded-lg border border-gray-300 dark:border-gray-600"
-                          onError={(e) => {
-                            // Fallback to default image if upload fails
-                            const target = e.target as HTMLImageElement
-                            target.src = '/Hero.jpg'
-                          }}
-                        />
+                  
+                  {/* Upload Success Notification */}
+                  {uploadSuccess && (
+                    <div className="mb-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md p-4">
+                      <div className="flex items-center">
+                        <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        <p className="text-sm text-green-700 dark:text-green-300">
+                          Gambar hero berhasil diupload! File telah disimpan.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Current Image Info */}
+                  {formData.image && (
+                    <div className="mb-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                              Hero Image
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              {formData.image.split('/').pop()}
+                            </p>
+                          </div>
+                        </div>
                         <button
                           type="button"
                           onClick={handleRemoveImage}
-                          className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                          className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-md transition-colors"
                           title="Remove image"
                         >
-                          <X className="w-4 h-4" />
+                          <X className="h-4 w-4" />
                         </button>
                       </div>
                     </div>

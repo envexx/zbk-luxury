@@ -85,13 +85,22 @@ export async function POST(request: NextRequest) {
       
       // Write file to public/uploads/{type}
       const filepath = join(uploadDir, filename)
+      console.log(`💾 Writing file to: ${filepath}`)
       await writeFile(filepath, webpBuffer)
+      
+      // Verify file was written
+      if (existsSync(filepath)) {
+        console.log(`✅ File successfully written to disk`)
+      } else {
+        console.error(`❌ Failed to write file to disk`)
+      }
       
       // Store relative path for database
       const relativePath = `/uploads/${type}/${filename}`
       uploadedFiles.push(relativePath)
       
       console.log(`✅ Uploaded: ${filename} (${webpBuffer.length} bytes)`)
+      console.log(`📍 Relative path: ${relativePath}`)
     }
 
     console.log(`🎉 Successfully uploaded ${uploadedFiles.length} files`)

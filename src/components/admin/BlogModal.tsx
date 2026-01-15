@@ -44,6 +44,7 @@ export default function BlogModal({ isOpen, onClose, onSave, blog, mode }: BlogM
   const [tagsInput, setTagsInput] = useState('')
   const [previewMode, setPreviewMode] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
+  const [uploadSuccess, setUploadSuccess] = useState(false)
 
   useEffect(() => {
     if (blog && mode === 'edit') {
@@ -164,7 +165,7 @@ export default function BlogModal({ isOpen, onClose, onSave, blog, mode }: BlogM
       console.log('✅ Upload response:', result)
 
       if (result.success && result.files) {
-        // Append new images to existing ones
+        // Update state with server file paths
         const updatedImages = [...formData.images, ...result.files]
         console.log('🔄 Updated images array:', updatedImages)
         
@@ -172,6 +173,10 @@ export default function BlogModal({ isOpen, onClose, onSave, blog, mode }: BlogM
           ...prev,
           images: updatedImages
         }))
+        
+        // Show success notification
+        setUploadSuccess(true)
+        setTimeout(() => setUploadSuccess(false), 3000)
         
         console.log('✅ State updated with server paths')
       } else {
@@ -327,44 +332,50 @@ export default function BlogModal({ isOpen, onClose, onSave, blog, mode }: BlogM
                     </div>
                   </div>
 
-                  {/* Images Preview Grid */}
+                  {/* Upload Success Notification */}
+                  {uploadSuccess && (
+                    <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md p-4">
+                      <div className="flex items-center">
+                        <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        <p className="text-sm text-green-700 dark:text-green-300">
+                          Gambar berhasil diupload! File telah disimpan.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Images List */}
                   {formData.images.length > 0 && (
                     <div className="space-y-2">
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         Uploaded Images {formData.images.length > 0 && `(${formData.images.length})`}
                       </label>
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                      <div className="space-y-2">
                         {formData.images.map((image, index) => (
-                          <div key={index} className="relative group">
-                            <div className="aspect-square rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-600">
-                              <img
-                                src={getImagePath(image)}
-                                alt={`Blog image ${index + 1}`}
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  if (target.src.includes('/api/uploads/')) {
-                                    target.src = image;
-                                  }
-                                }}
-                              />
-                            </div>
-                            {index === 0 && (
-                              <div className="absolute top-1 left-1 bg-yellow-500 text-white text-xs font-bold px-2 py-0.5 rounded">
-                                COVER
+                          <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div className="flex items-center space-x-3">
+                              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                              <div>
+                                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                  {index === 0 ? 'Cover Image' : `Image ${index}`}
+                                </p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                  {image.split('/').pop()}
+                                </p>
                               </div>
-                            )}
+                            </div>
                             <button
                               type="button"
                               onClick={() => removeImage(index)}
-                              className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                              className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-md transition-colors"
                               title="Remove image"
                             >
-                              <X className="h-3 w-3" />
+                              <X className="h-4 w-4" />
                             </button>
-                            <div className="text-center mt-1 text-xs text-gray-500 dark:text-gray-400">
-                              Image {index + 1}
-                            </div>
                           </div>
                         ))}
                       </div>

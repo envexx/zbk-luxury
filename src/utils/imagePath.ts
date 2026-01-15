@@ -15,10 +15,7 @@ export function getImagePath(imagePath: string | undefined | null, fallback: str
 
   // Uploaded files are stored under public/uploads
   if (imagePath.startsWith('/uploads/')) {
-    // New uploads are saved as .webp and can be served statically
-    if (imagePath.toLowerCase().endsWith('.webp')) return imagePath
-
-    // Backward compatibility: old stored paths (jpg/png) are served via API route
+    // Always use API route for uploaded files to ensure compatibility
     return imagePath.replace('/uploads/', '/api/uploads/')
   }
   
