@@ -1,6 +1,6 @@
-﻿'use client';
+'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { cn } from '@/utils/cn';
 
 export interface TestimonialsSectionProps {
@@ -8,25 +8,52 @@ export interface TestimonialsSectionProps {
 }
 
 const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ className }) => {
-  const [isLoaded, setIsLoaded] = React.useState(false);
-  
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!isVisible) return;
+
     // Defer loading until after critical rendering
     const timer = setTimeout(() => {
       const proxySrc = '/api/elfsight/elfsightcdn.com/platform.js';
 
-      // Load Elfsight script (via proxy cache) if not already loaded
+      // Load Elfsight script with performance optimizations
       if (!document.querySelector(`script[src="${proxySrc}"]`)) {
         const script = document.createElement('script');
         script.src = proxySrc;
         script.async = true;
-        script.onload = () => setIsLoaded(true);
+        script.defer = true; // Add defer for non-blocking
+        script.onload = () => {
+          // Add small delay to ensure widget is ready
+          setTimeout(() => setIsLoaded(true), 100);
+        };
         document.head.appendChild(script);
       } else {
         setIsLoaded(true);
       }
 
-      // Rewrite any Elfsight script injected later to go through our proxy (so cache TTL is controlled by our domain)
+      // Rewrite any Elfsight script injected later
       const rewriteElfsightScript = (el: HTMLScriptElement) => {
         const src = el.getAttribute('src');
         if (!src) return;
@@ -45,15 +72,17 @@ const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ className }) 
       };
 
       const observer = new MutationObserver((mutations) => {
-        for (const m of mutations) {
-          m.addedNodes.forEach((node) => {
-            if (node instanceof HTMLScriptElement) {
-              rewriteElfsightScript(node);
-            } else if (node instanceof HTMLElement) {
-              node.querySelectorAll('script[src]').forEach((s) => rewriteElfsightScript(s as HTMLScriptElement));
-            }
-          });
-        }
+        requestAnimationFrame(() => { // Use RAF for better performance
+          for (const m of mutations) {
+            m.addedNodes.forEach((node) => {
+              if (node instanceof HTMLScriptElement) {
+                rewriteElfsightScript(node);
+              } else if (node instanceof HTMLElement) {
+                node.querySelectorAll('script[src]').forEach((s) => rewriteElfsightScript(s as HTMLScriptElement));
+              }
+            });
+          }
+        });
       });
 
       observer.observe(document.head, { childList: true, subtree: true });
@@ -61,10 +90,10 @@ const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ className }) 
       return () => {
         observer.disconnect();
       };
-    }, 500); // Defer by 500ms
+    }, 800); // Increased defer time for better performance
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [isVisible]);
 
   return (
     <section className={cn('py-20 bg-gradient-to-br from-gray-50 to-white', className)}>
@@ -82,14 +111,17 @@ const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ className }) 
           <div className="w-16 h-1 bg-luxury-gold mx-auto rounded-full mt-8"></div>
         </div>
 
-        {/* Google Reviews Embed */}
-        <div className="flex justify-center">
+        {/* Google Reviews Embed with Lazy Loading */}
+        <div ref={containerRef} className="flex justify-center">
           {/* Reserve space to prevent layout shift */}
           <div 
             className="w-full max-w-2xl min-h-[400px] flex items-center justify-center"
-            style={{ contain: 'layout' }}
+            style={{ 
+              contain: 'layout',
+              contentVisibility: isVisible ? 'visible' : 'hidden'
+            }}
           >
-            {!isLoaded && (
+            {!isLoaded && isVisible && (
               <div className="text-center">
                 <div className="animate-pulse">
                   <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-4"></div>

@@ -4,6 +4,9 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: process.cwd(),
   },
+  compress: true,
+  poweredByHeader: false,
+  generateEtags: false,
   images: {
     remotePatterns: [
       {
@@ -30,7 +33,67 @@ const nextConfig: NextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     minimumCacheTTL: 60 * 60 * 24 * 7,
     unoptimized: false,
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none' sandbox;",
   },
+  experimental: {
+    optimizeCss: true,
+    optimizePackageImports: ['lucide-react'],
+  },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'all',
+          },
+          common: {
+            name: 'common',
+            minChunks: 2,
+            chunks: 'all',
+            enforce: true,
+          },
+        },
+      };
+    }
+    return config;
+  },
+  // Enable bundle analyzer in production
+  ...(process.env.ANALYZE === 'true' && {
+    webpack: (config) => {
+      config.plugins.push(
+        require('@next/bundle-analyzer')({
+          analyzerMode: 'static',
+          openAnalyzer: false,
+          reportFilename: '../bundle-analyzer-report.html',
+        })
+      );
+      return config;
+    },
+  }),
+  headers: async () => [
+    {
+      source: '/_next/static/(.*)',
+      headers: [
+        {
+          key: 'Cache-Control',
+          value: 'public, max-age=31536000, immutable',
+        },
+      ],
+    },
+    {
+      source: '/api/(.*)',
+      headers: [
+        {
+          key: 'Cache-Control',
+          value: 'public, max-age=60, stale-while-revalidate=300',
+        },
+      ],
+    },
+  ],
 };
 
 export default nextConfig;

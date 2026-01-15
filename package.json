@@ -38,13 +38,16 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^16.1.2",
     "@types/node": "^20",
     "@types/ol": "^6.5.3",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "baseline-browser-mapping": "^2.8.32",
+    "cross-env": "^10.1.0",
     "eslint": "^9",
     "eslint-config-next": "^16.0.7",
+    "lighthouse": "^13.0.1",
     "prisma": "^5.22.0",
     "tsx": "^4.19.2",
     "typescript": "^5"
@@ -52,6 +55,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
+    "build:analyze": "cross-env ANALYZE=true npm run build",
     "start": "next start",
     "lint": "eslint",
     "db:generate": "prisma generate",
@@ -70,6 +74,8 @@
     "db:push:production": "npx prisma db push --accept-data-loss",
     "test:db": "node --loader ts-node/esm -e \"import('./src/lib/prisma.js').then(m => m.prisma.$connect()).then(() => console.log('✅ Database connected!')).catch(e => console.error('❌ Connection failed:', e.message))\"",
     "test:create-data": "curl -X POST http://localhost:3000/api/test-data || echo 'Make sure dev server is running: npm run dev'",
-    "test:email": "node scripts/send-test-email.js"
+    "test:email": "node scripts/send-test-email.js",
+    "optimize:images": "next-optimized-images",
+    "lighthouse": "lighthouse https://www.zbktransportservices.com --output=html --output-path=./lighthouse-report --chrome-flags=--headless"
   }
 }

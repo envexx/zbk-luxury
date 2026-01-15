@@ -8,49 +8,31 @@ export default function GoogleAnalytics() {
 
   return (
     <>
-      {/* Google tag (gtag.js) - Load once for both GA4 and Google Ads */}
+      {/* Minified Google Analytics with defer loading */}
       <Script
-        src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-        strategy="afterInteractive"
+        id="google-analytics-min"
+        strategy="lazyOnload" // Load after page is fully loaded
+        dangerouslySetInnerHTML={{
+          __html: `
+            window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());
+            gtag('config','${GA_MEASUREMENT_ID}',{
+              send_page_view:false,
+              transport_type:'beacon',
+              anonymize_ip:true,
+              allow_google_signals:false
+            });
+            gtag('config','${GA_ADS_ID}',{
+              send_page_view:false,
+              conversion_linker:false
+            });
+            window.gtagSendEvent=function(url,c,e,p){var cb=function(){if('string'==typeof url)window.location=url};var ev=e&&e.startsWith('ads_conversion_')?e:'ads_conversion_'+(e||'SUBMIT_LEAD_FORM_1');var ps={'event_callback':cb,'event_timeout':2000};p&&Object.assign(ps,p);gtag('event',ev,ps);return!1};
+          `
+        }}
       />
-      <Script id="google-analytics" strategy="afterInteractive">
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          
-          // Google Analytics 4
-          gtag('config', '${GA_MEASUREMENT_ID}');
-          
-          // Google Ads Conversion Tracking
-          gtag('config', '${GA_ADS_ID}');
-        `}
-      </Script>
-      {/* Google tag (gtag.js) event - delayed navigation helper */}
-      <Script id="google-ads-helper" strategy="afterInteractive">
-        {`
-          // Helper function to delay opening a URL until a gtag event is sent.
-          // Call it in response to an action that should navigate to a URL.
-          window.gtagSendEvent = function(url, conversionLabel, eventParams) {
-            var callback = function () {
-              if (typeof url === 'string') {
-                window.location = url;
-              }
-            };
-            var eventName = conversionLabel && conversionLabel.startsWith('ads_conversion_')
-              ? conversionLabel
-              : 'ads_conversion_' + (conversionLabel || 'SUBMIT_LEAD_FORM_1');
-            var params = {
-              'event_callback': callback,
-              'event_timeout': 2000
-            };
-            if (eventParams) {
-              Object.assign(params, eventParams);
-            }
-            gtag('event', eventName, params);
-            return false;
-          };
-        `}
+      
+      {/* Send page view after load */}
+      <Script id="ga-page-view" strategy="lazyOnload">
+        {`gtag('event','page_view',{page_location:window.location.href});`}
       </Script>
     </>
   );

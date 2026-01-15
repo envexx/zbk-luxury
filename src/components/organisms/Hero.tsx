@@ -26,6 +26,7 @@ const Hero: React.FC<HeroProps> = ({ onBookingClick }) => {
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [showVehicleSearchModal, setShowVehicleSearchModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [heroData, setHeroData] = useState<HeroSectionData>({
     headline: 'Premium Limousine Service in Singapore',
     description: 'Professional limousine rental services with premium Toyota Alphard & Hiace. Experience luxury limo transportation for airport transfers, city tours, corporate events, and special occasions. Book your elegant ride today.',
@@ -57,10 +58,18 @@ const Hero: React.FC<HeroProps> = ({ onBookingClick }) => {
       } catch (error) {
         console.error('Error fetching hero section:', error);
         // Use default values if fetch fails
+      } finally {
+        // Set loading to false after a minimum time to prevent flash
+        setTimeout(() => setIsLoading(false), 300);
       }
     };
 
-    fetchHeroData();
+    // Add minimum loading time to prevent flash
+    const timer = setTimeout(() => {
+      fetchHeroData();
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, []);
 
   const showAlert = (message: string, type: 'success' | 'error' | 'warning' | 'info' = 'info', title?: string) => {
@@ -117,6 +126,27 @@ const Hero: React.FC<HeroProps> = ({ onBookingClick }) => {
     }
   };
   const heroImageSrc = heroData.image || '/Hero.jpg';
+  
+  if (isLoading) {
+    return (
+      <section className="relative min-h-[120vh] lg:min-h-[130vh] flex items-center justify-center overflow-hidden py-8 lg:py-16">
+        {/* Background Image with Overlay */}
+        <div className="absolute inset-0 z-0">
+          <div className="w-full h-full bg-gradient-to-r from-black/70 via-black/50 to-black/70 skeleton"></div>
+        </div>
+        
+        {/* Loading Skeleton */}
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center">
+            <div className="w-32 h-8 bg-white/20 rounded-lg mx-auto mb-4 skeleton"></div>
+            <div className="w-96 h-6 bg-white/20 rounded-lg mx-auto mb-6 skeleton"></div>
+            <div className="w-64 h-20 bg-white/20 rounded-lg mx-auto skeleton"></div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+  
   return (
     <section className="relative min-h-[120vh] lg:min-h-[130vh] flex items-center justify-center overflow-hidden py-8 lg:py-16">
       {/* Background Image with Overlay */}
