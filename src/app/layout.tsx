@@ -147,8 +147,29 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="//www.googletagmanager.com" />
         <link rel="dns-prefetch" href="//www.google-analytics.com" />
         
-        {/* Preload critical CSS */}
+        {/* Defer non-critical CSS */}
         <link rel="preload" href="/critical.css" as="style" />
+        <link rel="preload" href="/_next/static/css/a75850bb42fb51bb.css" as="style" />
+        <link rel="preload" href="/_next/static/css/484ea0737de11b4c.css" as="style" />
+        
+        {/* Load non-critical CSS after page load */}
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            window.addEventListener('load', function() {
+              setTimeout(function() {
+                var css1 = document.createElement('link');
+                css1.rel = 'stylesheet';
+                css1.href = '/_next/static/css/a75850bb42fb51bb.css';
+                document.head.appendChild(css1);
+                
+                var css2 = document.createElement('link');
+                css2.rel = 'stylesheet';
+                css2.href = '/_next/static/css/484ea0737de11b4c.css';
+                document.head.appendChild(css2);
+              }, 100);
+            });
+          `
+        }} />
       </head>
       <body className={inter.className}>
         <AuthProvider>

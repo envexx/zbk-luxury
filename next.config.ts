@@ -40,6 +40,11 @@ const nextConfig: NextConfig = {
     optimizeCss: true,
     optimizePackageImports: ['lucide-react'],
   },
+  // Modern JavaScript configuration
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
+  serverExternalPackages: ['sharp'],
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.optimization.splitChunks = {
@@ -57,6 +62,14 @@ const nextConfig: NextConfig = {
             enforce: true,
           },
         },
+      };
+      
+      // Reduce polyfills for modern browsers
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        path: false,
+        os: false,
       };
     }
     return config;
@@ -85,11 +98,110 @@ const nextConfig: NextConfig = {
       ],
     },
     {
+      source: '/_next/image(.*)',
+      headers: [
+        {
+          key: 'Cache-Control',
+          value: 'public, max-age=31536000, immutable',
+        },
+      ],
+    },
+    {
+      source: '/uploads/(.*)',
+      headers: [
+        {
+          key: 'Cache-Control',
+          value: 'public, max-age=31536000, immutable',
+        },
+      ],
+    },
+    {
+      source: '/api/uploads/(.*)',
+      headers: [
+        {
+          key: 'Cache-Control',
+          value: 'public, max-age=31536000, immutable',
+        },
+      ],
+    },
+    {
       source: '/api/(.*)',
       headers: [
         {
           key: 'Cache-Control',
           value: 'public, max-age=60, stale-while-revalidate=300',
+        },
+      ],
+    },
+    {
+      source: '/(.*).webp',
+      headers: [
+        {
+          key: 'Cache-Control',
+          value: 'public, max-age=31536000, immutable',
+        },
+      ],
+    },
+    {
+      source: '/(.*).jpg',
+      headers: [
+        {
+          key: 'Cache-Control',
+          value: 'public, max-age=31536000, immutable',
+        },
+      ],
+    },
+    {
+      source: '/(.*).jpeg',
+      headers: [
+        {
+          key: 'Cache-Control',
+          value: 'public, max-age=31536000, immutable',
+        },
+      ],
+    },
+    {
+      source: '/(.*).png',
+      headers: [
+        {
+          key: 'Cache-Control',
+          value: 'public, max-age=31536000, immutable',
+        },
+      ],
+    },
+    {
+      source: '/(.*).gif',
+      headers: [
+        {
+          key: 'Cache-Control',
+          value: 'public, max-age=31536000, immutable',
+        },
+      ],
+    },
+    {
+      source: '/(.*).ico',
+      headers: [
+        {
+          key: 'Cache-Control',
+          value: 'public, max-age=31536000, immutable',
+        },
+      ],
+    },
+    {
+      source: '/(.*).svg',
+      headers: [
+        {
+          key: 'Cache-Control',
+          value: 'public, max-age=31536000, immutable',
+        },
+      ],
+    },
+    {
+      source: '/(.*).avif',
+      headers: [
+        {
+          key: 'Cache-Control',
+          value: 'public, max-age=31536000, immutable',
         },
       ],
     },
