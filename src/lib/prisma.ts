@@ -19,9 +19,4 @@ export const prisma = globalForPrisma.prisma ?? new PrismaClient({
   log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
 })
 
-// Add connection event handlers
-prisma.$on('error' as any, (e: any) => {
-  console.error('❌ [PRISMA] Database error:', e)
-})
-
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
