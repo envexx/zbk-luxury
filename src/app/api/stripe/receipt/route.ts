@@ -20,12 +20,19 @@ const stripe = new Stripe(getStripeSecretKey(), {
 
 // GET /api/stripe/receipt?session_id=xxx or ?booking_id=xxx
 export async function GET(request: NextRequest) {
+  const startTime = Date.now()
+  console.log('🟣 [STRIPE RECEIPT] ==========================================')
+  console.log('🟣 [STRIPE RECEIPT] Request received at:', new Date().toISOString())
+  
   try {
     const { searchParams } = new URL(request.url)
     const sessionId = searchParams.get('session_id')
     const bookingId = searchParams.get('booking_id')
 
+    console.log('🟣 [STRIPE RECEIPT] Request params:', { sessionId, bookingId })
+
     if (!sessionId && !bookingId) {
+      console.error('❌ [STRIPE RECEIPT] Missing sessionId and bookingId')
       return NextResponse.json(
         { error: 'Session ID or Booking ID is required' },
         { status: 400 }
@@ -37,6 +44,7 @@ export async function GET(request: NextRequest) {
 
     // Get booking first
     if (bookingId) {
+      console.log('🟣 [STRIPE RECEIPT] Fetching booking by ID:', bookingId)
       booking = await prisma.booking.findUnique({
         where: { id: bookingId },
         include: {
@@ -51,25 +59,41 @@ export async function GET(request: NextRequest) {
       })
 
       if (!booking) {
+        console.error('❌ [STRIPE RECEIPT] Booking not found:', bookingId)
         return NextResponse.json(
           { error: 'Booking not found' },
           { status: 404 }
         )
       }
 
+      console.log('✅ [STRIPE RECEIPT] Booking found:', {
+        bookingId: booking.id,
+        customerEmail: booking.customerEmail,
+        totalAmount: booking.totalAmount,
+        stripeSessionId: booking.stripeSessionId
+      })
+
       // Get session from booking
       if (booking.stripeSessionId) {
+        console.log('🟣 [STRIPE RECEIPT] Retrieving session from Stripe:', booking.stripeSessionId)
         try {
           session = await stripe.checkout.sessions.retrieve(booking.stripeSessionId)
+          console.log('✅ [STRIPE RECEIPT] Session retrieved')
         } catch (error) {
-          console.error('Error retrieving session:', error)
+          console.error('❌ [STRIPE RECEIPT] Error retrieving session:', error)
         }
       }
     } else if (sessionId) {
+      console.log('🟣 [STRIPE RECEIPT] Fetching session by ID:', sessionId)
       // Get session from Stripe
       try {
         session = await stripe.checkout.sessions.retrieve(sessionId)
+        console.log('✅ [STRIPE RECEIPT] Session retrieved:', {
+          sessionId: session.id,
+          paymentStatus: session.payment_status
+        })
       } catch (error) {
+        console.error('❌ [STRIPE RECEIPT] Invalid session ID:', sessionId)
         return NextResponse.json(
           { error: 'Invalid session ID' },
           { status: 404 }
@@ -79,6 +103,7 @@ export async function GET(request: NextRequest) {
       // Get booking from session metadata
       const bookingIdFromSession = session.metadata?.bookingId
       if (bookingIdFromSession) {
+        console.log('🟣 [STRIPE RECEIPT] Fetching booking from session metadata:', bookingIdFromSession)
         booking = await prisma.booking.findUnique({
           where: { id: bookingIdFromSession },
           include: {
@@ -91,10 +116,14 @@ export async function GET(request: NextRequest) {
             }
           }
         })
+        if (booking) {
+          console.log('✅ [STRIPE RECEIPT] Booking found from session metadata')
+        }
       }
     }
 
     if (!booking) {
+      console.error('❌ [STRIPE RECEIPT] Booking not found')
       return NextResponse.json(
         { error: 'Booking not found' },
         { status: 404 }
@@ -104,27 +133,32 @@ export async function GET(request: NextRequest) {
     // Get payment intent details if available
     let paymentIntent: Stripe.PaymentIntent | null = null
     if (session?.payment_intent) {
+      console.log('🟣 [STRIPE RECEIPT] Retrieving payment intent:', session.payment_intent)
       try {
         if (typeof session.payment_intent === 'string') {
           paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent)
+          console.log('✅ [STRIPE RECEIPT] Payment intent retrieved:', paymentIntent.id)
         }
       } catch (error) {
-        console.error('Error retrieving payment intent:', error)
+        console.error('❌ [STRIPE RECEIPT] Error retrieving payment intent:', error)
       }
     }
 
     // Get charge details if available
     let charge: Stripe.Charge | null = null
     if (paymentIntent?.latest_charge) {
+      console.log('🟣 [STRIPE RECEIPT] Retrieving charge:', paymentIntent.latest_charge)
       try {
         if (typeof paymentIntent.latest_charge === 'string') {
           charge = await stripe.charges.retrieve(paymentIntent.latest_charge)
+          console.log('✅ [STRIPE RECEIPT] Charge retrieved:', charge.id)
         }
       } catch (error) {
-        console.error('Error retrieving charge:', error)
+        console.error('❌ [STRIPE RECEIPT] Error retrieving charge:', error)
       }
     }
 
+    console.log('🟣 [STRIPE RECEIPT] Formatting receipt data...')
     // Format receipt data
     const receipt = {
       receiptNumber: session?.id || booking.id,
@@ -163,13 +197,32 @@ export async function GET(request: NextRequest) {
           : null)
     }
 
+    const duration = Date.now() - startTime
+    console.log('✅ [STRIPE RECEIPT] Receipt generated successfully')
+    console.log('🟣 [STRIPE RECEIPT] Receipt summary:', {
+      receiptNumber: receipt.receiptNumber,
+      transactionId: receipt.transactionId,
+      amountPaid: receipt.amountPaid,
+      currency: receipt.currency,
+      paymentStatus: receipt.paymentStatus
+    })
+    console.log('🟣 [STRIPE RECEIPT] Processing time:', duration + 'ms')
+    console.log('🟣 [STRIPE RECEIPT] ==========================================')
+
     return NextResponse.json({
       success: true,
       data: receipt
     })
 
   } catch (error: any) {
-    console.error('Error generating receipt:', error)
+    const duration = Date.now() - startTime
+    console.error('❌ [STRIPE RECEIPT] ==========================================')
+    console.error('❌ [STRIPE RECEIPT] Error generating receipt')
+    console.error('❌ [STRIPE RECEIPT] Error type:', error.type || error.constructor.name)
+    console.error('❌ [STRIPE RECEIPT] Error message:', error.message)
+    console.error('❌ [STRIPE RECEIPT] Error stack:', error.stack)
+    console.error('❌ [STRIPE RECEIPT] Processing time:', duration + 'ms')
+    console.error('❌ [STRIPE RECEIPT] ==========================================')
     return NextResponse.json(
       { error: error.message || 'Failed to generate receipt' },
       { status: 500 }

@@ -40,20 +40,24 @@ export async function GET() {
 
 // POST /api/stripe/create-checkout-session
 export async function POST(request: NextRequest) {
+  const startTime = Date.now()
+  console.log('🔵 [STRIPE CHECKOUT] ==========================================')
+  console.log('🔵 [STRIPE CHECKOUT] Request received at:', new Date().toISOString())
+  
   try {
     // Validate Stripe key before proceeding
     const secretKey = process.env.STRIPE_SECRET_KEY
     
     // Debug logging
-    console.log('=== Stripe Key Debug ===')
-    console.log('STRIPE_SECRET_KEY exists:', !!secretKey)
-    console.log('STRIPE_SECRET_KEY length:', secretKey?.length || 0)
-    console.log('STRIPE_SECRET_KEY first 10 chars:', secretKey?.substring(0, 10) || 'N/A')
-    console.log('STRIPE_SECRET_KEY starts with sk_:', secretKey?.startsWith('sk_') || false)
-    console.log('All env vars with STRIPE:', Object.keys(process.env).filter(k => k.includes('STRIPE')))
+    console.log('🔵 [STRIPE CHECKOUT] === Stripe Key Validation ===')
+    console.log('🔵 [STRIPE CHECKOUT] STRIPE_SECRET_KEY exists:', !!secretKey)
+    console.log('🔵 [STRIPE CHECKOUT] STRIPE_SECRET_KEY length:', secretKey?.length || 0)
+    console.log('🔵 [STRIPE CHECKOUT] STRIPE_SECRET_KEY first 10 chars:', secretKey?.substring(0, 10) || 'N/A')
+    console.log('🔵 [STRIPE CHECKOUT] STRIPE_SECRET_KEY starts with sk_:', secretKey?.startsWith('sk_') || false)
+    console.log('🔵 [STRIPE CHECKOUT] All env vars with STRIPE:', Object.keys(process.env).filter(k => k.includes('STRIPE')))
     
     if (!secretKey) {
-      console.error('STRIPE_SECRET_KEY is not set in environment variables')
+      console.error('❌ [STRIPE CHECKOUT] STRIPE_SECRET_KEY is not set in environment variables')
       return NextResponse.json(
         { 
           error: 'Stripe configuration error: STRIPE_SECRET_KEY is not set. Please add it to your .env.local file.',
@@ -105,13 +109,17 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { bookingId } = body
 
+    console.log('🔵 [STRIPE CHECKOUT] Request body:', { bookingId })
+
     if (!bookingId) {
+      console.error('❌ [STRIPE CHECKOUT] Booking ID is missing')
       return NextResponse.json(
         { error: 'Booking ID is required' },
         { status: 400 }
       )
     }
 
+    console.log('🔵 [STRIPE CHECKOUT] Fetching booking from database...')
     // Fetch booking from database
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
@@ -121,14 +129,25 @@ export async function POST(request: NextRequest) {
     })
 
     if (!booking) {
+      console.error('❌ [STRIPE CHECKOUT] Booking not found:', bookingId)
       return NextResponse.json(
         { error: 'Booking not found' },
         { status: 404 }
       )
     }
 
+    console.log('✅ [STRIPE CHECKOUT] Booking found:', {
+      bookingId: booking.id,
+      customerEmail: booking.customerEmail,
+      totalAmount: booking.totalAmount,
+      paymentStatus: (booking as any).paymentStatus,
+      status: booking.status,
+      vehicleName: booking.vehicle.name
+    })
+
     // Payment condition: Check if booking already has payment
     if ((booking as any).paymentStatus === 'PAID') {
+      console.warn('⚠️ [STRIPE CHECKOUT] Booking already paid:', bookingId)
       return NextResponse.json(
         { error: 'This booking has already been paid' },
         { status: 400 }
@@ -137,12 +156,14 @@ export async function POST(request: NextRequest) {
 
     // Payment condition: Check if booking is cancelled
     if (booking.status === 'CANCELLED') {
+      console.warn('⚠️ [STRIPE CHECKOUT] Booking is cancelled:', bookingId)
       return NextResponse.json(
         { error: 'Cannot process payment for cancelled booking' },
         { status: 400 }
       )
     }
 
+    console.log('🔵 [STRIPE CHECKOUT] Calculating pricing...')
     // Calculate total amount using new pricing logic
     const hoursMatch = booking.duration?.match(/\d+/);
     const hours = hoursMatch ? parseInt(hoursMatch[0]) : 0;
@@ -174,6 +195,13 @@ export async function POST(request: NextRequest) {
       }
     }
     
+    console.log('🔵 [STRIPE CHECKOUT] Service type determined:', {
+      serviceType,
+      hours,
+      pickupLocation: booking.pickupLocation,
+      dropoffLocation: booking.dropoffLocation
+    })
+    
     // Calculate price using new pricing logic
     const priceCalculation = calculateBookingPriceNew({
       vehicle: {
@@ -194,6 +222,13 @@ export async function POST(request: NextRequest) {
     const midnightCharge = priceCalculation.midnightCharge;
     const finalTotal = priceCalculation.total;
     
+    console.log('🔵 [STRIPE CHECKOUT] Price calculation result:', {
+      subtotal,
+      midnightCharge,
+      finalTotal,
+      currency: 'USD'
+    })
+    
     // Generate service label
     let serviceLabel = '';
     if (serviceType === 'AIRPORT_TRANSFER') {
@@ -212,10 +247,15 @@ export async function POST(request: NextRequest) {
     
     // Update booking with accurate total if different
     if (Math.abs(finalTotal - (booking.totalAmount || 0)) > 0.01) {
+      console.log('🔵 [STRIPE CHECKOUT] Updating booking total amount:', {
+        oldAmount: booking.totalAmount,
+        newAmount: finalTotal
+      })
       await prisma.booking.update({
         where: { id: bookingId },
         data: { totalAmount: finalTotal }
       });
+      console.log('✅ [STRIPE CHECKOUT] Booking total amount updated')
     }
 
     // Use 100% payment (full amount)
@@ -239,17 +279,18 @@ export async function POST(request: NextRequest) {
       origin = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
     }
     
-    console.log('Stripe checkout origin:', origin)
+    console.log('🔵 [STRIPE CHECKOUT] Origin URL:', origin)
 
     // Use the validated and trimmed key
     const validatedKey = trimmedKey
     
+    console.log('🔵 [STRIPE CHECKOUT] Initializing Stripe client...')
     // Initialize Stripe with validated key
     const stripe = new Stripe(validatedKey, {
       apiVersion: '2025-11-17.clover',
     })
     
-    console.log('Stripe initialized successfully with key starting with:', validatedKey.substring(0, 10) + '...')
+    console.log('✅ [STRIPE CHECKOUT] Stripe initialized successfully with key starting with:', validatedKey.substring(0, 10) + '...')
     
     // Use the calculated values from above
 
@@ -282,6 +323,16 @@ export async function POST(request: NextRequest) {
         quantity: 1,
       });
     }
+    
+    console.log('🔵 [STRIPE CHECKOUT] Creating Stripe checkout session...')
+    console.log('🔵 [STRIPE CHECKOUT] Session config:', {
+      lineItemsCount: lineItems.length,
+      totalAmount: finalTotal,
+      currency: 'USD',
+      successUrl: `${origin}/payment/success`,
+      cancelUrl: `${origin}/payment/cancel`,
+      customerEmail: booking.customerEmail
+    })
     
     // Create Stripe Checkout Session with detailed line items
     const session = await stripe.checkout.sessions.create({
@@ -318,11 +369,25 @@ export async function POST(request: NextRequest) {
       customer_email: booking.customerEmail,
     })
 
+    console.log('✅ [STRIPE CHECKOUT] Stripe session created:', {
+      sessionId: session.id,
+      sessionUrl: session.url,
+      paymentStatus: session.payment_status,
+      status: session.status
+    })
+
+    console.log('🔵 [STRIPE CHECKOUT] Updating booking with Stripe session ID...')
     // Update booking with Stripe session ID
     await prisma.booking.update({
       where: { id: bookingId },
       data: { stripeSessionId: session.id } as any
     })
+    console.log('✅ [STRIPE CHECKOUT] Booking updated with session ID:', session.id)
+
+    const duration = Date.now() - startTime
+    console.log('✅ [STRIPE CHECKOUT] Checkout session created successfully')
+    console.log('🔵 [STRIPE CHECKOUT] Processing time:', duration + 'ms')
+    console.log('🔵 [STRIPE CHECKOUT] ==========================================')
 
     return NextResponse.json({
       success: true,
@@ -331,10 +396,19 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('Error creating checkout session:', error)
+    const duration = Date.now() - startTime
+    console.error('❌ [STRIPE CHECKOUT] ==========================================')
+    console.error('❌ [STRIPE CHECKOUT] Error creating checkout session')
+    console.error('❌ [STRIPE CHECKOUT] Error type:', error.type || error.constructor.name)
+    console.error('❌ [STRIPE CHECKOUT] Error code:', error.code)
+    console.error('❌ [STRIPE CHECKOUT] Error message:', error.message)
+    console.error('❌ [STRIPE CHECKOUT] Error stack:', error.stack)
+    console.error('❌ [STRIPE CHECKOUT] Processing time:', duration + 'ms')
+    console.error('❌ [STRIPE CHECKOUT] ==========================================')
     
     // Check for specific Stripe errors
     if (error.type === 'StripePermissionError' || error.code === 'secret_key_required') {
+      console.error('❌ [STRIPE CHECKOUT] Stripe API key error detected')
       return NextResponse.json(
         { 
           error: 'Stripe configuration error: Invalid API key.',
