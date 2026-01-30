@@ -43,3 +43,9 @@ next-env.d.ts
 # Stripe sample code (optional - exclude if not needed)
 # accept-a-payment/
 # stripe-sample-code/
+
+# Documentation files that may contain secrets
+*_VERIFICATION.md
+*_SECRETS.md
+*_KEYS.md
+ENV_VERIFICATION.md
