@@ -26,7 +26,8 @@ export async function POST(request: NextRequest) {
     console.log('🧪 [TEST WEBHOOK] Test parameters:', { eventType, bookingId })
 
     // Create a mock Stripe event
-    const mockEvent: Stripe.Event = {
+    // Using 'as any' to bypass strict type checking for mock event
+    const mockEvent = {
       id: 'evt_test_' + Date.now(),
       object: 'event',
       api_version: '2025-11-17.clover',
@@ -53,8 +54,7 @@ export async function POST(request: NextRequest) {
           customer: null,
           customer_details: null,
           line_items: null,
-          payment_status: eventType === 'checkout.session.completed' ? 'paid' : 'unpaid',
-        } as any
+        }
       },
       livemode: false,
       pending_webhooks: 1,
@@ -62,8 +62,8 @@ export async function POST(request: NextRequest) {
         id: 'req_test_' + Date.now(),
         idempotency_key: null
       },
-      type: eventType as Stripe.Event.Type
-    }
+      type: eventType
+    } as Stripe.Event
 
     console.log('🧪 [TEST WEBHOOK] Mock event created:', {
       id: mockEvent.id,
