@@ -178,22 +178,15 @@ const VehicleSearchModal: React.FC<VehicleSearchModalProps> = ({
       const checkoutResult = await checkoutResponse.json();
 
       if (checkoutResult.success && checkoutResult.url) {
-        console.log('✅ [CHECKOUT] Stripe checkout session created successfully');
-        console.log('🔵 [CHECKOUT] Session ID:', checkoutResult.sessionId);
-        console.log('🔵 [CHECKOUT] Checkout URL:', checkoutResult.url);
-        
         // Track lead form submission conversion before redirecting to Stripe Checkout
-        // Note: Payment completion with accurate value will be tracked on payment success page
         try {
           gtagSendEvent(checkoutResult.url, CONVERSION_LABELS.SUBMIT_LEAD_FORM);
         } catch (error) {
-          console.warn('⚠️ [CHECKOUT] Google Ads tracking failed, continuing with redirect:', error);
+          // Google Ads tracking failed, continue with redirect
         }
         
-        // Redirect to Stripe Checkout (with fallback if gtagSendEvent doesn't redirect)
-        // Use setTimeout to ensure gtag event is sent first, then redirect
+        // Redirect to Stripe Checkout
         setTimeout(() => {
-          console.log('🔵 [CHECKOUT] Redirecting to Stripe Checkout now...');
           window.location.href = checkoutResult.url;
         }, 100);
       } else {

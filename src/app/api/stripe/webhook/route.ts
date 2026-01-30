@@ -36,118 +36,102 @@ export async function OPTIONS(request: NextRequest) {
 
 // POST /api/stripe/webhook
 export async function POST(request: NextRequest) {
-  const startTime = Date.now()
-  console.log('🟢 [STRIPE WEBHOOK] ==========================================')
-  console.log('🟢 [STRIPE WEBHOOK] Webhook received at:', new Date().toISOString())
-  console.log('🟢 [STRIPE WEBHOOK] Request method:', request.method)
-  console.log('🟢 [STRIPE WEBHOOK] Request URL:', request.url)
-  console.log('🟢 [STRIPE WEBHOOK] Request headers:', {
-    'content-type': request.headers.get('content-type'),
-    'user-agent': request.headers.get('user-agent'),
-    'stripe-signature': request.headers.get('stripe-signature') ? 'present' : 'missing'
-  })
-  
-  const body = await request.text()
-  const signature = request.headers.get('stripe-signature')
-
-  console.log('🟢 [STRIPE WEBHOOK] Webhook signature present:', !!signature)
-  console.log('🟢 [STRIPE WEBHOOK] Body length:', body.length)
-  console.log('🟢 [STRIPE WEBHOOK] Body preview (first 200 chars):', body.substring(0, 200))
-
-  if (!signature) {
-    console.error('❌ [STRIPE WEBHOOK] No signature provided')
-    return NextResponse.json(
-      { error: 'No signature provided' },
-      { 
-        status: 400,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        },
-      }
-    )
-  }
-
-  let event: Stripe.Event
-
   try {
-    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || ''
-    console.log('🟢 [STRIPE WEBHOOK] Webhook secret configured:', !!webhookSecret)
-    
-    // Verify webhook signature (in production, use your webhook secret)
-    // For development, we'll skip verification if no secret is set
-    if (webhookSecret) {
-      console.log('🟢 [STRIPE WEBHOOK] Verifying webhook signature...')
-      event = stripe.webhooks.constructEvent(body, signature, webhookSecret)
-      console.log('✅ [STRIPE WEBHOOK] Signature verified successfully')
-    } else {
-      console.warn('⚠️ [STRIPE WEBHOOK] No webhook secret - parsing without verification (DEV MODE)')
-      // For development/testing, parse the event without verification
-      event = JSON.parse(body) as Stripe.Event
+    const body = await request.text()
+    const signature = request.headers.get('stripe-signature')
+
+    if (!signature) {
+      console.error('❌ [WEBHOOK] No signature provided')
+      return NextResponse.json(
+        { error: 'No signature provided' },
+        { 
+          status: 400,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          },
+        }
+      )
     }
-    
-    console.log('🟢 [STRIPE WEBHOOK] Event type:', event.type)
-    console.log('🟢 [STRIPE WEBHOOK] Event ID:', event.id)
-  } catch (err: any) {
-    console.error('❌ [STRIPE WEBHOOK] ==========================================')
-    console.error('❌ [STRIPE WEBHOOK] Webhook signature verification failed')
-    console.error('❌ [STRIPE WEBHOOK] Error:', err.message)
-    console.error('❌ [STRIPE WEBHOOK] Error stack:', err.stack)
-    console.error('❌ [STRIPE WEBHOOK] ==========================================')
-    return NextResponse.json(
-      { error: `Webhook Error: ${err.message}` },
-      { 
-        status: 400,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        },
-      }
-    )
-  }
 
-  // Handle the event
-  try {
+    let event: Stripe.Event
+
+    try {
+      const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || ''
+      
+      if (webhookSecret) {
+        event = stripe.webhooks.constructEvent(body, signature, webhookSecret)
+      } else {
+        console.warn('⚠️ [WEBHOOK] No webhook secret - parsing without verification (DEV MODE)')
+        event = JSON.parse(body) as Stripe.Event
+      }
+    } catch (err: any) {
+      console.error('❌ [WEBHOOK] Signature verification failed:', err.message)
+      return NextResponse.json(
+        { error: `Webhook Error: ${err.message}` },
+        { 
+          status: 400,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          },
+        }
+      )
+    }
+
+    // Handle the event
     if (event.type === 'checkout.session.completed') {
-      console.log('🟢 [STRIPE WEBHOOK] Processing checkout.session.completed event')
       const session = event.data.object as Stripe.Checkout.Session
       const bookingId = session.metadata?.bookingId
 
-      console.log('🟢 [STRIPE WEBHOOK] Session details:', {
-        sessionId: session.id,
-        paymentStatus: session.payment_status,
-        status: session.status,
-        amountTotal: session.amount_total,
-        currency: session.currency,
-        customerEmail: session.customer_email,
-        bookingId: bookingId
-      })
-
       if (!bookingId) {
-        console.error('❌ [STRIPE WEBHOOK] No booking ID in session metadata')
-        console.error('❌ [STRIPE WEBHOOK] Session metadata:', session.metadata)
+        console.error('❌ [WEBHOOK] No booking ID in session metadata')
         return NextResponse.json({ error: 'No booking ID found' }, { status: 400 })
       }
 
-      console.log('🟢 [STRIPE WEBHOOK] Updating booking payment status...')
-      // Update booking payment status
+      // Check if booking exists and current status
+      const existingBooking = await prisma.booking.findUnique({
+        where: { id: bookingId },
+        select: {
+          id: true,
+          paymentStatus: true,
+          status: true,
+          stripePaymentId: true
+        }
+      })
+      
+      if (!existingBooking) {
+        console.error('❌ [WEBHOOK] Booking not found:', bookingId)
+        return NextResponse.json({ error: 'Booking not found' }, { status: 404 })
+      }
+      
+      // Skip update if already paid (idempotent)
+      if (existingBooking.paymentStatus === 'PAID' && existingBooking.status === 'CONFIRMED') {
+        return NextResponse.json({ received: true, message: 'Booking already confirmed' }, { status: 200 })
+      }
+      
+      // Update booking payment status - ensure atomic update
       const booking = await prisma.booking.update({
         where: { id: bookingId },
         data: {
           paymentStatus: 'PAID',
           status: 'CONFIRMED',
-          stripePaymentId: session.payment_intent as string || undefined
+          stripePaymentId: session.payment_intent as string || existingBooking.stripePaymentId || undefined
         },
         include: {
           vehicle: true
         }
       })
       
-      console.log('✅ [STRIPE WEBHOOK] Booking updated:', {
+      // Verify update was successful
+      if (booking.paymentStatus !== 'PAID' || booking.status !== 'CONFIRMED') {
+        throw new Error('Booking update verification failed')
+      }
+      
+      console.log('✅ [WEBHOOK] Payment confirmed - Booking updated:', {
         bookingId: booking.id,
         paymentStatus: booking.paymentStatus,
-        status: booking.status,
-        stripePaymentId: booking.stripePaymentId
+        status: booking.status
       })
 
       // Format date for email
@@ -158,10 +142,8 @@ export async function POST(request: NextRequest) {
         day: 'numeric'
       })
 
-      // Send confirmation email to customer
-      console.log('🟢 [STRIPE WEBHOOK] Sending confirmation emails...')
+      // Send confirmation emails
       try {
-        console.log('🟢 [STRIPE WEBHOOK] Preparing customer email template...')
         const customerTemplate = emailTemplates.bookingConfirmation(
           booking.customerName,
           booking.id,
@@ -174,16 +156,12 @@ export async function POST(request: NextRequest) {
           (booking as any).dropoffNote || undefined
         )
 
-        console.log('🟢 [STRIPE WEBHOOK] Sending email to customer:', booking.customerEmail)
         await sendEmail({
           to: booking.customerEmail,
           subject: customerTemplate.subject,
           html: customerTemplate.html
         })
-        console.log('✅ [STRIPE WEBHOOK] Customer email sent successfully')
 
-        // Send notification to admin (always zbklimo@gmail.com)
-        console.log('🟢 [STRIPE WEBHOOK] Preparing admin notification template...')
         const adminTemplate = emailTemplates.adminNotification(
           booking.id,
           booking.customerName,
@@ -204,56 +182,69 @@ export async function POST(request: NextRequest) {
           (booking as any).dropoffNote || undefined
         )
 
-        const adminEmail = 'zbklimo@gmail.com' // Admin email is always zbklimo@gmail.com
-        console.log('🟢 [STRIPE WEBHOOK] Sending email to admin:', adminEmail)
         await sendEmail({
-          to: adminEmail,
+          to: 'zbklimo@gmail.com',
           subject: adminTemplate.subject,
           html: adminTemplate.html
         })
-        console.log('✅ [STRIPE WEBHOOK] Admin notification sent successfully')
 
-        console.log('✅ [STRIPE WEBHOOK] Payment confirmed and emails sent')
-        console.log('🟢 [STRIPE WEBHOOK]   - Customer email sent to:', booking.customerEmail)
-        console.log('🟢 [STRIPE WEBHOOK]   - Admin notification sent to:', adminEmail)
+        console.log('✅ [WEBHOOK] Confirmation emails sent')
       } catch (emailError) {
-        console.error('❌ [STRIPE WEBHOOK] Failed to send payment confirmation emails')
-        console.error('❌ [STRIPE WEBHOOK] Email error:', emailError)
-        console.error('❌ [STRIPE WEBHOOK] Error stack:', (emailError as any)?.stack)
-        // Don't fail the webhook if email fails
+        console.error('❌ [WEBHOOK] Failed to send emails:', emailError)
       }
     } else if (event.type === 'checkout.session.async_payment_failed') {
-      console.log('🟢 [STRIPE WEBHOOK] Processing checkout.session.async_payment_failed event')
       const session = event.data.object as Stripe.Checkout.Session
       const bookingId = session.metadata?.bookingId
 
-      console.log('🟢 [STRIPE WEBHOOK] Payment failed details:', {
-        sessionId: session.id,
-        bookingId: bookingId,
-        paymentStatus: session.payment_status
-      })
-
       if (bookingId) {
-        console.log('🟢 [STRIPE WEBHOOK] Updating booking to FAILED status...')
         await prisma.booking.update({
           where: { id: bookingId },
           data: {
             paymentStatus: 'FAILED'
           }
         })
-        console.log('✅ [STRIPE WEBHOOK] Booking updated to FAILED:', bookingId)
-      } else {
-        console.warn('⚠️ [STRIPE WEBHOOK] No booking ID found for failed payment')
+        console.log('✅ [WEBHOOK] Payment failed - Booking updated:', bookingId)
       }
-    } else {
-      console.log('🟢 [STRIPE WEBHOOK] Unhandled event type:', event.type)
-      console.log('🟢 [STRIPE WEBHOOK] Event ID:', event.id)
+    } else if (event.type === 'payment_intent.succeeded') {
+      // Fallback: Handle payment_intent.succeeded if checkout.session.completed didn't fire
+      const paymentIntent = event.data.object as Stripe.PaymentIntent
+      const bookingId = paymentIntent.metadata?.bookingId
+      
+      if (bookingId) {
+        try {
+          const existingBooking = await prisma.booking.findUnique({
+            where: { id: bookingId },
+            select: {
+              id: true,
+              paymentStatus: true,
+              status: true
+            }
+          })
+          
+          if (!existingBooking) {
+            console.error('❌ [WEBHOOK] Booking not found:', bookingId)
+          } else if (existingBooking.paymentStatus !== 'PAID' || existingBooking.status !== 'CONFIRMED') {
+            const booking = await prisma.booking.update({
+              where: { id: bookingId },
+              data: {
+                paymentStatus: 'PAID',
+                status: 'CONFIRMED',
+                stripePaymentId: paymentIntent.id
+              }
+            })
+            
+            // Verify update was successful
+            if (booking.paymentStatus !== 'PAID' || booking.status !== 'CONFIRMED') {
+              throw new Error('Booking update verification failed')
+            }
+            
+            console.log('✅ [WEBHOOK] Payment confirmed via payment_intent - Booking updated:', booking.id)
+          }
+        } catch (error) {
+          console.error('❌ [WEBHOOK] Error updating booking from payment_intent:', error)
+        }
+      }
     }
-
-    const duration = Date.now() - startTime
-    console.log('✅ [STRIPE WEBHOOK] Webhook processed successfully')
-    console.log('🟢 [STRIPE WEBHOOK] Processing time:', duration + 'ms')
-    console.log('🟢 [STRIPE WEBHOOK] ==========================================')
 
     return NextResponse.json(
       { received: true },
@@ -266,14 +257,7 @@ export async function POST(request: NextRequest) {
       }
     )
   } catch (error: any) {
-    const duration = Date.now() - startTime
-    console.error('❌ [STRIPE WEBHOOK] ==========================================')
-    console.error('❌ [STRIPE WEBHOOK] Error processing webhook')
-    console.error('❌ [STRIPE WEBHOOK] Error type:', error.type || error.constructor.name)
-    console.error('❌ [STRIPE WEBHOOK] Error message:', error.message)
-    console.error('❌ [STRIPE WEBHOOK] Error stack:', error.stack)
-    console.error('❌ [STRIPE WEBHOOK] Processing time:', duration + 'ms')
-    console.error('❌ [STRIPE WEBHOOK] ==========================================')
+    console.error('❌ [WEBHOOK] Error processing webhook:', error.message)
     return NextResponse.json(
       { error: error.message || 'Webhook processing failed' },
       { 
@@ -286,4 +270,3 @@ export async function POST(request: NextRequest) {
     )
   }
 }
-
