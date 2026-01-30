@@ -22,23 +22,49 @@ const stripe = new Stripe(getStripeSecretKey(), {
 // Disable body parsing, need raw body for webhook signature verification
 export const runtime = 'nodejs'
 
+// Allow CORS for Stripe webhook
+export async function OPTIONS(request: NextRequest) {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, stripe-signature',
+    },
+  })
+}
+
 // POST /api/stripe/webhook
 export async function POST(request: NextRequest) {
   const startTime = Date.now()
   console.log('🟢 [STRIPE WEBHOOK] ==========================================')
   console.log('🟢 [STRIPE WEBHOOK] Webhook received at:', new Date().toISOString())
+  console.log('🟢 [STRIPE WEBHOOK] Request method:', request.method)
+  console.log('🟢 [STRIPE WEBHOOK] Request URL:', request.url)
+  console.log('🟢 [STRIPE WEBHOOK] Request headers:', {
+    'content-type': request.headers.get('content-type'),
+    'user-agent': request.headers.get('user-agent'),
+    'stripe-signature': request.headers.get('stripe-signature') ? 'present' : 'missing'
+  })
   
   const body = await request.text()
   const signature = request.headers.get('stripe-signature')
 
   console.log('🟢 [STRIPE WEBHOOK] Webhook signature present:', !!signature)
   console.log('🟢 [STRIPE WEBHOOK] Body length:', body.length)
+  console.log('🟢 [STRIPE WEBHOOK] Body preview (first 200 chars):', body.substring(0, 200))
 
   if (!signature) {
     console.error('❌ [STRIPE WEBHOOK] No signature provided')
     return NextResponse.json(
       { error: 'No signature provided' },
-      { status: 400 }
+      { 
+        status: 400,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        },
+      }
     )
   }
 
@@ -70,7 +96,13 @@ export async function POST(request: NextRequest) {
     console.error('❌ [STRIPE WEBHOOK] ==========================================')
     return NextResponse.json(
       { error: `Webhook Error: ${err.message}` },
-      { status: 400 }
+      { 
+        status: 400,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        },
+      }
     )
   }
 
@@ -223,7 +255,16 @@ export async function POST(request: NextRequest) {
     console.log('🟢 [STRIPE WEBHOOK] Processing time:', duration + 'ms')
     console.log('🟢 [STRIPE WEBHOOK] ==========================================')
 
-    return NextResponse.json({ received: true })
+    return NextResponse.json(
+      { received: true },
+      {
+        status: 200,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        },
+      }
+    )
   } catch (error: any) {
     const duration = Date.now() - startTime
     console.error('❌ [STRIPE WEBHOOK] ==========================================')
@@ -235,7 +276,13 @@ export async function POST(request: NextRequest) {
     console.error('❌ [STRIPE WEBHOOK] ==========================================')
     return NextResponse.json(
       { error: error.message || 'Webhook processing failed' },
-      { status: 500 }
+      { 
+        status: 500,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        },
+      }
     )
   }
 }
