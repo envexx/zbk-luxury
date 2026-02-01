@@ -169,24 +169,91 @@ const VehicleSearchModal: React.FC<VehicleSearchModalProps> = ({
         body: JSON.stringify({ bookingId }),
       });
 
-      if (!checkoutResponse.ok) {
-        const errorData = await checkoutResponse.json().catch(() => ({ error: 'Failed to parse error response' }));
-        alert(`Payment setup failed (${checkoutResponse.status}): ${errorData.error || 'Unknown error'}`);
-        return;
-      }
-
+      // Parse response regardless of status
       const checkoutResult = await checkoutResponse.json();
+      console.log('🔍 Checkout response status:', checkoutResponse.status);
+      console.log('🔍 Checkout result:', checkoutResult);
 
-      if (checkoutResult.success && checkoutResult.url) {
-        // Track lead form submission conversion before redirecting to Stripe Checkout
-        // Note: Payment completion with accurate value will be tracked on payment success page
-        gtagSendEvent(checkoutResult.url, CONVERSION_LABELS.SUBMIT_LEAD_FORM);
-      } else {
-        alert(`Payment setup failed: ${checkoutResult.error || 'Unknown error'}`);
+      if (!checkoutResponse.ok) {
+        const errorMsg = checkoutResult.error || `HTTP ${checkoutResponse.status}: Unknown error`;
+        console.error('❌ Checkout session creation failed:', errorMsg);
+        alert(`Payment setup failed: ${errorMsg}`);
+        throw new Error(errorMsg);
       }
+
+      // Check if we have a valid URL to redirect to
+      if (!checkoutResult.success) {
+        const errorMsg = checkoutResult.error || 'Failed to create checkout session';
+        console.error('❌ Checkout session failed:', errorMsg);
+        alert(`Payment setup failed: ${errorMsg}`);
+        throw new Error(errorMsg);
+      }
+
+      const checkoutUrl = checkoutResult.url || checkoutResult.sessionUrl;
+      if (!checkoutUrl) {
+        console.error('❌ No checkout URL in response:', checkoutResult);
+        console.error('❌ Full response:', JSON.stringify(checkoutResult, null, 2));
+        alert('Payment setup failed: No checkout URL received from Stripe. Please contact support.');
+        throw new Error('No checkout URL in response');
+      }
+
+      console.log('✅ Checkout session created successfully');
+      console.log('✅ Checkout URL:', checkoutUrl);
+      console.log('✅ Full checkout result:', JSON.stringify(checkoutResult, null, 2));
+      
+      // Track lead form submission conversion before redirecting to Stripe Checkout
+      // Note: Payment completion with accurate value will be tracked on payment success page
+      try {
+        gtagSendEvent(checkoutUrl, CONVERSION_LABELS.SUBMIT_LEAD_FORM);
+      } catch (gtagError) {
+        console.warn('⚠️ Google Ads tracking error (non-blocking):', gtagError);
+      }
+      
+      // CRITICAL: Redirect to Stripe Checkout immediately
+      // Use multiple methods to ensure redirect happens
+      console.log('🔄 Starting redirect to Stripe checkout...');
+      
+      // Method 1: window.location.href (most reliable, full page navigation)
+      try {
+        window.location.href = checkoutUrl;
+        console.log('✅ Redirect method 1 executed: window.location.href');
+      } catch (e) {
+        console.error('❌ Redirect method 1 failed:', e);
+      }
+      
+      // Method 2: window.location.replace (fallback, doesn't add to history)
+      setTimeout(() => {
+        try {
+          const currentUrl = window.location.href;
+          if (!currentUrl.includes('checkout.stripe.com') && !currentUrl.includes('stripe.com')) {
+            console.warn('⚠️ Primary redirect may have failed, using window.location.replace');
+            window.location.replace(checkoutUrl);
+          }
+        } catch (e) {
+          console.error('❌ Redirect method 2 failed:', e);
+        }
+      }, 500);
+      
+      // Method 3: window.open as last resort (opens in new tab/window)
+      setTimeout(() => {
+        try {
+          const currentUrl = window.location.href;
+          if (!currentUrl.includes('checkout.stripe.com') && !currentUrl.includes('stripe.com')) {
+            console.warn('⚠️ All redirect methods failed, trying window.open');
+            const newWindow = window.open(checkoutUrl, '_blank');
+            if (!newWindow) {
+              alert('Please allow popups for this site to complete payment, or click here: ' + checkoutUrl);
+            }
+          }
+        } catch (e) {
+          console.error('❌ Redirect method 3 failed:', e);
+          alert('Redirect failed. Please click this link to complete payment: ' + checkoutUrl);
+        }
+      }, 1500);
     } catch (error) {
       console.error('Error processing payment:', error);
       alert('Network error. Please try again.');
+      throw error; // Re-throw to allow OrderSummary to handle it
     }
   };
 
@@ -305,10 +372,14 @@ const VehicleSearchModal: React.FC<VehicleSearchModalProps> = ({
               {currentStep === 3 && (
                 <OrderSummary
                   bookingData={bookingData as BookingData}
-                  onComplete={(data) => {
-                    handleOrderSummaryComplete(data);
-                    // OrderSummary will redirect to Stripe, so we can close the modal
-                    // The redirect happens in OrderSummary's handleSubmit
+                  onComplete={async (data) => {
+                    try {
+                      await handleOrderSummaryComplete(data);
+                      // Redirect to Stripe will happen in handleOrderSummaryComplete
+                    } catch (error) {
+                      // Error already handled in handleOrderSummaryComplete
+                      console.error('Error in order summary completion:', error);
+                    }
                   }}
                   onBack={handleBack}
                 />

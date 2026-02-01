@@ -229,7 +229,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
     try {
       // Pass customer info and service type to parent component
       // Payment calculation will be done in API using same logic
-      onComplete({
+      await onComplete({
         customerInfo: {
           name: customerInfo.name,
           email: customerInfo.email,
@@ -237,6 +237,8 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         },
         serviceType: serviceType, // Pass the detected service type
       });
+      // If onComplete succeeds, redirect will happen in parent component
+      // Don't reset isSubmitting here as we're redirecting
     } catch (error) {
       console.error('Error preparing payment:', error);
       alert('Error preparing payment. Please try again.');
