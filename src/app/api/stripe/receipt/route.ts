@@ -26,7 +26,6 @@ export async function GET(request: NextRequest) {
     const bookingId = searchParams.get('booking_id')
 
     if (!sessionId && !bookingId) {
-      console.error('❌ [RECEIPT] Missing sessionId and bookingId')
       return NextResponse.json(
         { error: 'Session ID or Booking ID is required' },
         { status: 400 }
@@ -52,7 +51,6 @@ export async function GET(request: NextRequest) {
       })
 
       if (!booking) {
-        console.error('❌ [RECEIPT] Booking not found:', bookingId)
         return NextResponse.json(
           { error: 'Booking not found' },
           { status: 404 }
@@ -64,7 +62,7 @@ export async function GET(request: NextRequest) {
         try {
           session = await stripe.checkout.sessions.retrieve(booking.stripeSessionId)
         } catch (error) {
-          console.error('❌ [RECEIPT] Error retrieving session:', error)
+          console.error('Error retrieving session:', error)
         }
       }
     } else if (sessionId) {
@@ -72,7 +70,6 @@ export async function GET(request: NextRequest) {
       try {
         session = await stripe.checkout.sessions.retrieve(sessionId)
       } catch (error) {
-        console.error('❌ [RECEIPT] Invalid session ID:', sessionId)
         return NextResponse.json(
           { error: 'Invalid session ID' },
           { status: 404 }
@@ -98,7 +95,6 @@ export async function GET(request: NextRequest) {
     }
 
     if (!booking) {
-      console.error('❌ [RECEIPT] Booking not found')
       return NextResponse.json(
         { error: 'Booking not found' },
         { status: 404 }
@@ -113,7 +109,7 @@ export async function GET(request: NextRequest) {
           paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent)
         }
       } catch (error) {
-        console.error('❌ [RECEIPT] Error retrieving payment intent:', error)
+        console.error('Error retrieving payment intent:', error)
       }
     }
 
@@ -125,7 +121,7 @@ export async function GET(request: NextRequest) {
           charge = await stripe.charges.retrieve(paymentIntent.latest_charge)
         }
       } catch (error) {
-        console.error('❌ [RECEIPT] Error retrieving charge:', error)
+        console.error('Error retrieving charge:', error)
       }
     }
 
@@ -173,10 +169,11 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('❌ [RECEIPT] Error:', error.message)
+    console.error('Error generating receipt:', error)
     return NextResponse.json(
       { error: error.message || 'Failed to generate receipt' },
       { status: 500 }
     )
   }
 }
+

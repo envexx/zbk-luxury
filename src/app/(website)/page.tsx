@@ -10,6 +10,10 @@ const TestimonialsSection = dynamic(() => import("@/components/organisms/Testimo
   ssr: false
 });
 
+const GalleryCarousel = dynamic(() => import("@/components/organisms/GalleryCarousel"), {
+  ssr: false
+});
+
 export default function Home() {
   const handleViewAllFleet = () => {
     // Navigate to fleet page
@@ -73,6 +77,9 @@ export default function Home() {
       
       {/* Fleet Section */}
       <FleetSection onViewAll={handleViewAllFleet} />
+      
+      {/* Gallery Carousel Section */}
+      <GalleryCarousel />
       
       {/* Services Section */}
       <ServicesSection />

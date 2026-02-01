@@ -26,7 +26,6 @@ export async function POST(request: NextRequest) {
     const { sessionId, bookingId } = body
 
     if (!sessionId && !bookingId) {
-      console.error('❌ [CONFIRM] Missing sessionId and bookingId')
       return NextResponse.json(
         { error: 'Session ID or Booking ID is required' },
         { status: 400 }
@@ -46,15 +45,14 @@ export async function POST(request: NextRequest) {
       })
 
       if (!booking) {
-        console.error('❌ [CONFIRM] Booking not found:', bookingId)
         return NextResponse.json(
           { error: 'Booking not found' },
           { status: 404 }
         )
       }
 
-      // If already paid and confirmed, return success (idempotent)
-      if (booking.paymentStatus === 'PAID' && booking.status === 'CONFIRMED') {
+      // If already paid, return success
+      if (booking.paymentStatus === 'PAID') {
         return NextResponse.json({
           success: true,
           message: 'Payment already confirmed',
@@ -71,7 +69,7 @@ export async function POST(request: NextRequest) {
         try {
           session = await stripe.checkout.sessions.retrieve(booking.stripeSessionId)
         } catch (error) {
-          console.error('❌ [CONFIRM] Error retrieving session:', error)
+          console.error('Error retrieving session:', error)
         }
       }
     } else if (sessionId) {
@@ -79,7 +77,6 @@ export async function POST(request: NextRequest) {
       try {
         session = await stripe.checkout.sessions.retrieve(sessionId)
       } catch (error) {
-        console.error('❌ [CONFIRM] Invalid session ID:', sessionId)
         return NextResponse.json(
           { error: 'Invalid session ID' },
           { status: 404 }
@@ -99,7 +96,6 @@ export async function POST(request: NextRequest) {
     }
 
     if (!booking) {
-      console.error('❌ [CONFIRM] Booking not found')
       return NextResponse.json(
         { error: 'Booking not found' },
         { status: 404 }
@@ -118,11 +114,11 @@ export async function POST(request: NextRequest) {
               paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent)
             }
           } catch (error) {
-            console.error('❌ [CONFIRM] Error retrieving payment intent:', error)
+            console.error('Error retrieving payment intent:', error)
           }
         }
-        
-        // Update booking payment status - ensure atomic update
+
+        // Update booking payment status
         const updatedBooking = await prisma.booking.update({
           where: { id: booking.id },
           data: {
@@ -134,13 +130,8 @@ export async function POST(request: NextRequest) {
             vehicle: true
           }
         })
-        
-        // Verify update was successful
-        if (updatedBooking.paymentStatus !== 'PAID' || updatedBooking.status !== 'CONFIRMED') {
-          throw new Error('Booking update verification failed')
-        }
 
-        console.log('✅ [CONFIRM] Payment confirmed - Booking updated:', updatedBooking.id)
+        console.log('✅ Payment confirmed via fallback endpoint:', booking.id)
 
         // Send confirmation emails (same as webhook)
         try {
@@ -151,6 +142,7 @@ export async function POST(request: NextRequest) {
             day: 'numeric'
           })
 
+          // Send confirmation email to customer
           const customerTemplate = emailTemplates.bookingConfirmation(
             updatedBooking.customerName,
             updatedBooking.id,
@@ -169,6 +161,7 @@ export async function POST(request: NextRequest) {
             html: customerTemplate.html
           })
 
+          // Send notification to admin (always zbklimo@gmail.com)
           const adminTemplate = emailTemplates.adminNotification(
             updatedBooking.id,
             updatedBooking.customerName,
@@ -189,15 +182,19 @@ export async function POST(request: NextRequest) {
             (updatedBooking as any).dropoffNote || undefined
           )
 
+          const adminEmail = 'zbklimo@gmail.com'
           await sendEmail({
-            to: 'zbklimo@gmail.com',
+            to: adminEmail,
             subject: adminTemplate.subject,
             html: adminTemplate.html
           })
 
-          console.log('✅ [CONFIRM] Confirmation emails sent')
+          console.log('✅ Confirmation emails sent')
+          console.log(`   - Customer email sent to: ${updatedBooking.customerEmail}`)
+          console.log(`   - Admin notification sent to: ${adminEmail}`)
         } catch (emailError) {
-          console.error('❌ [CONFIRM] Failed to send emails:', emailError)
+          console.error('❌ Failed to send confirmation emails:', emailError)
+          // Don't fail the payment confirmation if email fails
         }
 
         return NextResponse.json({
@@ -210,6 +207,7 @@ export async function POST(request: NextRequest) {
           }
         })
       } else {
+        // Payment not completed yet
         return NextResponse.json({
           success: false,
           message: 'Payment not completed yet',
@@ -218,6 +216,7 @@ export async function POST(request: NextRequest) {
         }, { status: 400 })
       }
     } else {
+      // No session found, but booking exists
       return NextResponse.json({
         success: false,
         message: 'No payment session found for this booking',
@@ -230,10 +229,11 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error: any) {
-    console.error('❌ [CONFIRM] Error:', error.message)
+    console.error('Error confirming payment:', error)
     return NextResponse.json(
       { error: error.message || 'Failed to confirm payment' },
       { status: 500 }
     )
   }
 }
+

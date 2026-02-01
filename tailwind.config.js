@@ -73,6 +73,18 @@ module.exports = {
         'standard': '200ms',
         'entrance': '300ms',
       },
+      
+      keyframes: {
+        scroll: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(calc(-100% - 24px))' },
+        },
+      },
+      
+      animation: {
+        'scroll': 'scroll 60s linear infinite',
+        'scroll-slow': 'scroll 180s linear infinite',
+      },
       typography: {
         DEFAULT: {
           css: {

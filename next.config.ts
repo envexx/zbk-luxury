@@ -35,6 +35,7 @@ const nextConfig: NextConfig = {
     unoptimized: false,
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none' sandbox;",
+    qualities: [75, 90],
   },
   experimental: {
     optimizeCss: true,

@@ -179,18 +179,9 @@ const VehicleSearchModal: React.FC<VehicleSearchModalProps> = ({
 
       if (checkoutResult.success && checkoutResult.url) {
         // Track lead form submission conversion before redirecting to Stripe Checkout
-        try {
-          gtagSendEvent(checkoutResult.url, CONVERSION_LABELS.SUBMIT_LEAD_FORM);
-        } catch (error) {
-          // Google Ads tracking failed, continue with redirect
-        }
-        
-        // Redirect to Stripe Checkout
-        setTimeout(() => {
-          window.location.href = checkoutResult.url;
-        }, 100);
+        // Note: Payment completion with accurate value will be tracked on payment success page
+        gtagSendEvent(checkoutResult.url, CONVERSION_LABELS.SUBMIT_LEAD_FORM);
       } else {
-        console.error('❌ [CHECKOUT] Checkout session creation failed:', checkoutResult);
         alert(`Payment setup failed: ${checkoutResult.error || 'Unknown error'}`);
       }
     } catch (error) {
