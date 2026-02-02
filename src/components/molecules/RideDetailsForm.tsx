@@ -163,13 +163,13 @@ const RideDetailsForm: React.FC<RideDetailsFormProps> = ({
   const today = new Date().toISOString().split('T')[0];
 
   return (
-    <div className={cn('max-w-2xl mx-auto', className)}>
-      <div className="mb-8 text-center">
-        <h3 className="text-xl font-bold text-gray-900 mb-2">Enter Ride Details</h3>
-        <p className="text-gray-600">Please provide your pickup and drop-off information</p>
+    <div className={cn('max-w-2xl mx-auto w-full', className)}>
+      <div className="mb-4 sm:mb-6 md:mb-8 text-center">
+        <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 sm:mb-2">Enter Ride Details</h3>
+        <p className="text-sm sm:text-base text-gray-600">Please provide your pickup and drop-off information</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5 md:space-y-6">
         {/* Trip Type Selection */}
         <div>
           <Select
@@ -309,12 +309,12 @@ const RideDetailsForm: React.FC<RideDetailsFormProps> = ({
         )}
 
         {/* Action Buttons */}
-        <div className="flex justify-end pt-6">
+        <div className="flex justify-end pt-4 sm:pt-5 md:pt-6">
           <Button
             type="submit"
             variant="primary"
             size="large"
-            className="px-12"
+            className="w-full sm:w-auto px-8 sm:px-12"
           >
             Search Vehicles
           </Button>
@@ -322,7 +322,7 @@ const RideDetailsForm: React.FC<RideDetailsFormProps> = ({
       </form>
 
       {/* Info Card */}
-      <div className="mt-8 p-4 bg-luxury-gold bg-opacity-10 border border-luxury-gold rounded-compact">
+      <div className="mt-4 sm:mt-6 md:mt-8 p-3 sm:p-4 bg-luxury-gold bg-opacity-10 border border-luxury-gold rounded-compact">
         <div className="flex items-start gap-3">
           <div className="flex-shrink-0 w-5 h-5 text-luxury-gold mt-0.5">
             <svg fill="currentColor" viewBox="0 0 20 20">

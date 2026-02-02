@@ -244,16 +244,17 @@ const VehicleSelection: React.FC<VehicleSelectionProps> = (props) => {
         </div>
       )}
 
-      {/* Action Buttons - ALWAYS VISIBLE */}
-      <div className="mt-8 pt-6 border-t-2 border-luxury-gold/20">
-        <div className="flex justify-between items-center gap-4">
+      {/* Action Buttons - Responsive dan rapi untuk mobile */}
+      <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t-2 border-luxury-gold/20">
+        {/* Mobile: Stacked vertically, Desktop: Side by side */}
+        <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 sm:gap-4">
           <Button
             variant="ghost"
             size="large"
             onClick={onBack}
-            className="flex items-center gap-2 px-6 py-3 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all"
+            className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all order-2 sm:order-1"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
             <span className="font-semibold">Back</span>
@@ -265,21 +266,22 @@ const VehicleSelection: React.FC<VehicleSelectionProps> = (props) => {
             onClick={handleContinue}
             disabled={!selectedVehicleId}
             className={cn(
-              "flex items-center gap-2 px-8 py-3 text-base font-bold rounded-lg shadow-lg transition-all",
+              "flex items-center justify-center gap-2 px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 text-sm sm:text-base font-bold rounded-lg shadow-lg transition-all order-1 sm:order-2 flex-1 sm:flex-initial",
               selectedVehicleId 
-                ? "bg-luxury-gold hover:bg-luxury-gold/90 text-gray-900 hover:shadow-xl hover:scale-[1.02]" 
+                ? "bg-luxury-gold hover:bg-luxury-gold/90 text-gray-900 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]" 
                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
             )}
           >
-            <span>Continue to Order Summary</span>
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <span className="hidden sm:inline">Continue to Order Summary</span>
+            <span className="sm:hidden">Continue</span>
+            <svg className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </Button>
         </div>
         
         {!selectedVehicleId && (
-          <p className="text-center text-sm text-gray-500 mt-4 font-medium">
+          <p className="text-center text-xs sm:text-sm text-gray-500 mt-3 sm:mt-4 font-medium">
             ⚠️ Please select a vehicle to continue
           </p>
         )}

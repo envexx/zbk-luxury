@@ -266,21 +266,22 @@ const VehicleSearchModal: React.FC<VehicleSearchModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex items-center justify-center min-h-screen px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
-        {/* Backdrop */}
-        <div 
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm" 
-          onClick={onClose}
-        />
+    <div className="fixed inset-0 z-50 overflow-hidden">
+      {/* Backdrop */}
+      <div 
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm" 
+        onClick={onClose}
+      />
 
-        {/* Modal Content - Diperbesar untuk desktop */}
-        <div className="relative bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-6xl lg:max-w-7xl xl:max-w-[95rem] w-full h-[calc(100vh-1.5rem)] sm:h-auto sm:max-h-[92vh] lg:max-h-[94vh] overflow-hidden border border-luxury-gold/30">
-          {/* Header - Ukuran lebih kecil dan elegant */}
-          <div className="sticky top-0 bg-white/98 border-b border-luxury-gold/30 px-6 sm:px-8 lg:px-10 py-4 sm:py-5 lg:py-6 flex items-center justify-between z-10 backdrop-blur-sm">
+      {/* Modal Container - Full height dengan flex layout */}
+      <div className="flex items-center justify-center min-h-screen p-0 sm:p-3 md:p-4 lg:p-6">
+        {/* Modal Content - Responsive dan optimized, no empty space */}
+        <div className="relative bg-white rounded-none sm:rounded-xl md:rounded-2xl shadow-2xl max-w-6xl lg:max-w-7xl xl:max-w-[95rem] w-full h-screen sm:h-[95vh] md:h-[92vh] lg:h-[90vh] flex flex-col overflow-hidden border-0 sm:border border-luxury-gold/30">
+          {/* Header - Sticky di atas */}
+          <div className="flex-shrink-0 sticky top-0 bg-white border-b border-luxury-gold/30 px-4 sm:px-6 md:px-8 lg:px-10 py-3 sm:py-4 md:py-5 lg:py-6 flex items-center justify-between z-10 backdrop-blur-sm">
             <div className="flex-1 min-w-0 pr-3">
-              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 tracking-tight">Book Your Ride</h2>
-              <p className="text-xs sm:text-sm text-gray-500 mt-1 sm:mt-1.5 font-medium">
+              <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 tracking-tight">Book Your Ride</h2>
+              <p className="text-xs sm:text-sm text-gray-500 mt-0.5 sm:mt-1 md:mt-1.5 font-medium">
                 Step {currentStep} of 3: {
                   currentStep === 1 ? 'Ride Details' :
                   currentStep === 2 ? 'Vehicle Selection' :
@@ -290,7 +291,8 @@ const VehicleSearchModal: React.FC<VehicleSearchModalProps> = ({
             </div>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full flex-shrink-0"
+              className="text-gray-400 hover:text-gray-600 transition-colors p-1.5 sm:p-2 hover:bg-gray-100 rounded-full flex-shrink-0"
+              aria-label="Close modal"
             >
               <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -298,8 +300,8 @@ const VehicleSearchModal: React.FC<VehicleSearchModalProps> = ({
             </button>
           </div>
 
-          {/* Progress Indicator - Ukuran lebih kecil dan proporsional */}
-          <div className="px-6 sm:px-8 lg:px-10 py-3 sm:py-4 lg:py-5 bg-gradient-to-r from-luxury-gold/5 via-white to-luxury-gold/5 border-b border-luxury-gold/20">
+          {/* Progress Indicator - Compact dan responsive */}
+          <div className="flex-shrink-0 px-4 sm:px-6 md:px-8 lg:px-10 py-2 sm:py-3 md:py-4 lg:py-5 bg-gradient-to-r from-luxury-gold/5 via-white to-luxury-gold/5 border-b border-luxury-gold/20">
             <div className="flex items-center justify-between max-w-2xl mx-auto">
               {[1, 2, 3].map((step) => (
                 <React.Fragment key={step}>
@@ -307,7 +309,7 @@ const VehicleSearchModal: React.FC<VehicleSearchModalProps> = ({
                     <div className="flex flex-col items-center w-full">
                       <div
                         className={cn(
-                          'w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 rounded-full flex items-center justify-center font-medium transition-all duration-300 shadow-sm',
+                          'w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-9 lg:h-9 rounded-full flex items-center justify-center font-medium transition-all duration-300 shadow-sm',
                           currentStep === step
                             ? 'bg-luxury-gold text-gray-900 shadow-md shadow-luxury-gold/30 scale-105'
                             : currentStep > step
@@ -316,16 +318,16 @@ const VehicleSearchModal: React.FC<VehicleSearchModalProps> = ({
                         )}
                       >
                         {currentStep > step ? (
-                          <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-4.5 lg:h-4.5" fill="currentColor" viewBox="0 0 20 20">
+                          <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-4.5 lg:h-4.5" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                           </svg>
                         ) : (
-                          <span className="text-[11px] sm:text-xs lg:text-sm">{step}</span>
+                          <span className="text-[10px] sm:text-[11px] md:text-xs lg:text-sm">{step}</span>
                         )}
                       </div>
                       <span
                         className={cn(
-                          'mt-1 sm:mt-1.5 text-[9px] sm:text-[10px] lg:text-xs font-semibold uppercase tracking-wide hidden xs:block transition-colors text-center',
+                          'mt-0.5 sm:mt-1 md:mt-1.5 text-[8px] sm:text-[9px] md:text-[10px] lg:text-xs font-semibold uppercase tracking-wide hidden sm:block transition-colors text-center',
                           currentStep >= step ? 'text-luxury-gold' : 'text-gray-400'
                         )}
                       >
@@ -338,7 +340,7 @@ const VehicleSearchModal: React.FC<VehicleSearchModalProps> = ({
                     </div>
                   </div>
                   {step < 3 && (
-                    <div className="flex-1 mx-2 sm:mx-3 h-0.5 relative">
+                    <div className="flex-1 mx-1.5 sm:mx-2 md:mx-2.5 lg:mx-3 h-0.5 relative">
                       <div className={cn(
                         'absolute inset-0 rounded-full transition-all duration-500',
                         currentStep > step ? 'bg-luxury-gold' : 'bg-gray-200'
@@ -350,9 +352,9 @@ const VehicleSearchModal: React.FC<VehicleSearchModalProps> = ({
             </div>
           </div>
 
-          {/* Content - Balanced padding dengan scrollable area */}
-          <div className="bg-white overflow-y-auto" style={{ height: 'calc(100vh - 180px)', maxHeight: 'calc(94vh - 250px)' }}>
-            <div className="p-5 sm:p-6 lg:p-8 xl:p-10">
+          {/* Content Area - Flex-1 untuk mengisi sisa ruang, scrollable, no empty space */}
+          <div className="flex-1 bg-white overflow-y-auto overflow-x-hidden min-h-0">
+            <div className="p-4 sm:p-5 md:p-6 lg:p-8 xl:p-10 pb-6 sm:pb-8 md:pb-10 lg:pb-12">
               {currentStep === 1 && (
                 <RideDetailsForm
                   initialData={bookingData}
