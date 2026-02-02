@@ -273,10 +273,10 @@ const VehicleSearchModal: React.FC<VehicleSearchModalProps> = ({
         onClick={onClose}
       />
 
-      {/* Modal Container - Full height dengan flex layout */}
-      <div className="flex items-center justify-center min-h-screen p-0 sm:p-3 md:p-4 lg:p-6">
-        {/* Modal Content - Responsive dan optimized, no empty space */}
-        <div className="relative bg-white rounded-none sm:rounded-xl md:rounded-2xl shadow-2xl max-w-6xl lg:max-w-7xl xl:max-w-[95rem] w-full h-screen sm:h-[95vh] md:h-[92vh] lg:h-[90vh] flex flex-col overflow-hidden border-0 sm:border border-luxury-gold/30">
+      {/* Modal Container - Full screen di mobile, centered di desktop */}
+      <div className="absolute inset-0 sm:flex sm:items-center sm:justify-center sm:p-3 md:p-4 lg:p-6">
+        {/* Modal Content - Full screen di mobile, responsive di desktop */}
+        <div className="relative bg-white rounded-none sm:rounded-xl md:rounded-2xl shadow-2xl sm:max-w-6xl lg:max-w-7xl xl:max-w-[95rem] w-full h-full sm:h-[95vh] md:h-[92vh] lg:h-[90vh] flex flex-col overflow-hidden sm:border border-luxury-gold/30">
           {/* Header - Sticky di atas */}
           <div className="flex-shrink-0 sticky top-0 bg-white border-b border-luxury-gold/30 px-4 sm:px-6 md:px-8 lg:px-10 py-3 sm:py-4 md:py-5 lg:py-6 flex items-center justify-between z-10 backdrop-blur-sm">
             <div className="flex-1 min-w-0 pr-3">
