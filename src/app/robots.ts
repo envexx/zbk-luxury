@@ -7,18 +7,14 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: ['/','*.json','/_next/'],
-        disallow: [
-          '/api/',
-          '/admin/',
-          '/private/',
+        allow: [
+          '/',
+          '/*.json',
+          '/_next/',
+          '/api/blog/', // PENTING: Mengizinkan Google mengambil data blog dari API
         ],
-      },
-      {
-        userAgent: 'Googlebot',
-        allow: '/',
         disallow: [
-          '/api/',
+          '/api/',      // Tetap memblokir API sistem lainnya
           '/admin/',
           '/private/',
         ],
