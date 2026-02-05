@@ -8,24 +8,38 @@ export default function GoogleAnalytics() {
 
   return (
     <>
-      {/* Minified Google Analytics with defer loading */}
+      {/* Google tag (gtag.js) */}
       <Script
-        id="google-analytics-min"
-        strategy="lazyOnload" // Load after page is fully loaded
+        src={`https://www.googletagmanager.com/gtag/js?id=${GA_ADS_ID}`}
+        strategy="afterInteractive"
+      />
+      
+      {/* Google Tag initialization */}
+      <Script
+        id="google-analytics-init"
+        strategy="afterInteractive"
         dangerouslySetInnerHTML={{
           __html: `
-            window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());
-            gtag('config','${GA_MEASUREMENT_ID}',{
-              send_page_view:false,
-              transport_type:'beacon',
-              anonymize_ip:true,
-              allow_google_signals:false
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_ADS_ID}');
+            gtag('config', '${GA_MEASUREMENT_ID}', {
+              send_page_view: false,
+              transport_type: 'beacon',
+              anonymize_ip: true,
+              allow_google_signals: false
             });
-            gtag('config','${GA_ADS_ID}',{
-              send_page_view:false,
-              conversion_linker:false
-            });
-            window.gtagSendEvent=function(url,c,e,p){var cb=function(){if('string'==typeof url)window.location=url};var ev=e&&e.startsWith('ads_conversion_')?e:'ads_conversion_'+(e||'SUBMIT_LEAD_FORM_1');var ps={'event_callback':cb,'event_timeout':2000};p&&Object.assign(ps,p);gtag('event',ev,ps);return!1};
+            window.gtagSendEvent = function(url, c, e, p) {
+              var cb = function() {
+                if ('string' == typeof url) window.location = url;
+              };
+              var ev = e && e.startsWith('ads_conversion_') ? e : 'ads_conversion_' + (e || 'SUBMIT_LEAD_FORM_1');
+              var ps = {'event_callback': cb, 'event_timeout': 2000};
+              p && Object.assign(ps, p);
+              gtag('event', ev, ps);
+              return !1;
+            };
           `
         }}
       />
