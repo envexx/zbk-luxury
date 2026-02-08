@@ -97,10 +97,23 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
+    // Generate base slug
+    let slug = body.slug || body.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    
+    // Check if slug already exists and make it unique
+    let slugExists = await prisma.blogPost.findUnique({ where: { slug } });
+    let counter = 1;
+    
+    while (slugExists) {
+      slug = `${body.slug || body.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${counter}`;
+      slugExists = await prisma.blogPost.findUnique({ where: { slug } });
+      counter++;
+    }
+
     const post = await prisma.blogPost.create({
       data: {
         title: body.title,
-        slug: body.slug || body.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+        slug: slug,
         excerpt: body.excerpt,
         content: body.content,
         images: body.images || [], // Changed to array

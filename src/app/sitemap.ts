@@ -1,22 +1,31 @@
 import { MetadataRoute } from 'next';
+import { prisma } from '@/lib/prisma';
 
-// Mock function to get blog posts - replace with actual API call
+// Fetch blog posts from database
 async function getBlogPosts() {
-  // In a real application, this would fetch from your database
-  return [
-    {
-      slug: 'ultimate-guide-luxury-car-rental-2024',
-      updatedAt: '2024-01-15T10:00:00Z',
-    },
-    {
-      slug: 'top-10-luxury-cars-business-travel',
-      updatedAt: '2024-01-12T14:30:00Z',
-    },
-    {
-      slug: 'sustainable-luxury-eco-friendly-premium-vehicles',
-      updatedAt: '2024-01-10T09:15:00Z',
-    },
-  ];
+  try {
+    const posts = await prisma.blogPost.findMany({
+      where: {
+        isPublished: true,
+      },
+      select: {
+        slug: true,
+        updatedAt: true,
+      },
+      orderBy: {
+        updatedAt: 'desc',
+      },
+    });
+
+    return posts.map(post => ({
+      slug: post.slug,
+      updatedAt: post.updatedAt.toISOString(),
+    }));
+  } catch (error) {
+    console.error('Error fetching blog posts for sitemap:', error);
+    // Return empty array if database error
+    return [];
+  }
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

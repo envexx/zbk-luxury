@@ -19,24 +19,26 @@ export const organizationSchema = {
   "@type": "Organization",
   "name": "ZBK Limousine Tours",
   "alternateName": "ZBK Luxury Transport",
-  "url": "https://zbklimo.com",
-  "logo": "https://zbklimo.com/logo.png",
+  "url": "https://www.zbktransportservices.com",
+  "logo": "https://www.zbktransportservices.com/api/logo",
   "description": "Premium luxury car rental and chauffeur services in Singapore. Specializing in Toyota Alphard, Noah, and Hiace vehicles for airport transfers, corporate events, and special occasions.",
   "address": {
     "@type": "PostalAddress",
-    "addressCountry": "Singapore",
-    "addressLocality": "Singapore"
+    "streetAddress": "Jurong West Street 65",
+    "addressLocality": "Singapore",
+    "postalCode": "640635",
+    "addressCountry": "SG"
   },
   "contactPoint": {
     "@type": "ContactPoint",
     "telephone": "+65 9747 6453",
     "contactType": "Customer Service",
-    "availableLanguage": ["English", "Chinese", "Malay"]
+    "email": "zbklimo@gmail.com",
+    "availableLanguage": ["English", "Indonesian"]
   },
   "sameAs": [
-    "https://www.facebook.com/zbklimo",
-    "https://www.instagram.com/zbklimo",
-    "https://www.linkedin.com/company/zbklimo"
+    "https://www.facebook.com/zbktransportservices",
+    "https://www.instagram.com/zbktransportservices"
   ]
 }
 
@@ -47,12 +49,14 @@ export const localBusinessSchema = {
   "@context": "https://schema.org",
   "@type": "AutoRental",
   "name": "ZBK Limousine Tours",
-  "image": "https://zbklimo.com/hero-image.jpg",
+  "image": "https://www.zbktransportservices.com/Hero.jpg",
   "description": "Premium car rental and chauffeur service specializing in luxury Toyota vehicles including Alphard, Noah, and Hiace for airport transfers and corporate transportation in Singapore.",
   "address": {
     "@type": "PostalAddress",
-    "addressCountry": "Singapore",
-    "addressLocality": "Singapore"
+    "streetAddress": "Jurong West Street 65",
+    "addressLocality": "Singapore",
+    "postalCode": "640635",
+    "addressCountry": "SG"
   },
   "geo": {
     "@type": "GeoCoordinates",
@@ -166,7 +170,7 @@ export const vehicleSchemas = {
         }
       },
       "availability": "https://schema.org/InStock",
-      "url": "https://zbklimo.com/vehicles/alphard"
+      "url": "https://www.zbktransportservices.com/fleet"
     },
     "additionalProperty": [
       {
@@ -210,7 +214,7 @@ export const vehicleSchemas = {
         }
       },
       "availability": "https://schema.org/InStock",
-      "url": "https://zbklimo.com/vehicles/noah"
+      "url": "https://www.zbktransportservices.com/fleet"
     },
     "additionalProperty": [
       {
@@ -254,7 +258,7 @@ export const vehicleSchemas = {
         }
       },
       "availability": "https://schema.org/InStock",
-      "url": "https://zbklimo.com/vehicles/combi"
+      "url": "https://www.zbktransportservices.com/fleet"
     },
     "additionalProperty": [
       {
@@ -389,7 +393,7 @@ export function generateArticleSchema(article: {
       "name": "ZBK Limousine Tours",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://zbklimo.com/logo.png"
+        "url": "https://www.zbktransportservices.com/api/logo"
       }
     },
     "datePublished": article.publishedAt.toISOString(),

@@ -2,16 +2,17 @@
 
 import { useState, useEffect } from 'react'
 import { X, FileText, Upload, Eye } from '@/components/admin/Icons'
-import { markdownToHtml } from '@/utils/markdown'
 import { getImagePath } from '@/utils/imagePath'
-import RichTextEditor from '@/components/admin/RichTextEditor'
+import EditorJSComponent from '@/components/admin/EditorJSComponent'
+import { renderEditorJSBlocks } from '@/utils/editorjs-renderer'
+import type { OutputData } from '@editorjs/editorjs'
 
 interface BlogPost {
   id?: string
   title: string
   slug: string
   excerpt: string
-  content: string
+  content: string | OutputData // Support both HTML string and Editor.js JSON
   images: string[] // Changed to array for multiple images
   author: string
   isPublished: boolean
@@ -41,6 +42,7 @@ export default function BlogModal({ isOpen, onClose, onSave, blog, mode }: BlogM
     tags: []
   })
 
+  const [editorData, setEditorData] = useState<OutputData | undefined>(undefined)
   const [tagsInput, setTagsInput] = useState('')
   const [previewMode, setPreviewMode] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
@@ -55,6 +57,26 @@ export default function BlogModal({ isOpen, onClose, onSave, blog, mode }: BlogM
         publishedAt: blog.publishedAt ? new Date(blog.publishedAt).toISOString().split('T')[0] : ''
       })
       setTagsInput(blog.tags.join(', '))
+      
+      // Parse content for Editor.js
+      if (typeof blog.content === 'string') {
+        try {
+          // Try to parse as JSON (Editor.js format)
+          const parsed = JSON.parse(blog.content)
+          if (parsed.blocks) {
+            setEditorData(parsed)
+          } else {
+            // If not Editor.js format, create empty editor
+            setEditorData(undefined)
+          }
+        } catch {
+          // If parsing fails, it's HTML or plain text - create empty editor
+          setEditorData(undefined)
+        }
+      } else if (blog.content && typeof blog.content === 'object') {
+        // Already Editor.js format
+        setEditorData(blog.content as OutputData)
+      }
     } else {
       // Reset form for add mode
       setFormData({
@@ -68,6 +90,7 @@ export default function BlogModal({ isOpen, onClose, onSave, blog, mode }: BlogM
         tags: []
       })
       setTagsInput('')
+      setEditorData(undefined)
     }
     setPreviewMode(false)
   }, [blog, mode, isOpen])
@@ -403,15 +426,14 @@ export default function BlogModal({ isOpen, onClose, onSave, blog, mode }: BlogM
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Content *
-                    </label>
-                    <RichTextEditor
-                      content={formData.content}
-                      onChange={(content) => {
+                    <EditorJSComponent
+                      data={editorData}
+                      onChange={(data: OutputData) => {
+                        setEditorData(data)
+                        // Store as JSON string in formData
                         setFormData(prev => ({
                           ...prev,
-                          content
+                          content: JSON.stringify(data)
                         }))
                       }}
                       placeholder="Write your blog post content here..."
@@ -481,7 +503,9 @@ export default function BlogModal({ isOpen, onClose, onSave, blog, mode }: BlogM
                 
                 <div 
                   className="prose prose-lg max-w-none dark:prose-invert"
-                  dangerouslySetInnerHTML={{ __html: formData.content }}
+                  dangerouslySetInnerHTML={{ 
+                    __html: editorData ? renderEditorJSBlocks(editorData) : '<p class="text-gray-500">No content yet...</p>' 
+                  }}
                 />
 
                 {/* Additional Images Gallery */}

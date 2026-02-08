@@ -6,8 +6,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { BlogPost } from '@/types/blog';
 import BlogCard from '@/components/molecules/BlogCard';
+import Breadcrumb from '@/components/molecules/Breadcrumb';
 import { markdownToHtml } from '@/utils/markdown';
 import { getImagePath } from '@/utils/imagePath';
+import { renderEditorJSBlocks } from '@/utils/editorjs-renderer';
+import type { OutputData } from '@editorjs/editorjs';
 import '@/styles/blog.css';
 
 // Data akan diambil dari dataset dummy
@@ -94,21 +97,13 @@ export default function BlogPostPage() {
   return (
     <div className="min-h-screen bg-off-white">
       {/* Breadcrumb */}
-      <section className="py-4 bg-white border-b">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex items-center space-x-2 text-sm text-gray-600">
-            <Link href="/" className="hover:text-luxury-gold transition-colors">Home</Link>
-            <span>/</span>
-            <Link href="/blog" className="hover:text-luxury-gold transition-colors">Blog</Link>
-            <span>/</span>
-            <span className="text-gray-500">
-              {post.tags && post.tags.length > 0 ? post.tags[0].replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Blog'}
-            </span>
-            <span>/</span>
-            <span className="text-gray-400 truncate">{post.title}</span>
-          </nav>
-        </div>
-      </section>
+      <Breadcrumb 
+        items={[
+          { label: 'Blog', href: '/blog' },
+          { label: post.tags && post.tags.length > 0 ? post.tags[0].replace('-', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()) : 'Article', href: `/blog?tag=${post.tags?.[0] || ''}` },
+          { label: post.title }
+        ]}
+      />
 
       {/* Article Header */}
       <article className="py-16 bg-white">
@@ -182,7 +177,25 @@ export default function BlogPostPage() {
           {/* Article Content */}
           <div 
             className="blog-content prose prose-lg max-w-none mb-12 dark:prose-invert"
-            dangerouslySetInnerHTML={{ __html: markdownToHtml(post.content) }}
+            dangerouslySetInnerHTML={{ 
+              __html: (() => {
+                // Check if content is Editor.js JSON format
+                if (typeof post.content === 'string') {
+                  try {
+                    const parsed = JSON.parse(post.content) as OutputData;
+                    if (parsed.blocks) {
+                      // Render Editor.js blocks
+                      return renderEditorJSBlocks(parsed);
+                    }
+                  } catch {
+                    // Not JSON, treat as HTML/Markdown
+                  }
+                  // Fallback to markdown/HTML rendering
+                  return markdownToHtml(post.content);
+                }
+                return '<p>No content available</p>';
+              })()
+            }}
           />
 
           {/* Additional Images Gallery */}

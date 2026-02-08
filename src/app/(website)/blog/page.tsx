@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import BlogCard from '@/components/molecules/BlogCard';
+import Breadcrumb from '@/components/molecules/Breadcrumb';
 import { getImagePath } from '@/utils/imagePath';
 
 interface BlogPost {
@@ -91,6 +92,13 @@ export default function BlogPage() {
 
   return (
     <div className="min-h-screen bg-off-white">
+      {/* Breadcrumb */}
+      <Breadcrumb 
+        items={[
+          { label: 'Blog', href: '/blog' }
+        ]}
+      />
+
       {/* Hero Section */}
       <section className="relative bg-deep-navy py-20 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -1,16 +1,59 @@
-'use client';
-
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
 import FleetSection from "@/components/organisms/FleetSection";
+import Breadcrumb from '@/components/molecules/Breadcrumb';
+
+export const metadata: Metadata = {
+  title: "Premium Fleet - Toyota Alphard, Noah & Hiace Limousine Rental | ZBK Singapore",
+  description: "Browse ZBK's premium fleet of luxury Toyota vehicles in Singapore. Choose from Alphard MPV (6 seats), Noah (6 seats), or Hiace Combi (9 seats). All vehicles feature professional chauffeurs, modern amenities, and competitive rates. Book online now.",
+  keywords: [
+    "Toyota Alphard rental Singapore",
+    "Toyota Noah rental",
+    "Toyota Hiace Combi",
+    "luxury MPV rental Singapore",
+    "premium vehicle fleet",
+    "6 seater limousine",
+    "9 seater van rental",
+    "Singapore luxury car fleet",
+    "executive car rental",
+    "family car rental Singapore"
+  ],
+  openGraph: {
+    title: "Premium Fleet - Toyota Alphard, Noah & Hiace | ZBK Limousine",
+    description: "Explore our fleet of premium Toyota vehicles. Luxury Alphard MPV, comfortable Noah, and spacious Hiace Combi with professional chauffeurs.",
+    url: "https://www.zbktransportservices.com/fleet",
+    siteName: "ZBK Limousine Tours",
+    images: [
+      {
+        url: "/4.-alphard-colors-black.png",
+        width: 1200,
+        height: 630,
+        alt: "ZBK Premium Fleet - Toyota Alphard, Noah, Hiace",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Premium Fleet - Toyota Alphard, Noah & Hiace | ZBK",
+    description: "Luxury Toyota vehicles with professional chauffeurs. Alphard, Noah, and Hiace available for rent in Singapore.",
+    images: ["/4.-alphard-colors-black.png"],
+  },
+  alternates: {
+    canonical: "https://www.zbktransportservices.com/fleet",
+  },
+};
 
 export default function FleetPage() {
-  const handleViewAllFleet = () => {
-    // Already on fleet page, could scroll to specific section
-    console.log('Already on fleet page');
-  };
-
   return (
     <div className="min-h-screen bg-off-white">
+      {/* Breadcrumb */}
+      <Breadcrumb 
+        items={[
+          { label: 'Our Fleet', href: '/fleet' }
+        ]}
+      />
+
       {/* Hero Section for Fleet */}
       <section className="relative bg-deep-navy py-20 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -28,7 +71,7 @@ export default function FleetPage() {
       </section>
 
       {/* Fleet Section */}
-      <FleetSection onViewAll={handleViewAllFleet} showAll={true} />
+      <FleetSection showAll={true} />
 
       {/* Fleet Features Section */}
       <section className="py-16 lg:py-20 bg-white">

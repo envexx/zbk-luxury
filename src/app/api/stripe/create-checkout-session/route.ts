@@ -284,8 +284,9 @@ export async function POST(request: NextRequest) {
     }
     
     // Create Stripe Checkout Session with detailed line items
+    // Payment methods yang aktif: Cards, Korean cards, Apple Pay, Google Pay, Link, PayNow
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
+      payment_method_types: ['card', 'link', 'paynow', 'kr_card'],
       line_items: lineItems,
       // Ensure total matches what's displayed in OrderSummary
       // Total = subtotal + tax (already calculated above)

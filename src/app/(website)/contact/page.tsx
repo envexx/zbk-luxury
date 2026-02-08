@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Breadcrumb from '@/components/molecules/Breadcrumb';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -26,6 +27,13 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-deep-navy">
+      {/* Breadcrumb */}
+      <Breadcrumb 
+        items={[
+          { label: 'Contact Us', href: '/contact' }
+        ]}
+      />
+
       {/* Hero Section */}
       <section className="relative bg-deep-navy py-20 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

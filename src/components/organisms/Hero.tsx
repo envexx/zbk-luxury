@@ -153,7 +153,7 @@ const Hero: React.FC<HeroProps> = ({ onBookingClick }) => {
       <div className="absolute inset-0 z-0">
         <Image
           src={heroImageSrc}
-          alt=""
+          alt="ZBK Limousine Tours - Premium luxury transport service in Singapore with Toyota Alphard, Noah and Hiace vehicles"
           fill
           priority
           fetchPriority="high"

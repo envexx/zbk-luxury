@@ -1,10 +1,59 @@
-'use client';
-
+import type { Metadata } from 'next';
 import ServicesSection from "@/components/organisms/ServicesSection";
+import Breadcrumb from '@/components/molecules/Breadcrumb';
+
+export const metadata: Metadata = {
+  title: "Premium Limousine Services - Airport Transfer, Hourly Rental & Corporate Transport | ZBK",
+  description: "Comprehensive luxury limousine services in Singapore: Changi Airport transfers, hourly rentals, corporate transportation, wedding cars, and special events. Professional chauffeur service with Toyota Alphard, Noah & Hiace. Book 24/7.",
+  keywords: [
+    "limousine services Singapore",
+    "airport transfer service",
+    "hourly car rental Singapore",
+    "corporate limousine service",
+    "wedding car rental",
+    "chauffeur service Singapore",
+    "VIP transport Singapore",
+    "business car service",
+    "luxury transport services",
+    "Changi airport limo"
+  ],
+  openGraph: {
+    title: "Premium Limousine Services - Airport, Corporate & Special Events",
+    description: "Professional limousine services in Singapore: Airport transfers, hourly rentals, corporate events, and special occasions. Premium Toyota vehicles with expert chauffeurs.",
+    url: "https://www.zbktransportservices.com/services",
+    siteName: "ZBK Limousine Tours",
+    images: [
+      {
+        url: "/4.-alphard-colors-black.png",
+        width: 1200,
+        height: 630,
+        alt: "ZBK Limousine Services - Premium Transport Solutions",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Premium Limousine Services Singapore | ZBK",
+    description: "Airport transfers, hourly rentals, corporate transport. Professional chauffeur service with luxury Toyota vehicles.",
+    images: ["/4.-alphard-colors-black.png"],
+  },
+  alternates: {
+    canonical: "https://www.zbktransportservices.com/services",
+  },
+};
 
 export default function ServicesPage() {
   return (
     <div className="min-h-screen bg-off-white">
+      {/* Breadcrumb */}
+      <Breadcrumb 
+        items={[
+          { label: 'Services', href: '/services' }
+        ]}
+      />
+
       {/* Hero Section for Services */}
       <section className="relative bg-deep-navy py-20 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

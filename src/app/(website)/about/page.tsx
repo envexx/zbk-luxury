@@ -1,10 +1,56 @@
-'use client';
-
+import type { Metadata } from 'next';
 import Image from 'next/image';
+import Breadcrumb from '@/components/molecules/Breadcrumb';
+
+export const metadata: Metadata = {
+  title: "About ZBK Limousine Tours - Premium Luxury Transport in Singapore",
+  description: "Learn about ZBK Limousine Tours, Singapore's premier luxury car rental service. Discover our story, mission, vision, and commitment to excellence in premium transportation with Toyota Alphard, Noah, and Hiace vehicles.",
+  keywords: [
+    "about ZBK Limousine",
+    "luxury transport Singapore",
+    "premium car rental company",
+    "ZBK company profile",
+    "Singapore limousine service",
+    "professional chauffeur service",
+    "luxury vehicle rental Singapore"
+  ],
+  openGraph: {
+    title: "About ZBK Limousine Tours - Premium Luxury Transport",
+    description: "Discover ZBK Limousine Tours' commitment to excellence in luxury transportation. Premium Toyota vehicles, professional service, and unforgettable journeys in Singapore.",
+    url: "https://www.zbktransportservices.com/about",
+    siteName: "ZBK Limousine Tours",
+    images: [
+      {
+        url: "/2025-01-31.webp",
+        width: 1200,
+        height: 630,
+        alt: "ZBK Limousine Tours - About Us",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "About ZBK Limousine Tours - Premium Luxury Transport",
+    description: "Learn about Singapore's premier luxury car rental service with Toyota Alphard, Noah, and Hiace vehicles.",
+    images: ["/2025-01-31.webp"],
+  },
+  alternates: {
+    canonical: "https://www.zbktransportservices.com/about",
+  },
+};
 
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-off-white">
+      {/* Breadcrumb */}
+      <Breadcrumb 
+        items={[
+          { label: 'About Us', href: '/about' }
+        ]}
+      />
+
       {/* Hero Section */}
       <section className="relative bg-deep-navy py-20 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

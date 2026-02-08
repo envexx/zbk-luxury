@@ -1,22 +1,50 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Blog | ZBK Luxury Car Rental - Latest News & Insights",
-  description: "Stay updated with the latest luxury car trends, travel tips, and industry insights from ZBK Luxury Car Rental experts. Discover premium vehicle guides and travel advice.",
-  keywords: "luxury car blog, premium vehicle news, car rental tips, luxury travel, automotive insights, ZBK luxury, travel guides, business travel",
+  title: "Blog - Car Rental Tips & Singapore Travel Guide | ZBK Limousine Tours",
+  description: "Expert advice on luxury car rentals, Singapore travel tips, business transport guides, and premium vehicle reviews. Stay informed with ZBK Limousine Tours' comprehensive blog covering airport transfers, corporate transport, and travel insights.",
+  keywords: [
+    "car rental tips Singapore",
+    "Singapore travel guide",
+    "luxury transport blog",
+    "business travel Singapore",
+    "vehicle rental advice",
+    "airport transfer tips",
+    "limousine service guide",
+    "Toyota Alphard review",
+    "corporate transport tips",
+    "Singapore tourism blog"
+  ],
   openGraph: {
-    title: "Blog | ZBK Luxury Car Rental - Latest News & Insights",
-    description: "Stay updated with the latest luxury car trends, travel tips, and industry insights from ZBK Luxury Car Rental experts.",
+    title: "Blog - Car Rental Tips & Singapore Travel Guide | ZBK Limousine",
+    description: "Expert advice on luxury car rentals, Singapore travel tips, and premium vehicle reviews from ZBK Limousine Tours.",
+    url: "https://www.zbktransportservices.com/blog",
+    siteName: "ZBK Limousine Tours",
+    images: [
+      {
+        url: "/4.-alphard-colors-black.png",
+        width: 1200,
+        height: 630,
+        alt: "ZBK Limousine Tours Blog",
+      },
+    ],
     type: "website",
     locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Blog | ZBK Luxury Car Rental - Latest News & Insights",
-    description: "Stay updated with the latest luxury car trends, travel tips, and industry insights from ZBK Luxury Car Rental experts.",
+    title: "Blog - Car Rental Tips & Singapore Travel Guide | ZBK",
+    description: "Expert advice on luxury car rentals, Singapore travel tips, and premium vehicle reviews.",
+    images: ["/4.-alphard-colors-black.png"],
   },
   alternates: {
-    canonical: "/blog",
+    canonical: "https://www.zbktransportservices.com/blog",
+    types: {
+      'application/rss+xml': 'https://www.zbktransportservices.com/blog/rss.xml',
+    },
+  },
+  other: {
+    'rss': 'https://www.zbktransportservices.com/blog/rss.xml',
   },
 };
 
