@@ -79,11 +79,36 @@ module.exports = {
           '0%': { transform: 'translateX(0)' },
           '100%': { transform: 'translateX(calc(-100% - 24px))' },
         },
+        shimmer: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' },
+        },
+        'glow-pulse': {
+          '0%, 100%': { boxShadow: '0 0 20px rgba(212, 175, 55, 0.4), 0 0 60px rgba(212, 175, 55, 0.1)' },
+          '50%': { boxShadow: '0 0 30px rgba(212, 175, 55, 0.6), 0 0 80px rgba(212, 175, 55, 0.2)' },
+        },
+        'border-rotate': {
+          '0%': { '--angle': '0deg' },
+          '100%': { '--angle': '360deg' },
+        },
+        'fade-up': {
+          '0%': { opacity: '0', transform: 'translateY(30px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        'fade-up-delay': {
+          '0%, 20%': { opacity: '0', transform: 'translateY(20px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
       },
       
       animation: {
         'scroll': 'scroll 60s linear infinite',
         'scroll-slow': 'scroll 180s linear infinite',
+        'shimmer': 'shimmer 2.5s ease-in-out infinite',
+        'glow-pulse': 'glow-pulse 3s ease-in-out infinite',
+        'border-rotate': 'border-rotate 4s linear infinite',
+        'fade-up': 'fade-up 0.8s ease-out forwards',
+        'fade-up-delay': 'fade-up-delay 1s ease-out forwards',
       },
       typography: {
         DEFAULT: {

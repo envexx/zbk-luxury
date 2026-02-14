@@ -62,9 +62,9 @@ export function LineChart({ data, title }: LineChartProps) {
         {/* Revenue Trend */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Revenue ($)</span>
+            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Revenue (SGD)</span>
             <span className="text-sm text-green-600">
-              ${(data[data.length - 1]?.revenue / 1000).toFixed(0)}K this month
+              SGD {(data[data.length - 1]?.revenue / 1000).toFixed(0)}K this month
             </span>
           </div>
           <div className="flex items-end space-x-1 h-20">

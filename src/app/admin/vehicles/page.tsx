@@ -552,13 +552,13 @@ export default function VehiclesPage() {
                       {previewVehicle.priceAirportTransfer && (
                         <div className="bg-white dark:bg-gray-800 rounded-md p-2 sm:p-3 border border-gray-200 dark:border-gray-600">
                           <p className="text-xs text-gray-500 dark:text-gray-400">Airport Transfer</p>
-                          <p className="text-base sm:text-lg font-bold text-luxury-gold">${previewVehicle.priceAirportTransfer.toFixed(2)}</p>
+                          <p className="text-base sm:text-lg font-bold text-luxury-gold">SGD {previewVehicle.priceAirportTransfer.toFixed(2)}</p>
                         </div>
                       )}
                       {(previewVehicle as any).pricePerHour && (
                         <div className="bg-white dark:bg-gray-800 rounded-md p-2 sm:p-3 border border-gray-200 dark:border-gray-600">
                           <p className="text-xs text-gray-500 dark:text-gray-400">Per Hour</p>
-                          <p className="text-base sm:text-lg font-bold text-luxury-gold">${(previewVehicle as any).pricePerHour.toFixed(2)}</p>
+                          <p className="text-base sm:text-lg font-bold text-luxury-gold">SGD {(previewVehicle as any).pricePerHour.toFixed(2)}</p>
                         </div>
                       )}
                     </div>
@@ -571,13 +571,13 @@ export default function VehiclesPage() {
                       {previewVehicle.price6Hours && (
                         <div className="bg-white dark:bg-gray-800 rounded-md p-2 sm:p-3 border border-gray-200 dark:border-gray-600">
                           <p className="text-xs text-gray-500 dark:text-gray-400">6 Hours</p>
-                          <p className="text-base sm:text-lg font-bold text-luxury-gold">${previewVehicle.price6Hours.toFixed(2)}</p>
+                          <p className="text-base sm:text-lg font-bold text-luxury-gold">SGD {previewVehicle.price6Hours.toFixed(2)}</p>
                         </div>
                       )}
                       {previewVehicle.price12Hours && (
                         <div className="bg-white dark:bg-gray-800 rounded-md p-2 sm:p-3 border border-gray-200 dark:border-gray-600">
                           <p className="text-xs text-gray-500 dark:text-gray-400">12 Hours</p>
-                          <p className="text-base sm:text-lg font-bold text-luxury-gold">${previewVehicle.price12Hours.toFixed(2)}</p>
+                          <p className="text-base sm:text-lg font-bold text-luxury-gold">SGD {previewVehicle.price12Hours.toFixed(2)}</p>
                         </div>
                       )}
                     </div>

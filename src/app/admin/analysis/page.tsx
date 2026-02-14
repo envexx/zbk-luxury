@@ -47,9 +47,9 @@ export default function AnalysisPage() {
   }
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-SG', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'SGD',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(amount)

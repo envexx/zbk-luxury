@@ -12,7 +12,7 @@ export interface VehicleData {
   plateNumber: string
   capacity: number
   color: string
-  price: number // Hourly rental price in USD
+  price: number // Hourly rental price in SGD
   minimumHours?: number // Minimum booking hours
   features: string[]
   images: string[]
@@ -35,7 +35,7 @@ export const vehicleData: VehicleData[] = [
     plateNumber: 'B-1234-WED',
     capacity: 7,
     color: 'Black',
-    price: 300.00, // $300.00 per hour
+    price: 300.00, // SGD 300.00 per hour
     minimumHours: 5, // Minimum 5 hours as specified
     features: [
       'Wedding Function Specialist',
@@ -70,7 +70,7 @@ export const vehicleData: VehicleData[] = [
     plateNumber: 'B-5678-LUX',
     capacity: 4, // 4 passengers as specified
     color: 'Pearl White',
-    price: 140.00, // $140.00 per hour as specified
+    price: 140.00, // SGD 140.00 per hour as specified
     minimumHours: 3, // Reasonable minimum for this category
     features: [
       'Premium Executive Seating',

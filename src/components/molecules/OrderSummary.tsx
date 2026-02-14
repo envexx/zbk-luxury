@@ -377,38 +377,38 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
               {isOneWay ? (
                 <div className="flex justify-between">
                   <span className="text-gray-700">{serviceTypeLabel}:</span>
-                  <span className="font-semibold text-gray-900">${subtotal.toFixed(2)}</span>
+                  <span className="font-semibold text-gray-900">SGD {subtotal.toFixed(2)}</span>
                 </div>
               ) : hours >= 12 && selectedVehicle?.price12Hours ? (
                 <div className="flex justify-between">
                   <span className="text-gray-700">12 Hours Booking:</span>
-                  <span className="font-semibold text-gray-900">${selectedVehicle.price12Hours.toFixed(2)}</span>
+                  <span className="font-semibold text-gray-900">SGD {selectedVehicle.price12Hours.toFixed(2)}</span>
                 </div>
               ) : hours >= 6 && selectedVehicle?.price6Hours ? (
                 <div className="flex justify-between">
                   <span className="text-gray-700">6 Hours Booking:</span>
-                  <span className="font-semibold text-gray-900">${selectedVehicle.price6Hours.toFixed(2)}</span>
+                  <span className="font-semibold text-gray-900">SGD {selectedVehicle.price6Hours.toFixed(2)}</span>
                 </div>
               ) : (
                 <div className="flex justify-between">
                   <span className="text-gray-700">Round Trip Price:</span>
-                  <span className="font-semibold text-gray-900">${subtotal.toFixed(2)}</span>
+                  <span className="font-semibold text-gray-900">SGD {subtotal.toFixed(2)}</span>
                 </div>
               )}
               <div className="flex justify-between">
                 <span className="text-gray-700">Subtotal:</span>
-                <span className="font-semibold text-gray-900">${subtotal.toFixed(2)}</span>
+                <span className="font-semibold text-gray-900">SGD {subtotal.toFixed(2)}</span>
               </div>
               {midnightCharge > 0 && (
                 <div className="flex justify-between">
                   <span className="text-gray-700">Midnight Pickup Charge:</span>
-                  <span className="font-semibold text-gray-900">${midnightCharge.toFixed(2)}</span>
+                  <span className="font-semibold text-gray-900">SGD {midnightCharge.toFixed(2)}</span>
                 </div>
               )}
               <div className="pt-3 border-t border-gray-200">
                 <div className="flex justify-between">
                   <span className="text-lg font-bold text-gray-900">Total Amount:</span>
-                  <span className="text-xl font-bold text-luxury-gold">${total.toFixed(2)}</span>
+                  <span className="text-xl font-bold text-luxury-gold">SGD {total.toFixed(2)}</span>
                 </div>
                 <div className="mt-3 p-3 bg-luxury-gold bg-opacity-10 rounded-xl">
                   <p className="text-xs text-gray-700">
@@ -509,8 +509,8 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                   ) : (
                     <>
                       <span className="hidden sm:inline">Continue to Payment</span>
-                      <span className="sm:hidden">Pay ${total.toFixed(2)}</span>
-                      <span className="hidden sm:inline text-lg font-bold">${total.toFixed(2)}</span>
+                      <span className="sm:hidden">Pay SGD {total.toFixed(2)}</span>
+                      <span className="hidden sm:inline text-lg font-bold">SGD {total.toFixed(2)}</span>
                       <svg className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>

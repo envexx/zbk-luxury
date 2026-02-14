@@ -254,7 +254,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
         {/* Price Section */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-bold text-gray-900">${price}</span>
+            <span className="text-2xl font-bold text-gray-900">SGD {price}</span>
             <span className="text-sm text-gray-500">/{priceUnit}</span>
           </div>
           {isLuxury && (

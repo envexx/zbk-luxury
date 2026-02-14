@@ -50,7 +50,7 @@ export async function POST() {
         duration: '12 hours',
         pickupLocation: 'Marina Bay Sands',
         dropoffLocation: 'Marina Bay Sands',
-        totalAmount: 792.00, // $720 + 10% tax
+        totalAmount: 792.00, // SGD 720 + 10% tax
         status: 'CONFIRMED',
         notes: 'Test booking for system validation. 12 hours rental package.'
       }

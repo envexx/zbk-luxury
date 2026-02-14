@@ -373,7 +373,7 @@ export const emailTemplates = {
                         ` : ''}
                         <tr>
                           <td style="padding: 6px 0; color: #666; font-size: 14px; padding-top: 12px; border-top: 1px solid #e0e0e0;">Amount:</td>
-                          <td style="padding: 6px 0; color: #28a745; font-size: 16px; font-weight: 700; padding-top: 12px; border-top: 1px solid #e0e0e0;">SGD $${totalAmount.toFixed(2)}</td>
+                          <td style="padding: 6px 0; color: #28a745; font-size: 16px; font-weight: 700; padding-top: 12px; border-top: 1px solid #e0e0e0;">SGD ${totalAmount.toFixed(2)}</td>
                         </tr>
                       </table>
                     </div>

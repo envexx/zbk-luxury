@@ -436,7 +436,7 @@ const VehicleCardContent: React.FC<VehicleCardContentProps> = ({
               </div>
               <div className="text-right">
                 <div className="text-2xl font-bold text-gray-900">
-                  ${isAirportTrip 
+                  SGD {isAirportTrip 
                     ? (vehicle.priceAirportTransfer || 80)
                     : (vehicle.pricePerHour || 75)}
                 </div>
@@ -489,7 +489,7 @@ const VehicleCardContent: React.FC<VehicleCardContentProps> = ({
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-2xl font-bold text-gray-900">${displayPrice}</div>
+                      <div className="text-2xl font-bold text-gray-900">SGD {displayPrice}</div>
                       <div className="text-xs text-gray-600">/rental</div>
                     </div>
                   </div>
@@ -748,7 +748,7 @@ const VehicleSelectionWrapper: React.FC<VehicleSelectionProps> = (props) => {
             </div>
             <div className="text-right">
               <div className="text-2xl font-bold text-luxury-gold">
-                ${(() => {
+                SGD {(() => {
                   if (isOneWay) {
                     return isAirportTrip
                       ? (selectedVehicle.priceAirportTransfer || 80)

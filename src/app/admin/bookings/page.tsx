@@ -263,7 +263,7 @@ export default function BookingsPage() {
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap">
                     <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                      ${booking.totalAmount?.toFixed(0) || '0'}
+                      SGD {booking.totalAmount?.toFixed(0) || '0'}
                     </div>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap">
@@ -346,7 +346,7 @@ export default function BookingsPage() {
                 <div>
                   <span className="text-gray-500 dark:text-gray-400">Amount:</span>
                   <p className="font-semibold text-gray-900 dark:text-white">
-                    ${booking.totalAmount?.toFixed(0) || '0'}
+                    SGD {booking.totalAmount?.toFixed(0) || '0'}
                   </p>
                 </div>
               </div>
@@ -500,14 +500,14 @@ export default function BookingsPage() {
                   <div>
                     <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Total Amount</p>
                     <p className="text-xs sm:text-sm text-gray-900 dark:text-white font-semibold">
-                      ${selectedBooking.totalAmount?.toFixed(2) || '0.00'}
+                      SGD {selectedBooking.totalAmount?.toFixed(2) || '0.00'}
                     </p>
                   </div>
                   {selectedBooking.depositAmount && (
                     <div>
                       <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Deposit Amount</p>
                       <p className="text-xs sm:text-sm text-gray-900 dark:text-white font-semibold">
-                        ${selectedBooking.depositAmount.toFixed(2)}
+                        SGD {selectedBooking.depositAmount.toFixed(2)}
                       </p>
                     </div>
                   )}

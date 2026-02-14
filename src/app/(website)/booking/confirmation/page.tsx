@@ -297,7 +297,7 @@ function BookingConfirmationContent() {
                     </div>
                     <div className="bg-white/10 rounded-lg p-3">
                       <p className="text-gray-400 text-sm">Price/Hour</p>
-                      <p className="text-white font-semibold">${vehicle.price || 0}</p>
+                      <p className="text-white font-semibold">SGD {vehicle.price || 0}</p>
                     </div>
                   </div>
                 </div>
@@ -368,7 +368,7 @@ function BookingConfirmationContent() {
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between text-gray-300">
                   <span>Vehicle</span>
-                  <span className="text-white font-semibold">${vehicle.price || 0}/hr</span>
+                  <span className="text-white font-semibold">SGD {vehicle.price || 0}/hr</span>
                 </div>
                 <div className="flex justify-between text-gray-300">
                   <span>Estimated Hours</span>
@@ -378,13 +378,13 @@ function BookingConfirmationContent() {
                   <div className="flex justify-between mb-2">
                     <span className="text-white font-semibold text-lg">Total Amount:</span>
                     <span className="text-white font-semibold text-lg">
-                      ${((vehicle.price || 0) * 8).toFixed(2)}
+                      SGD {((vehicle.price || 0) * 8).toFixed(2)}
                     </span>
                   </div>
                   <div className="flex justify-between pt-2 border-t border-white/20">
                     <span className="text-sm text-gray-300">Deposit Required (20%):</span>
                     <span className="text-lg font-bold text-luxury-gold">
-                      ${(((vehicle.price || 0) * 8) * 0.2).toFixed(2)}
+                      SGD {(((vehicle.price || 0) * 8) * 0.2).toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -454,7 +454,7 @@ function BookingConfirmationContent() {
                 disabled={isProcessing}
                 isLoading={isProcessing}
               >
-                {isProcessing ? 'Processing...' : `Pay Deposit (20%) - $${(((vehicle.price || 0) * 8) * 0.2).toFixed(2)}`}
+                {isProcessing ? 'Processing...' : `Pay Deposit (20%) - SGD ${(((vehicle.price || 0) * 8) * 0.2).toFixed(2)}`}
               </Button>
               
               <Button

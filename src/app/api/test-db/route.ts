@@ -57,7 +57,7 @@ export async function GET() {
             duration: 'One Way',
             pickupLocation: 'Changi Airport',
             dropoffLocation: 'Marina Bay Hotel',
-            totalAmount: 88.00, // $80 + 10% tax
+            totalAmount: 88.00, // SGD 80 + 10% tax
             status: 'CONFIRMED'
           }
         })

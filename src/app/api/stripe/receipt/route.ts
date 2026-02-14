@@ -150,7 +150,7 @@ export async function GET(request: NextRequest) {
       totalAmount: booking.totalAmount,
       depositAmount: booking.depositAmount || 0,
       amountPaid: session?.amount_total ? session.amount_total / 100 : (booking.depositAmount || 0),
-      currency: session?.currency?.toUpperCase() || 'USD',
+      currency: session?.currency?.toUpperCase() || 'SGD',
       paymentStatus: booking.paymentStatus,
       paymentMethod: charge?.payment_method_details?.type || session?.payment_method_types?.[0] || 'card',
       cardBrand: charge?.payment_method_details?.card?.brand || null,

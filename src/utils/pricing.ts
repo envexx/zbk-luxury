@@ -4,13 +4,13 @@
  * Updated Pricing Logic:
  * - Airport Transfer One Way:
  *   - Airport → Home/Hotel/Destination: priceAirportTransfer (harga lama)
- *   - Home/Hotel/Destination → Airport: priceAirportTransfer - $10
+ *   - Home/Hotel/Destination → Airport: priceAirportTransfer - SGD 10
  * - Rental:
  *   - 6 hours: price6Hours
  *   - 12 hours: price12Hours
  *   - > 6 hours: price6Hours + (additional hours × pricePerHour)
  *   - > 12 hours: price12Hours + (additional hours × pricePerHour)
- * - Midnight Charge: +$10 for pickup between 23:00 - 06:00 Singapore time
+ * - Midnight Charge: +SGD 10 for pickup between 23:00 - 06:00 Singapore time
  * - No Tax: Tax calculation removed
  */
 
@@ -123,7 +123,7 @@ export function calculateBookingPriceNew(params: CalculatePriceParams): {
       // Airport → Home/Hotel/Destination: Use original price
       basePrice = airportTransferPrice
     } else if (!pickupIsAirport && dropoffIsAirport) {
-      // Home/Hotel/Destination → Airport: Reduce $10
+      // Home/Hotel/Destination → Airport: Reduce SGD 10
       basePrice = Math.max(0, airportTransferPrice - 10)
     } else {
       // Default: Use original price (fallback)

@@ -8,6 +8,7 @@ const Footer: React.FC = () => {
     { name: 'Home', href: '/' },
     { name: 'Fleet', href: '/fleet' },
     { name: 'Services', href: '/services' },
+    { name: 'How to Book', href: '/how-to-book' },
     { name: 'About Us', href: '/about' },
     { name: 'Contact', href: '/contact' },
     { name: 'Blog', href: '/blog' },
@@ -15,7 +16,7 @@ const Footer: React.FC = () => {
 
   const supportLinks = [
     { name: 'Help Center', href: '/help' },
-    { name: 'Booking Guide', href: '/booking-guide' },
+    { name: 'Booking Guide', href: '/how-to-book' },
     { name: 'Insurance Info', href: '/insurance' },
     { name: 'Cancellation', href: '/cancellation' },
     { name: 'FAQ', href: '/faq' },

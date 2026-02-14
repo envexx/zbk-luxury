@@ -256,7 +256,7 @@ const MyBookingsPage = () => {
                       <div className="flex items-center space-x-2">
                         <DollarSign className="h-5 w-5 text-luxury-gold" />
                         <p className="text-white text-sm font-semibold">
-                          ${booking.totalPrice.toFixed(2)}
+                          SGD {booking.totalPrice.toFixed(2)}
                         </p>
                       </div>
                     </div>

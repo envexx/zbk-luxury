@@ -257,7 +257,7 @@ export async function POST(request: NextRequest) {
     const lineItems: any[] = [
       {
         price_data: {
-          currency: 'usd',
+          currency: 'sgd',
           product_data: {
             name: `${booking.vehicle.name} - ${serviceLabel || booking.service}`,
             description: `${serviceLabel || booking.service} • ${booking.pickupLocation} → ${booking.dropoffLocation || 'N/A'}`,
@@ -272,7 +272,7 @@ export async function POST(request: NextRequest) {
     if (midnightCharge > 0) {
       lineItems.push({
         price_data: {
-          currency: 'usd',
+          currency: 'sgd',
           product_data: {
             name: 'Midnight Pickup Charge',
             description: 'Additional charge for pickup between 23:00 - 06:00',

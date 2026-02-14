@@ -507,7 +507,7 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Airport Transfer Price ($) *
+                      Airport Transfer Price (SGD) *
                     </label>
                     <input
                       type="number"
@@ -526,7 +526,7 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Per Hour Price ($) *
+                      Per Hour Price (SGD) *
                     </label>
                     <input
                       type="number"
@@ -552,7 +552,7 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      6 Hours Booking Price ($) *
+                      6 Hours Booking Price (SGD) *
                     </label>
                     <input
                       type="number"
@@ -568,7 +568,7 @@ export default function VehicleModal({ isOpen, onClose, onSave, vehicle, mode }:
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      12 Hours Booking Price ($) *
+                      12 Hours Booking Price (SGD) *
                     </label>
                     <input
                       type="number"
