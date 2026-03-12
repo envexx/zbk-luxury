@@ -35,43 +35,43 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages = [
     {
       url: baseUrl,
-      lastModified: new Date(),
+      lastModified: new Date('2025-03-01'),
       changeFrequency: 'daily' as const,
       priority: 1,
     },
     {
       url: `${baseUrl}/fleet`,
-      lastModified: new Date(),
+      lastModified: new Date('2025-02-15'),
       changeFrequency: 'weekly' as const,
       priority: 0.9,
     },
     {
       url: `${baseUrl}/services`,
-      lastModified: new Date(),
+      lastModified: new Date('2025-02-15'),
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     },
     {
       url: `${baseUrl}/about`,
-      lastModified: new Date(),
+      lastModified: new Date('2025-01-01'),
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     },
     {
       url: `${baseUrl}/contact`,
-      lastModified: new Date(),
+      lastModified: new Date('2025-01-01'),
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     },
     {
       url: `${baseUrl}/how-to-book`,
-      lastModified: new Date(),
+      lastModified: new Date('2025-02-01'),
       changeFrequency: 'monthly' as const,
       priority: 0.8,
     },
     {
       url: `${baseUrl}/blog`,
-      lastModified: new Date(),
+      lastModified: new Date('2025-03-01'),
       changeFrequency: 'daily' as const,
       priority: 0.8,
     },
@@ -86,33 +86,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  // Blog category pages
-  const categoryPages = [
-    {
-      url: `${baseUrl}/blog/category/travel-tips`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly' as const,
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/blog/category/business-travel`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly' as const,
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/blog/category/sustainability`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly' as const,
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/blog/category/car-reviews`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly' as const,
-      priority: 0.5,
-    },
-  ];
-
-  return [...staticPages, ...blogPages, ...categoryPages];
+  return [...staticPages, ...blogPages];
 }

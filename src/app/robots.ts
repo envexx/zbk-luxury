@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.zbktransportservices.com';
-  
+
   return {
     rules: [
       {
@@ -10,13 +10,17 @@ export default function robots(): MetadataRoute.Robots {
         allow: [
           '/',
           '/*.json',
-          '/_next/',
-          '/api/blog/', // PENTING: Mengizinkan Google mengambil data blog dari API
+          '/api/blog/',
         ],
         disallow: [
-          '/api/',      // Tetap memblokir API sistem lainnya
+          '/api/',
           '/admin/',
           '/private/',
+          '/test-auth',
+          '/test-login',
+          '/admin-test',
+          '/admin-simple',
+          '/admin-direct',
         ],
       },
     ],

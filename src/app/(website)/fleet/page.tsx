@@ -2,6 +2,62 @@ import type { Metadata } from 'next';
 import FleetSection from "@/components/organisms/FleetSection";
 import Breadcrumb from '@/components/molecules/Breadcrumb';
 
+const vehicleSchema = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "ZBK Limousine Fleet — Singapore",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "item": {
+        "@type": "Product",
+        "name": "Toyota Alphard Limousine",
+        "description": "Premium executive MPV with captain chairs, 6 passenger capacity. Ideal for airport transfers and corporate travel in Singapore.",
+        "brand": { "@type": "Brand", "name": "Toyota" },
+        "offers": {
+          "@type": "Offer",
+          "priceCurrency": "SGD",
+          "availability": "https://schema.org/InStock",
+          "seller": { "@type": "Organization", "name": "ZBK Limousine Tours" }
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "item": {
+        "@type": "Product",
+        "name": "Toyota Noah Limousine",
+        "description": "Comfortable family MPV with 6 passenger capacity. Perfect for family trips and city tours in Singapore.",
+        "brand": { "@type": "Brand", "name": "Toyota" },
+        "offers": {
+          "@type": "Offer",
+          "priceCurrency": "SGD",
+          "availability": "https://schema.org/InStock",
+          "seller": { "@type": "Organization", "name": "ZBK Limousine Tours" }
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "item": {
+        "@type": "Product",
+        "name": "Toyota Hiace Combi",
+        "description": "Spacious minibus with 9 passenger capacity and generous luggage space. Ideal for large group transport in Singapore.",
+        "brand": { "@type": "Brand", "name": "Toyota" },
+        "offers": {
+          "@type": "Offer",
+          "priceCurrency": "SGD",
+          "availability": "https://schema.org/InStock",
+          "seller": { "@type": "Organization", "name": "ZBK Limousine Tours" }
+        }
+      }
+    }
+  ]
+};
+
 export const metadata: Metadata = {
   title: "Premium Fleet - Toyota Alphard, Noah & Hiace Limousine Rental | ZBK Singapore",
   description: "Browse ZBK's premium fleet of luxury Toyota vehicles in Singapore. Choose from Alphard MPV (6 seats), Noah (6 seats), or Hiace Combi (9 seats). All vehicles feature professional chauffeurs, modern amenities, and competitive rates. Book online now.",
@@ -47,6 +103,10 @@ export const metadata: Metadata = {
 export default function FleetPage() {
   return (
     <div className="min-h-screen bg-off-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(vehicleSchema) }}
+      />
       {/* Breadcrumb */}
       <Breadcrumb 
         items={[

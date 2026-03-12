@@ -26,7 +26,7 @@ const Hero: React.FC<HeroProps> = ({ onBookingClick }) => {
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [showVehicleSearchModal, setShowVehicleSearchModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [heroData, setHeroData] = useState<HeroSectionData>({
     headline: 'Premium Limousine Service in Singapore',
     description: 'Professional limousine rental services with premium Toyota Alphard & Hiace. Experience luxury limo transportation for airport transfers, city tours, corporate events, and special occasions. Book your elegant ride today.',
@@ -58,18 +58,10 @@ const Hero: React.FC<HeroProps> = ({ onBookingClick }) => {
       } catch (error) {
         console.error('Error fetching hero section:', error);
         // Use default values if fetch fails
-      } finally {
-        // Set loading to false after a minimum time to prevent flash
-        setTimeout(() => setIsLoading(false), 300);
       }
     };
 
-    // Add minimum loading time to prevent flash
-    const timer = setTimeout(() => {
-      fetchHeroData();
-    }, 100);
-
-    return () => clearTimeout(timer);
+    fetchHeroData();
   }, []);
 
   const showAlert = (message: string, type: 'success' | 'error' | 'warning' | 'info' = 'info', title?: string) => {

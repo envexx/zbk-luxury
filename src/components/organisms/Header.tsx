@@ -153,7 +153,7 @@ const Header: React.FC = () => {
               <button
                 onClick={toggleMobileMenu}
                 className="inline-flex items-center justify-center p-2 rounded-md text-white hover:text-luxury-gold hover:bg-off-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-luxury-gold transition-colors duration-micro"
-                aria-expanded="false"
+                aria-expanded={isMobileMenuOpen}
               >
                 <span className="sr-only">Open main menu</span>
                 {!isMobileMenuOpen ? (

@@ -1,6 +1,63 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import ServicesSection from "@/components/organisms/ServicesSection";
 import Breadcrumb from '@/components/molecules/Breadcrumb';
+
+const serviceSchema = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "ZBK Limousine Services Singapore",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "item": {
+        "@type": "Service",
+        "name": "Airport Limousine Transfer",
+        "description": "Premium limo service for reliable and punctual airport transfers at Changi Airport Singapore.",
+        "provider": { "@type": "Organization", "name": "ZBK Limousine Tours" },
+        "areaServed": "Singapore",
+        "url": "https://www.zbktransportservices.com/services"
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "item": {
+        "@type": "Service",
+        "name": "Hourly Limousine Rental",
+        "description": "Flexible hourly limousine rental for city tours, sightseeing, and corporate use in Singapore.",
+        "provider": { "@type": "Organization", "name": "ZBK Limousine Tours" },
+        "areaServed": "Singapore",
+        "url": "https://www.zbktransportservices.com/services"
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "item": {
+        "@type": "Service",
+        "name": "Corporate Limousine Service",
+        "description": "Professional limousine transportation for corporate events, business meetings, and executive travel in Singapore.",
+        "provider": { "@type": "Organization", "name": "ZBK Limousine Tours" },
+        "areaServed": "Singapore",
+        "url": "https://www.zbktransportservices.com/services"
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "item": {
+        "@type": "Service",
+        "name": "Wedding Limousine Service",
+        "description": "Elegant wedding car and limousine rental for weddings and special occasions in Singapore.",
+        "provider": { "@type": "Organization", "name": "ZBK Limousine Tours" },
+        "areaServed": "Singapore",
+        "url": "https://www.zbktransportservices.com/services"
+      }
+    }
+  ]
+};
 
 export const metadata: Metadata = {
   title: "Premium Limousine Services - Airport Transfer, Hourly Rental & Corporate Transport | ZBK",
@@ -47,6 +104,10 @@ export const metadata: Metadata = {
 export default function ServicesPage() {
   return (
     <div className="min-h-screen bg-off-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }}
+      />
       {/* Breadcrumb */}
       <Breadcrumb 
         items={[
@@ -185,9 +246,9 @@ export default function ServicesPage() {
           <p className="text-lg text-deep-navy mb-8 opacity-80">
             Book your premium vehicle today and enjoy our exceptional services
           </p>
-          <button className="px-8 py-4 bg-deep-navy text-white rounded-compact hover:bg-charcoal transition-colors duration-300 font-semibold text-lg">
+          <Link href="/booking" className="px-8 py-4 bg-deep-navy text-white rounded-compact hover:bg-charcoal transition-colors duration-300 font-semibold text-lg inline-block">
             Book Now
-          </button>
+          </Link>
         </div>
       </section>
     </div>

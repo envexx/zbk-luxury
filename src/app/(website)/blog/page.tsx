@@ -171,9 +171,9 @@ export default function BlogPage() {
                               </span>
                             </div>
                             
-                            <h3 className="text-xl font-bold text-deep-navy mb-3 group-hover:text-luxury-gold transition-colors">
+                            <h2 className="text-xl font-bold text-deep-navy mb-3 group-hover:text-luxury-gold transition-colors">
                               {post.title}
-                            </h3>
+                            </h2>
                             
                             <p className="text-gray-600 mb-4 line-clamp-2">
                               {post.excerpt || 'No excerpt available'}

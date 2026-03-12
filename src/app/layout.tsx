@@ -23,7 +23,7 @@ export const viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
-  themeColor: '#000000',
+  themeColor: '#D4AF37',
   colorScheme: 'light',
 } as const;
 
@@ -120,9 +120,6 @@ export const metadata: Metadata = {
     images: ["/api/logo"],
     creator: "@zbklimotours",
   },
-  verification: {
-    google: "your-google-verification-code", // Add your Google Search Console verification code
-  },
 };
 
 export default function RootLayout({
@@ -131,7 +128,7 @@ export default function RootLayout({
   children: ReactNode;
 }>) {
   return (
-    <html lang="id" className={inter.variable} suppressHydrationWarning>
+    <html lang="en-SG" className={inter.variable} suppressHydrationWarning>
       <head>
         {/* Inline Critical CSS */}
         <style dangerouslySetInnerHTML={{ __html: `
@@ -147,29 +144,6 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="//www.googletagmanager.com" />
         <link rel="dns-prefetch" href="//www.google-analytics.com" />
         
-        {/* Defer non-critical CSS */}
-        <link rel="preload" href="/critical.css" as="style" />
-        <link rel="preload" href="/_next/static/css/a75850bb42fb51bb.css" as="style" />
-        <link rel="preload" href="/_next/static/css/484ea0737de11b4c.css" as="style" />
-        
-        {/* Load non-critical CSS after page load */}
-        <script dangerouslySetInnerHTML={{
-          __html: `
-            window.addEventListener('load', function() {
-              setTimeout(function() {
-                var css1 = document.createElement('link');
-                css1.rel = 'stylesheet';
-                css1.href = '/_next/static/css/a75850bb42fb51bb.css';
-                document.head.appendChild(css1);
-                
-                var css2 = document.createElement('link');
-                css2.rel = 'stylesheet';
-                css2.href = '/_next/static/css/484ea0737de11b4c.css';
-                document.head.appendChild(css2);
-              }, 100);
-            });
-          `
-        }} />
       </head>
       <body className={inter.className}>
         <AuthProvider>

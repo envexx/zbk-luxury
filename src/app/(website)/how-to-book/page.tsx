@@ -2,6 +2,61 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Breadcrumb from '@/components/molecules/Breadcrumb';
 
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Do I need to create an account to book?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No, you can book as a guest. No registration is required. Simply fill in your ride details, select a vehicle, and pay."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What payment methods are accepted?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "We accept credit/debit cards (Visa, Mastercard, AMEX), PayNow, and Stripe Link. All payments are processed securely through Stripe."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "When will I receive my booking confirmation?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "You will receive a confirmation email immediately after successful payment with your booking details and receipt."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I cancel or modify my booking?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Please contact us via WhatsApp or email as soon as possible if you need to cancel or modify your booking. Our team will assist you."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the midnight charge?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A surcharge of SGD 10 applies for pickups between 23:00 and 06:00 Singapore time."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How will I know when my driver arrives?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Our driver will contact you 15 minutes before your scheduled pickup time. You'll also receive the driver's contact details in your confirmation email."
+      }
+    }
+  ]
+};
+
 export const metadata: Metadata = {
   title: "How to Book - Step by Step Booking Guide | ZBK Limousine Tours",
   description: "Learn how to book your premium limousine ride with ZBK Limousine Tours in Singapore. Simple 3-step booking process: choose your ride, select vehicle, and pay securely via Stripe.",
@@ -28,6 +83,10 @@ export const metadata: Metadata = {
 export default function HowToBookPage() {
   return (
     <div className="min-h-screen bg-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       <Breadcrumb
         items={[
           { label: 'How to Book', href: '/how-to-book' }
