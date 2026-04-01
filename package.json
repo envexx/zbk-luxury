@@ -68,6 +68,8 @@
     "build:analyze": "cross-env ANALYZE=true npm run build",
     "start": "next start",
     "lint": "eslint",
+    "test": "bun test",
+    "test:public-article-api": "bun test src/test/public-article-api.test.ts",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
